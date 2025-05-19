@@ -1,16 +1,29 @@
-# Tauri + Vue + TypeScript
+## What is this
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+This is the V2.0 version of [XX-Mod-Manager](https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager).
 
-## Recommended IDE Setup
+## Why 2.0
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+The original XX-Mod-Manager was developed using nodejs + js + electron, which led to several difficult-to-solve problems:
+- Large size, installation package around 250MB, not to mention that electron also leaves a mess in the C drive, placing a bunch of cache files in AppData (approximately 500MB if not cleaned promptly)
+- Very slow startup speed for the single-file version, taking 5-10 seconds to start, while the loose version also starts slowly, taking 2-3 seconds
+- Difficult to maintain, as JS code becomes hard to maintain when it grows large, especially for complex logic. JS's weak type system causes many bugs to be discovered only at runtime
+- Difficult to implement automatic updates, as electron has no officially implemented update mechanism, and the large file size makes updates troublesome
 
-## Type Support For `.vue` Imports in TS
+The new version switched to bun + ts + tauri(rust), solving the above issues:
+- Small size, installation package around 20MB, with no cache files
+- Fast startup speed, single-file version starts in 0.5 seconds
+- Single-file, the default package is a single-file version, small in size with fast startup
+- Automatic updates using tauri's update mechanism, supporting incremental updates with small size and fast speed
+- Easy maintenance, developed with ts + rust, powerful type system, and rust's compiler is very intelligent, automatically inferring many types, reducing bugs
 
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type by default. In most cases this is fine if you don't really care about component prop types outside of templates. However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using manual `h(...)` calls), you can enable Volar's Take Over mode by following these steps:
+The previous xxmm considered too few things. Despite implementing a flexible plugin system, compromises had to be made in the implementation as features increased, resulting in increasingly complex code that became harder to maintain.
 
-1. Run `Extensions: Show Built-in Extensions` from VS Code's command palette, look for `TypeScript and JavaScript Language Features`, then right click and select `Disable (Workspace)`. By default, Take Over mode will enable itself if the default TypeScript extension is disabled.
-2. Reload the VS Code window by running `Developer: Reload Window` from the command palette.
+The new version can learn from previous experience and combine community feedback to redesign and organize code, as well as design better page layouts, making it easier to use and maintain.
 
-You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/volar/discussions/471).
+## Milestone Goals
+
+- [ ] Automatic updates, supporting incremental updates
+- [ ] Old code migration, preserving the core, optimizing processing logic
+- [ ] Plugin system, supporting plugin installation and uninstallation
+- [ ] Optimized UI
