@@ -30,13 +30,13 @@ jobs:
       #     node-version: lts/*
 
       # ==============================
-      # 📦 更新版本号
+      # 📦 更新版本号 - 从package.json更新到Cargo.toml
       # ==============================
       - name: Update versions in package.json and Cargo.toml
         id: update-version
         run: |
-          VERSION=$(grep '^version' Cargo.toml | awk '{print $3}' | tr -d '"')
-          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
+          VERSION=$(grep -o '"version": *"[^"]*"' package.json | awk -F'"' '{print $4}')
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" .\tauri-src\Cargo.toml
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Setup Bun
