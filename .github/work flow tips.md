@@ -16,8 +16,7 @@ Let me know if you encounter any issues or want to suggest any change 👍
 
 used most
 ```
-npm version patch
-git push --follow-tags
+npm version patch && git push --follow-tags
 ```
 
 for minor changes
@@ -78,10 +77,10 @@ npm version prerelease --preid=alpha && git push --follow-tags
 
 #### **3. 发布正式版本 `1.3.10`**
 ```bash
-# 移除预发布标识符，生成正式版本
-npm version patch --no-git-tag-version  # 1.3.10-alpha.X → 1.3.10
+# 移除预发布标识符，生成正式版本 # 1.3.10-alpha.X → 1.3.10
+npm version patch --no-git-tag-version  
 git add package.json
-git commit -m "Release 1.3.10"
+git commit -m "Release stable version"
 git tag v1.3.10
 git push --follow-tags
 ```
@@ -89,10 +88,12 @@ git push --follow-tags
 #### **4. 开启下一轮预发布（1.3.11-alpha.0）**
 ```bash
 # 1. 先推进到下一修订版
-npm version patch --no-git-tag-version  # 1.3.10 → 1.3.11
+npm version patch --no-git-tag-version  
+# 1.3.10 → 1.3.11
 
 # 2. 添加预发布标识
-npm version prerelease --preid=alpha    # 1.3.11 → 1.3.11-alpha.0
+npm version prerelease --preid=alpha    
+# 1.3.11 → 1.3.11-alpha.0
 git push --follow-tags
 ```
 

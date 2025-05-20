@@ -2,6 +2,7 @@ import { check } from '@tauri-apps/plugin-updater';
 import { relaunch } from '@tauri-apps/plugin-process';
 
 export async function checkForUpdates() {
+    alert('checking for updates');
     const update = await check({
         timeout: 30000,
     });
