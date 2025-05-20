@@ -71,6 +71,7 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
           tagName: v${{ env.VERSION }} # Ensure the tag name is prefixed with 'v' for consistency.
           releaseName: 'App v${{ env.VERSION }}'
           releaseBody: 'See the assets to download this version and install.'
