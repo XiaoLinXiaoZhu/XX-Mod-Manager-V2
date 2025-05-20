@@ -30,7 +30,7 @@ jobs:
       #     node-version: lts/*
 
       # ==============================
-      # 📦 更新版本号 - 从package.json更新到Cargo.toml
+      # 📦 更新版本号 - 从package.json更新到Cargo.toml和tauri.config.json
       # ==============================
       - name: Update versions in package.json and Cargo.toml
         id: update-version
@@ -52,6 +52,19 @@ jobs:
             ls -la
             find . -name "Cargo.toml"
             exit 1
+          fi
+
+          # 更新 tauri.config.json 版本号
+          if [ -f "./src-tauri/tauri.config.json" ]; then
+            sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" ./src-tauri/tauri.config.json
+            echo "Updated version in ./src-tauri/tauri.config.json"
+          elif [ -f "src-tauri/tauri.config.json" ]; then
+            sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" src-tauri/tauri.config.json
+            echo "Updated version in src-tauri/tauri.config.json"
+          else
+            echo "Warning: Could not find tauri.config.json file"
+            ls -la src-tauri/
+            find ./src-tauri -name "*.json"
           fi
           
           echo "VERSION=$VERSION" >> $GITHUB_ENV
