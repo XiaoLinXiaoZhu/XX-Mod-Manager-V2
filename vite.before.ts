@@ -50,19 +50,7 @@ function generateUpdaterConfig() {
     let allTags = [];
     try {
       allTags = execSync("git tag -l").toString().trim().split("\n")
-      .filter(tag => tag) // 过滤空标签
-      .sort((a, b) => {
-        // 假设标签格式为 v开头的语义化版本号，如 v0.1.3
-        const versionA = a.replace(/^v/, '').split('.').map(Number);
-        const versionB = b.replace(/^v/, '').split('.').map(Number);
-        
-        for (let i = 0; i < 3; i++) {
-        if (versionA[i] !== versionB[i]) {
-          return versionA[i] - versionB[i];
-        }
-        }
-        return 0;
-      });
+        .filter(tag => tag); // 过滤空标签
       
       console.log(`✅ 找到所有标签: ${allTags.join(', ')}`);
     } catch (e) {
