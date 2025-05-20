@@ -5028,7 +5028,7 @@ dependencies = [
 
 [[package]]
 name = "xx-mod-manager-tauri"
-version = "0.1.1"
+version = "0.1.1-alpha.9"
 dependencies = [
  "serde",
  "serde_json",

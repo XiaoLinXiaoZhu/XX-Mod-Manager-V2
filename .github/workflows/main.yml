@@ -24,11 +24,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # - name: setup node
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: lts/*
-
       # ==============================
       # 📦 更新版本号 - 从package.json更新到Cargo.toml和tauri.config.json
       # ==============================
@@ -36,35 +31,19 @@ jobs:
         id: update-version
         shell: bash
         run: |
-          # Unix 和 Windows 兼容的语法
           VERSION=$(grep -o '"version": *"[^"]*"' package.json | awk -F'"' '{print $4}')
           echo "Found version: $VERSION"
           
-          # 修复路径分隔符问题
+          # 更新Cargo.toml
           if [ -f "./src-tauri/Cargo.toml" ]; then
             sed -i "s/^version = \".*\"/version = \"$VERSION\"/" ./src-tauri/Cargo.toml
             echo "Updated version in ./src-tauri/Cargo.toml"
-          elif [ -f "src-tauri/Cargo.toml" ]; then
-            sed -i "s/^version = \".*\"/version = \"$VERSION\"/" src-tauri/Cargo.toml
-            echo "Updated version in src-tauri/Cargo.toml"
-          else
-            echo "Error: Could not find Cargo.toml file"
-            ls -la
-            find . -name "Cargo.toml"
-            exit 1
           fi
 
-          # 更新 tauri.config.json 版本号
+          # 更新tauri.config.json
           if [ -f "./src-tauri/tauri.config.json" ]; then
             sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" ./src-tauri/tauri.config.json
             echo "Updated version in ./src-tauri/tauri.config.json"
-          elif [ -f "src-tauri/tauri.config.json" ]; then
-            sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" src-tauri/tauri.config.json
-            echo "Updated version in src-tauri/tauri.config.json"
-          else
-            echo "Warning: Could not find tauri.config.json file"
-            ls -la src-tauri/
-            find ./src-tauri -name "*.json"
           fi
           
           echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -77,11 +56,6 @@ jobs:
         with:
           # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
-      
-      - name: run cargo check
-        run: |
-          echo "Running cargo check to update Cargo.lock..."
-          cd ./src-tauri && cargo check
         
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
@@ -97,9 +71,8 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
-          releaseName: 'App v__VERSION__'
+          tagName: v${{ env.VERSION }} # Ensure the tag name is prefixed with 'v' for consistency.
+          releaseName: 'App v${{ env.VERSION }}'
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: true
           prerelease: false
