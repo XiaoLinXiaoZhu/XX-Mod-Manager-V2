@@ -71,6 +71,10 @@ git push --follow-tags
 npm version prerelease --preid=alpha    
 git push --follow-tags
 ```
+或者一条命令：
+```bash
+npm version prerelease --preid=alpha && git push --follow-tags
+```
 
 #### **3. 发布正式版本 `1.3.10`**
 ```bash
