@@ -1,7 +1,7 @@
 {
   "version": "0.1.0",
-  "notes": "- 一般性更新与bug修复",
-  "pub_date": "2025-05-20T15:15:20.892Z",
+  "notes": "- feat: 重置版本号至 0.1.0，并生成更新配置文件",
+  "pub_date": "2025-05-20T15:21:35.563Z",
   "platforms": {
     "windows-x86_64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJENTM1QTc0QzVENkREODkKUldTSjNkYkZkRnBUTFlKcURFREtqT3dFVC9NUlluKzlGYlZBWFBLYlgxYjBFVXllanEwazZmeE0K",

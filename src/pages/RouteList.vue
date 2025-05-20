@@ -1,8 +1,8 @@
 <template>
     <div class="route-list">
         <h1>XX Mod Manager {{ $route.name }}</h1>
-        <h2>Version: {{ version }}</h2>
-        <h2>Version Info: {{ versionInfo }}</h2>
+        <h2>Tauriapp Version: {{ version }}  |  Package Version: {{ versionInfo }}</h2>
+        <pre>{{ versionNote }}</pre>
         <h2>You are currently on the {{ $route.name }} page</h2>
         <nav>
             <ul>
@@ -16,16 +16,17 @@
 </template>
 <script lang="ts" setup>
 import { getVersion } from '@tauri-apps/api/app';
-import { getVersionInfo } from '@/scripts/lib/VersionInfo';
+import { getVersionInfo, getVersionNote } from '@/scripts/lib/VersionInfo';
 import { onMounted, ref } from 'vue';
 
 const version = ref<string>('0.0.0');
 const versionInfo = ref<string>('0.0.0');
-
+const versionNote = ref<string>('');
 
 onMounted(async () => {
     version.value = await getVersion();
     versionInfo.value = getVersionInfo();
+    versionNote.value = getVersionNote();
 });
 
 
