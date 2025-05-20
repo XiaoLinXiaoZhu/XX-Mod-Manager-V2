@@ -1,16 +1,22 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import path from "path";
-
+import fs from "fs";
+import beforeVite from "./vite.before";
 // @ts-ignore process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
 // @ts-ignore process is a nodejs global
 const isDev = process.env.TAURI_ENV == "development";
 const isMinify = (!isDev ? 'esbuild' : false) as boolean | 'terser' | 'esbuild';
 
+
+
 // https://vitejs.dev/config/
-export default defineConfig(async () => (
-  {
+export default defineConfig(async () => {
+  // 在开发和构建前同步版本号
+  await beforeVite();
+
+  return {
     base: './',
     plugins: [
       vue({
@@ -73,8 +79,8 @@ export default defineConfig(async () => (
               return 'assets/[name].[ext]'; // 保持文件名不变
             }
             return 'assets/[name]-[hash].[ext]';
-          },
-        },
+          },        },
       },
     },
-  }));
+  };
+});
