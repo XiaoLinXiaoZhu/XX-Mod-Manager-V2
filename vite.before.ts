@@ -82,8 +82,6 @@ function generateUpdaterConfig() {
       platforms: {
         "windows-x86_64": {
           signature,
-          // url: `https://github.com/YourUsername/YourRepo/releases/download/v${version}/YourApp_${version}_x64-setup.exe`
-          // my url https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/download/v0.1.1-alpha.11/xx-mod-manager-tauri_0.1.1_x64-setup.exe
           url: `https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/download/v${version}/xx-mod-manager-tauri_${version}_x64-setup.exe`
         }
         // 可以添加更多平台
