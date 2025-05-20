@@ -1,11 +1,11 @@
 {
-  "version": "0.1.0",
-  "notes": "- feat: 更新自动更新配置中的下载链接\n- feat: 更新版本信息显示，添加版本备注功能\n- feat: 重置版本号至 0.1.0，并生成更新配置文件",
-  "pub_date": "2025-05-20T15:27:17.625Z",
+  "version": "0.1.5",
+  "notes": "- 0.1.5\n- feat: 更新版本号至 0.1.4，并更新配置文件中的版本信息和备注\n- feat: 更新自动更新配置中的下载链接\n- feat: 更新版本信息显示，添加版本备注功能\n- feat: 重置版本号至 0.1.0，并生成更新配置文件",
+  "pub_date": "2025-05-20T15:32:48.040Z",
   "platforms": {
     "windows-x86_64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJENTM1QTc0QzVENkREODkKUldTSjNkYkZkRnBUTFlKcURFREtqT3dFVC9NUlluKzlGYlZBWFBLYlgxYjBFVXllanEwazZmeE0K",
-      "url": "https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/download/v0.1.0/xx-mod-manager-tauri_0.1.0_x64-setup.exe"
+      "url": "https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/download/v0.1.5/xx-mod-manager-tauri_0.1.5_x64-setup.exe"
     }
   }
 }

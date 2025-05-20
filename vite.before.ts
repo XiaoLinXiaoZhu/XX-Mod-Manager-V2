@@ -42,35 +42,71 @@ function generateUpdaterConfig() {
     // 尝试从 git 仓库中获取上一个tag到当前版本的所有提交信息
     // 使用child_process执行git命令获取提交记录
 
-    // 获取最新的tag
-    let lastTag = "";
+    // 获取当前版本
+    const currentVersion = version;
+    console.log(`✅ 当前版本: ${currentVersion}`);
+
+    // 获取所有标签，按版本排序
+    let allTags = [];
     try {
-      lastTag = execSync("git describe --tags --abbrev=0").toString().trim();
-      console.log(`✅ 找到最新tag: ${lastTag}`);
+      allTags = execSync("git tag -l").toString().trim().split("\n")
+      .filter(tag => tag) // 过滤空标签
+      .sort((a, b) => {
+        // 假设标签格式为 v开头的语义化版本号，如 v0.1.3
+        const versionA = a.replace(/^v/, '').split('.').map(Number);
+        const versionB = b.replace(/^v/, '').split('.').map(Number);
+        
+        for (let i = 0; i < 3; i++) {
+        if (versionA[i] !== versionB[i]) {
+          return versionA[i] - versionB[i];
+        }
+        }
+        return 0;
+      });
+      
+      console.log(`✅ 找到所有标签: ${allTags.join(', ')}`);
     } catch (e) {
-      console.log("⚠️ 未找到任何tag，将使用完整提交历史");
+      console.log("⚠️ 获取标签失败:", e.message);
+      allTags = [];
     }
 
-    // 获取从上一个tag到现在的提交信息
+    // 查找当前版本的上一个版本标签
+    const currentVersionTag = `v${currentVersion}`;
+    let previousVersionTag = "";
+    
+    const currentTagIndex = allTags.indexOf(currentVersionTag);
+    if (currentTagIndex > 0) {
+      // 如果找到当前版本标签，取前一个标签
+      previousVersionTag = allTags[currentTagIndex - 1];
+    } else if (allTags.length > 0) {
+      // 如果没找到当前版本标签，但有其他标签，取最新的标签
+      previousVersionTag = allTags[allTags.length - 1];
+    }
+
+    // 获取从上一个版本到现在的提交信息
     let changelog = "";
     try {
-      if (lastTag) {
-        changelog = execSync(`git log ${lastTag}..HEAD --pretty=format:"- %s"`).toString();
+      if (previousVersionTag) {
+      console.log(`✅ 使用上一个版本标签: ${previousVersionTag}`);
+      // 获取从上一个版本标签到当前HEAD的所有提交
+      changelog = execSync(`git log ${previousVersionTag}..HEAD --pretty=format:"- %s"`).toString();
       } else {
-        // 如果没有tag，获取所有提交
-        changelog = execSync(`git log --pretty=format:"- %s" -n 20`).toString();
+      // 如果没有找到前一个版本标签，获取最近的提交历史
+      console.log("⚠️ 未找到上一个版本标签，将使用最近的提交历史");
+      changelog = execSync(`git log --pretty=format:"- %s" -n 20`).toString();
       }
-      // debug
+      
+      // 调试输出
       console.log("获取的提交记录:", changelog);
       
       // 如果没有提交记录，添加一个默认消息
       if (!changelog.trim()) {
-        changelog = "- 一般性更新与bug修复";
+      changelog = "- 一般性更新与bug修复";
       }
       
       console.log("✅ 已获取更新日志");
     } catch (e) {
-      console.error("⚠️ 获取git提交历史失败，使用默认更新日志");
+      console.error("⚠️ 获取git提交历史失败，使用默认更新日志:", e.message);
       changelog = "- 一般性更新与bug修复";
     }
 
