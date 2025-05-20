@@ -34,9 +34,26 @@ jobs:
       # ==============================
       - name: Update versions in package.json and Cargo.toml
         id: update-version
+        shell: bash
         run: |
+          # Unix 和 Windows 兼容的语法
           VERSION=$(grep -o '"version": *"[^"]*"' package.json | awk -F'"' '{print $4}')
-          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" .\tauri-src\Cargo.toml
+          echo "Found version: $VERSION"
+          
+          # 修复路径分隔符问题
+          if [ -f "./tauri-src/Cargo.toml" ]; then
+            sed -i "s/^version = \".*\"/version = \"$VERSION\"/" ./tauri-src/Cargo.toml
+            echo "Updated version in ./tauri-src/Cargo.toml"
+          elif [ -f "tauri-src/Cargo.toml" ]; then
+            sed -i "s/^version = \".*\"/version = \"$VERSION\"/" tauri-src/Cargo.toml
+            echo "Updated version in tauri-src/Cargo.toml"
+          else
+            echo "Error: Could not find Cargo.toml file"
+            ls -la
+            find . -name "Cargo.toml"
+            exit 1
+          fi
+          
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Setup Bun
