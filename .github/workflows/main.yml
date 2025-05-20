@@ -41,12 +41,12 @@ jobs:
           echo "Found version: $VERSION"
           
           # 修复路径分隔符问题
-          if [ -f "./tauri-src/Cargo.toml" ]; then
-            sed -i "s/^version = \".*\"/version = \"$VERSION\"/" ./tauri-src/Cargo.toml
-            echo "Updated version in ./tauri-src/Cargo.toml"
-          elif [ -f "tauri-src/Cargo.toml" ]; then
-            sed -i "s/^version = \".*\"/version = \"$VERSION\"/" tauri-src/Cargo.toml
-            echo "Updated version in tauri-src/Cargo.toml"
+          if [ -f "./src-tauri/Cargo.toml" ]; then
+            sed -i "s/^version = \".*\"/version = \"$VERSION\"/" ./src-tauri/Cargo.toml
+            echo "Updated version in ./src-tauri/Cargo.toml"
+          elif [ -f "src-tauri/Cargo.toml" ]; then
+            sed -i "s/^version = \".*\"/version = \"$VERSION\"/" src-tauri/Cargo.toml
+            echo "Updated version in src-tauri/Cargo.toml"
           else
             echo "Error: Could not find Cargo.toml file"
             ls -la
