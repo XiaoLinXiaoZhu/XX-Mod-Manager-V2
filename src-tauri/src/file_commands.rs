@@ -43,8 +43,6 @@ fn check_file_exists(
     Ok(())
 }
 
-
-
 #[tauri::command]
 // 获取应用 appdata 目录
 pub fn get_appdata_dir(app_handle: tauri::AppHandle) -> Result<String, String> {
@@ -347,10 +345,7 @@ pub fn is_file_exists(app_handle: tauri::AppHandle, path_str: String) -> Result<
 
 #[tauri::command]
 // check if directory exists
-pub fn is_directory_exists(
-    app_handle: tauri::AppHandle,
-    path_str: String,
-) -> Result<bool, String> {
+pub fn is_directory_exists(app_handle: tauri::AppHandle, path_str: String) -> Result<bool, String> {
     let path = Path::new(&path_str);
     let resolved_path = get_resolved_path(&app_handle, path)?;
 
@@ -413,9 +408,11 @@ pub fn create_symlink(
     #[cfg(target_family = "windows")]
     {
         if resolved_target.is_dir() {
-            std::os::windows::fs::symlink_dir(resolved_target, resolved_link).map_err(|e| e.to_string())
+            std::os::windows::fs::symlink_dir(resolved_target, resolved_link)
+                .map_err(|e| e.to_string())
         } else {
-            std::os::windows::fs::symlink_file(resolved_target, resolved_link).map_err(|e| e.to_string())
+            std::os::windows::fs::symlink_file(resolved_target, resolved_link)
+                .map_err(|e| e.to_string())
         }
     }
 

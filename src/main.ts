@@ -5,6 +5,12 @@ import { i18nInstance,setI18nLocale } from './locals/index.ts';
 import 'sober'
 import { EventSystem, EventType } from './scripts/core/EventSystem.ts';
 import { getConfig } from './scripts/core/ConfigLoader.ts';
+
+
+//-================ 检查更新 =================
+import { checkForUpdates } from './scripts/core/UpdateChecker.ts';
+checkForUpdates();
+
 //-================ 初始化 =================
 const vueApp = createApp(App);
 

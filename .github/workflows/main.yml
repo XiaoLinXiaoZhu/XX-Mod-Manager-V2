@@ -48,6 +48,15 @@ jobs:
           
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      # ==============================
+      # 🔍 检查版本号 - 检查 版本号是否同步
+      # ==============================
+      - name: Verify versions
+        run: |
+          echo "Package.json version: $(grep -o '"version": *"[^"]*"' package.json | awk -F'"' '{print $4}')"
+          echo "Cargo.toml version: $(grep -o '^version = "[^"]*"' src-tauri/Cargo.toml | awk -F'"' '{print $2}')"
+          echo "Tauri config version: $(grep -o '"version": "[^"]*"' src-tauri/tauri.conf.json | awk -F'"' '{print $4}')"
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 

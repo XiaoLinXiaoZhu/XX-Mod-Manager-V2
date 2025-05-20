@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+~/.tauri/password.txt
+~/.tauri/myapp.key.pub
+~/.tauri/myapp.key
