@@ -77,7 +77,12 @@ jobs:
         with:
           # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
-
+      
+      - name: run cargo check
+        run: |
+          echo "Running cargo check to update Cargo.lock..."
+          cd ./src-tauri && cargo check
+        
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
         run: |
