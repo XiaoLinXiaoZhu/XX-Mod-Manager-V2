@@ -6,6 +6,7 @@
     <s-text-field v-model="filePath" label="File Path"/>
     <s-button class="OO-button" @mousedown="handleTestRead">Test Read</s-button>
     <s-button class="OO-button" @mousedown="handleTestWrite">Test Write</s-button>
+    <s-button class="OO-button" @mousedown="handleTestInstall">Test Install</s-button>
 </template>
 
 <script setup lang="ts">
@@ -14,6 +15,7 @@ import { onMounted, ref } from 'vue';
 import RouteList from './RouteList.vue';
 import {readFile, writeFile} from '../scripts/lib/FileHelper.ts';
 import { loadImage,writeImageFromUrl } from '@/scripts/lib/ImageHelper';
+import { installUpdate } from '@/scripts/core/UpdateChecker.ts';
 
 console.log("TestRW loaded");
 
@@ -29,6 +31,15 @@ const handleTestWrite = async () => {
     const result = await writeFile(filePath.value, content.value);
     console.log("write result", result);
 };
+
+const handleTestInstall = async () => {
+    const installExePath = "./updater/xx-mod-manager-tauri_0.1.12_x64-setup.exe";
+    installUpdate(installExePath).then((result) => {
+        console.log("install result", result);
+    }).catch((error) => {
+        console.error("install error", error);
+    });
+}
 
 onMounted(async () => {
     //debug

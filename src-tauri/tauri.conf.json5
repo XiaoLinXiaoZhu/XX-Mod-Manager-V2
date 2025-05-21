@@ -21,6 +21,10 @@
     "security": {
       "csp": null
     }
+  },  "plugins": {
+    "shell": {
+      "open": true
+    }
   },
   "bundle": {
     // "createUpdaterArtifacts": true,
