@@ -1,15 +1,14 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "xx-mod-manager-tauri",
-  "version": "0.1.12",
+  "version": "0.1.9",
   "identifier": "com.xx-mod-manager-tauri.app",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "bun run build",
     "frontendDist": "../dist"
-  },
-  "app": {
+  },  "app": {
     "windows": [
       {
         "title": "xx-mod-manager-tauri",

@@ -2,6 +2,7 @@
 use std::path::{Path, PathBuf};
 // use std::{fs, path};
 use std::fs;
+use std::time::Duration;
 use tauri::Manager;
 
 fn check_file_exists(
@@ -454,4 +455,90 @@ pub fn is_symlink_supported(app_handle: tauri::AppHandle, path_str: String) -> b
             _ => false,
         }
     }
+}
+
+#[tauri::command]
+pub async fn download_file_to_path(
+    app_handle: tauri::AppHandle,
+    url: String,
+    save_path_str: String,
+    timeout_ms: Option<u64>,
+) -> Result<(), String> {
+    // 解析保存路径
+    let save_path = Path::new(&save_path_str);
+    let resolved_save_path = get_resolved_path(&app_handle, save_path)?;
+
+    // 确保父目录存在
+    if let Some(parent) = resolved_save_path.parent() {
+        if !parent.exists() {
+            fs::create_dir_all(parent).map_err(|e| format!("Failed to create directory: {}", e))?;
+        }
+    }
+
+    // 设置自定义的用户代理
+    let user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) XX-Mod-Manager-Tauri/0.1.9";
+
+    // 创建 HTTP 客户端，使用异步API
+    let client = reqwest::Client::builder()
+        .user_agent(user_agent)
+        .timeout(Duration::from_millis(timeout_ms.unwrap_or(30000)))
+        .build()
+        .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+
+    // 执行请求 - 异步
+    let response = client.get(&url)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to download file: {}", e))?;
+
+    // 检查响应状态
+    if !response.status().is_success() {
+        return Err(format!("Failed to download file, status code: {}", response.status()));
+    }
+
+    // 读取响应内容 - 异步
+    let bytes = response.bytes()
+        .await
+        .map_err(|e| format!("Failed to read response: {}", e))?;
+
+    // 写入文件
+    fs::write(&resolved_save_path, bytes)
+        .map_err(|e| format!("Failed to write file: {}", e))?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn download_file_to_binary(
+    url: String,
+    timeout_ms: Option<u64>,
+) -> Result<Vec<u8>, String> {
+    // 设置自定义的用户代理
+    let user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) XX-Mod-Manager-Tauri/0.1.9";
+
+    // 创建 HTTP 客户端 - 使用异步API
+    let client = reqwest::Client::builder()
+        .user_agent(user_agent)
+        .timeout(Duration::from_millis(timeout_ms.unwrap_or(30000)))
+        .build()
+        .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+
+    // 执行请求 - 异步
+    let response = client.get(&url)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to download file: {}", e))?;
+
+    // 检查响应状态
+    if !response.status().is_success() {
+        return Err(format!("Failed to download file, status code: {}", response.status()));
+    }
+
+    // 读取响应内容 - 异步
+    let bytes = response.bytes()
+        .await
+        .map_err(|e| format!("Failed to read response: {}", e))?;
+    
+    // 转换为Vec<u8>
+    Ok(bytes.to_vec())
 }

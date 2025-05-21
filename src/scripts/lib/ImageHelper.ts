@@ -12,9 +12,8 @@ export async function getImage(filePath: string): Promise<string> {
     return loadImage(filePath);
 }
 
-export async function loadImage(filePath: string, ifCreate: boolean = false): Promise<string> {
-    try {
-        const binaryData = await invoke<number[]>('read_binary_file', { pathStr: filePath, ifCreate });
+export async function loadImage(filePath: string, ifCreate: boolean = false): Promise<string> {    try {
+        const binaryData = await invoke<number[]>('read_binary_file', { pathStr: filePath, ifCreate: ifCreate });
 
         // 检查数据是否为数组
         if (!Array.isArray(binaryData)) {

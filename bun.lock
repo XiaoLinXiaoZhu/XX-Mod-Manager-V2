@@ -5,6 +5,7 @@
       "name": "xx-mod-manager-tauri",
       "dependencies": {
         "@tauri-apps/api": "^2",
+        "@tauri-apps/plugin-http": "^2.4.4",
         "@tauri-apps/plugin-opener": "^2",
         "@tauri-apps/plugin-process": "~2",
         "@tauri-apps/plugin-shell": "~2",
@@ -189,6 +190,8 @@
     "@tauri-apps/cli-win32-ia32-msvc": ["@tauri-apps/cli-win32-ia32-msvc@2.5.0", "https://registry.npmmirror.com/@tauri-apps/cli-win32-ia32-msvc/-/cli-win32-ia32-msvc-2.5.0.tgz", { "os": "win32", "cpu": "ia32" }, "sha512-EArv1IaRlogdLAQyGlKmEqZqm5RfHCUMhJoedWu7GtdbOMUfSAz6FMX2boE1PtEmNO4An+g188flLeVErrxEKg=="],
 
     "@tauri-apps/cli-win32-x64-msvc": ["@tauri-apps/cli-win32-x64-msvc@2.5.0", "https://registry.npmmirror.com/@tauri-apps/cli-win32-x64-msvc/-/cli-win32-x64-msvc-2.5.0.tgz", { "os": "win32", "cpu": "x64" }, "sha512-lj43EFYbnAta8pd9JnUq87o+xRUR0odz+4rixBtTUwUgdRdwQ2V9CzFtsMu6FQKpFQ6mujRK6P1IEwhL6ADRsQ=="],
+
+    "@tauri-apps/plugin-http": ["@tauri-apps/plugin-http@2.4.4", "https://registry.npmmirror.com/@tauri-apps/plugin-http/-/plugin-http-2.4.4.tgz", { "dependencies": { "@tauri-apps/api": "^2.0.0" } }, "sha512-IjlaaS4z8ybB10qnh6djZ2FIaHdWVs/U1D1C56udKcjX1f+jAmR8/s7qBV5cv/OmcGkOIzet3LWuH70LKf4J2A=="],
 
     "@tauri-apps/plugin-opener": ["@tauri-apps/plugin-opener@2.2.6", "https://registry.npmmirror.com/@tauri-apps/plugin-opener/-/plugin-opener-2.2.6.tgz", { "dependencies": { "@tauri-apps/api": "^2.0.0" } }, "sha512-bSdkuP71ZQRepPOn8BOEdBKYJQvl6+jb160QtJX/i2H9BF6ZySY/kYljh76N2Ne5fJMQRge7rlKoStYQY5Jq1w=="],
 

@@ -1,11 +1,11 @@
 {
-  "version": "0.1.12",
-  "notes": "- 0.1.12\n- chore: 更新版本号并修改相关配置文件\n- chore: 更新 tauri 配置文件格式至 json5，并同步版本号\n- chore: 更新版本号至 0.1.10，并修改相关配置文件",
-  "pub_date": "2025-05-21T13:50:25.050Z",
+  "version": "0.1.9",
+  "notes": "- chore: 更新版本号并修改相关配置文件\n- 0.1.12\n- chore: 更新版本号并修改相关配置文件\n- chore: 更新 tauri 配置文件格式至 json5，并同步版本号\n- chore: 更新版本号至 0.1.10，并修改相关配置文件\n- 0.1.11\n- chore: 更新版本号并修改相关配置文件\n- 0.1.6\n- chore: 更新版本号至 ${npm_package_version} 并修改相关配置文件\n- chore: 更新版本号至 0.1.10，并修改相关配置文件\n- 0.1.10\n- chore: 更新版本号至 0.1.9 并修改更新说明\n- 0.1.9\n- chore: 清理 .gitignore 和 tauri.conf.json5 中的无用条目",
+  "pub_date": "2025-05-21T14:55:11.443Z",
   "platforms": {
     "windows-x86_64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJENTM1QTc0QzVENkREODkKUldTSjNkYkZkRnBUTFlKcURFREtqT3dFVC9NUlluKzlGYlZBWFBLYlgxYjBFVXllanEwazZmeE0K",
-      "url": "https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/download/v0.1.12/xx-mod-manager-tauri_0.1.12_x64-setup.exe"
+      "url": "https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/download/v0.1.9/xx-mod-manager-tauri_0.1.9_x64-setup.exe"
     }
   }
 }
