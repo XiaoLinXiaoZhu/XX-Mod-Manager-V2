@@ -1,11 +1,11 @@
 {
-  "version": "0.1.7",
-  "notes": "- 0.1.7",
-  "pub_date": "2025-05-21T04:54:17.275Z",
+  "version": "0.1.9",
+  "notes": "- 0.1.9\n- chore: 清理 .gitignore 和 tauri.conf.json5 中的无用条目",
+  "pub_date": "2025-05-21T10:51:48.776Z",
   "platforms": {
     "windows-x86_64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJENTM1QTc0QzVENkREODkKUldTSjNkYkZkRnBUTFlKcURFREtqT3dFVC9NUlluKzlGYlZBWFBLYlgxYjBFVXllanEwazZmeE0K",
-      "url": "https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/download/v0.1.7/xx-mod-manager-tauri_0.1.7_x64-setup.exe"
+      "url": "https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/download/v0.1.9/xx-mod-manager-tauri_0.1.9_x64-setup.exe"
     }
   }
 }
