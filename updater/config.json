@@ -1,11 +1,11 @@
 {
-  "version": "0.1.5",
-  "notes": "- chore: 更新版本号至 0.1.10，并修改相关配置文件\n- 0.1.10\n- chore: 更新版本号至 0.1.9 并修改更新说明\n- 0.1.9\n- chore: 清理 .gitignore 和 tauri.conf.json5 中的无用条目\n- 0.1.8\n- refactor: replace tauri-plugin-updater with tauri-plugin-shell and update update checker logic\n- 0.1.7\n- 0.1.6\n- feat: 更新 Tauri 签名密钥环境变量，确保使用正确的密码和密钥\n- feat: 更新 updater/config.json 中的版本号和发布日期，优化标签过滤逻辑\n- feat: 更新版本号至 0.1.5，并同步更新配置文件和更新日志\n- 0.1.5\n- feat: 更新版本号至 0.1.4，并更新配置文件中的版本信息和备注\n- feat: 更新自动更新配置中的下载链接\n- feat: 更新版本信息显示，添加版本备注功能\n- feat: 重置版本号至 0.1.0，并生成更新配置文件",
-  "pub_date": "2025-05-21T13:20:57.404Z",
+  "version": "0.1.10",
+  "notes": "- 0.1.6\n- chore: 更新版本号至 ${npm_package_version} 并修改相关配置文件\n- chore: 更新版本号至 0.1.10，并修改相关配置文件\n- 0.1.10\n- chore: 更新版本号至 0.1.9 并修改更新说明\n- 0.1.9\n- chore: 清理 .gitignore 和 tauri.conf.json5 中的无用条目\n- 0.1.8\n- refactor: replace tauri-plugin-updater with tauri-plugin-shell and update update checker logic\n- 0.1.7\n- 0.1.6\n- feat: 更新 Tauri 签名密钥环境变量，确保使用正确的密码和密钥\n- feat: 更新 updater/config.json 中的版本号和发布日期，优化标签过滤逻辑\n- feat: 更新版本号至 0.1.5，并同步更新配置文件和更新日志\n- 0.1.5\n- feat: 更新版本号至 0.1.4，并更新配置文件中的版本信息和备注\n- feat: 更新自动更新配置中的下载链接\n- feat: 更新版本信息显示，添加版本备注功能\n- feat: 重置版本号至 0.1.0，并生成更新配置文件\n- 0.1.4\n- feat: 更新版本号至 0.1.3，并添加版本信息显示功能\n- 0.1.3\n- feat: 添加 Tauri 私钥和密码环境变量以支持发布\n- 0.1.2\n- feat: 更新检查功能，添加更新检查提示\n- Release stable version\n- feat: 添加更新检查功能，集成 tauri-plugin-updater 和 tauri-plugin-process，确保应用能够自动检查和安装更新 fix: 更新 tauri 相关依赖，确保版本号一致性 chore: 移除旧的 tauri 配置文件，使用新的 json5 格式配置 chore: 更新 .gitignore，添加敏感文件路径 chore: 更新 Cargo.toml 和 Cargo.lock，添加新的依赖项以支持更新功能\n- 0.1.1-alpha.11\n- feat: 添加 GitHub 发布步骤，确保标签名称以 'v' 为前缀\n- 0.1.1-alpha.10\n- feat: 更新版本号至 0.1.1-alpha.9，并移除不必要的步骤",
+  "pub_date": "2025-05-21T13:21:37.906Z",
   "platforms": {
     "windows-x86_64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJENTM1QTc0QzVENkREODkKUldTSjNkYkZkRnBUTFlKcURFREtqT3dFVC9NUlluKzlGYlZBWFBLYlgxYjBFVXllanEwazZmeE0K",
-      "url": "https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/download/v0.1.5/xx-mod-manager-tauri_0.1.5_x64-setup.exe"
+      "url": "https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/download/v0.1.10/xx-mod-manager-tauri_0.1.10_x64-setup.exe"
     }
   }
 }
