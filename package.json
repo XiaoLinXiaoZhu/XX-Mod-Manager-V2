@@ -1,7 +1,7 @@
 {
   "name": "xx-mod-manager-tauri",
   "private": true,
-  "version": "0.1.10",
+  "version": "0.1.5",
   "author": "XLXZ",
   "license": "GPL-3.0-only",
   "type": "module",
@@ -9,7 +9,9 @@
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "beforePush": "bun run ./runBeforePush && git add . && git commit -m \"chore: 更新版本号至 ${npm_package_version} 并修改相关配置文件\"",
+    "push:patch": "bun run beforePush && npm version patch && git push --follow-tags"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
