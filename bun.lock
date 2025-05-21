@@ -7,7 +7,7 @@
         "@tauri-apps/api": "^2",
         "@tauri-apps/plugin-opener": "^2",
         "@tauri-apps/plugin-process": "~2",
-        "@tauri-apps/plugin-updater": "~2",
+        "@tauri-apps/plugin-shell": "~2",
         "@types/node": "^22.15.3",
         "axios": "^1.9.0",
         "hmc-win32": "^1.4.92",
@@ -194,7 +194,7 @@
 
     "@tauri-apps/plugin-process": ["@tauri-apps/plugin-process@2.2.1", "https://registry.npmmirror.com/@tauri-apps/plugin-process/-/plugin-process-2.2.1.tgz", { "dependencies": { "@tauri-apps/api": "^2.0.0" } }, "sha512-cF/k8J+YjjuowhNG1AboHNTlrGiOwgX5j6NzsX6WFf9FMzyZUchkCgZMxCdSE5NIgFX0vvOgLQhODFJgbMenLg=="],
 
-    "@tauri-apps/plugin-updater": ["@tauri-apps/plugin-updater@2.7.1", "https://registry.npmmirror.com/@tauri-apps/plugin-updater/-/plugin-updater-2.7.1.tgz", { "dependencies": { "@tauri-apps/api": "^2.0.0" } }, "sha512-1OPqEY/z7NDVSeTEMIhD2ss/vXWdpfZ5Th2Mk0KtPR/RA6FKuOTDGZQhxoyYBk0pcZJ+nNZUbl/IujDCLBApjA=="],
+    "@tauri-apps/plugin-shell": ["@tauri-apps/plugin-shell@2.2.1", "https://registry.npmmirror.com/@tauri-apps/plugin-shell/-/plugin-shell-2.2.1.tgz", { "dependencies": { "@tauri-apps/api": "^2.0.0" } }, "sha512-G1GFYyWe/KlCsymuLiNImUgC8zGY0tI0Y3p8JgBCWduR5IEXlIJS+JuG1qtveitwYXlfJrsExt3enhv5l2/yhA=="],
 
     "@types/bun": ["@types/bun@1.2.13", "https://registry.npmmirror.com/@types/bun/-/bun-1.2.13.tgz", { "dependencies": { "bun-types": "1.2.13" } }, "sha512-u6vXep/i9VBxoJl3GjZsl/BFIsvML8DfVDO0RYLEwtSZSp981kEO1V5NwRcO1CPJ7AmvpbnDCiMKo3JvbDEjAg=="],
 
