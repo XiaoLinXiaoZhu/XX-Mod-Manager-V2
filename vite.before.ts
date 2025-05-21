@@ -106,6 +106,7 @@ function generateUpdaterConfig() {
       platforms: {
         "windows-x86_64": {
           signature,
+          // https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/download/v0.1.12/xx-mod-manager-tauri_0.1.12_x64-setup.exe
           url: `https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/download/v${version}/xx-mod-manager-tauri_${version}_x64-setup.exe`
         }
         // 可以添加更多平台

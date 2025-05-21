@@ -10,8 +10,8 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "beforePush": "bun run ./runBeforePush && git add . && git commit -m \"chore: 更新版本号并修改相关配置文件\"",
-    "push:patch": "bun run beforePush && npm version patch && git push --follow-tags"
+    "updateUpdater": "bun run ./updateUpdater && git add . && git commit -m \"chore: 更新版本号并修改相关配置文件\"",
+    "push:patch": "npm version patch && bun run updateUpdater && git push --follow-tags"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",

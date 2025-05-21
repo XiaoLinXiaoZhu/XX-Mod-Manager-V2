@@ -3,6 +3,7 @@
 // 我自己使用 axios 封装一个更新检查器就好了，实际上也不复杂
 import { relaunch } from '@tauri-apps/plugin-process';
 import { invoke } from "@tauri-apps/api/core";
+import axios from 'axios';
 
 type UpdateCheckerOptions = {
     urls: string[];
@@ -68,28 +69,32 @@ class UpdateChecker {
 
         for (const url of urls) {
             try {
-                const response = await new Promise<any>((resolve, reject) => {
-                    const xhr = new XMLHttpRequest();
-                    xhr.open('GET', url, true);
-                    xhr.timeout = timeout || 30000;
-                    xhr.onreadystatechange = () => {
-                        if (xhr.readyState === 4) {
-                            if (xhr.status === 200) {
-                                try {
-                                    const data = JSON.parse(xhr.responseText);
-                                    resolve(data);
-                                } catch (e) {
-                                    reject(e);
-                                }
-                            } else {
-                                reject(new Error(`Request failed with status ${xhr.status}`));
-                            }
-                        }
-                    };
-                    xhr.ontimeout = () => {
-                        reject(new Error('Request timed out'));
-                    };
-                    xhr.send();
+                // const response = await new Promise<any>((resolve, reject) => {
+                //     const xhr = new XMLHttpRequest();
+                //     xhr.open('GET', url, true);
+                //     xhr.timeout = timeout || 30000;
+                //     xhr.onreadystatechange = () => {
+                //         if (xhr.readyState === 4) {
+                //             if (xhr.status === 200) {
+                //                 try {
+                //                     const data = JSON.parse(xhr.responseText);
+                //                     resolve(data);
+                //                 } catch (e) {
+                //                     reject(e);
+                //                 }
+                //             } else {
+                //                 reject(new Error(`Request failed with status ${xhr.status}`));
+                //             }
+                //         }
+                //     };
+                //     xhr.ontimeout = () => {
+                //         reject(new Error('Request timed out'));
+                //     };
+                //     xhr.send();
+                // });
+
+                const response = await axios.get(url, { timeout }).then(res => res.data).catch(error => {
+                    throw new Error(`Request failed: ${error.message}`);
                 });
 
                 const updateInfo = this.formatUpdateInfo(response);
@@ -171,66 +176,51 @@ class UpdateChecker {
     }
     
     private async downloadFile(url: string, onProgress: (event: DownloadProgressEvent) => void): Promise<ArrayBuffer> {
-        return new Promise<ArrayBuffer>((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
-            xhr.responseType = 'arraybuffer';
-            xhr.timeout = this.updateCheckerOptions.timeout || 30000;
-            
-            let lastLoaded = 0;
-            
-            // 开始下载
-            xhr.onloadstart = () => {
-                const contentLength = parseInt(xhr.getResponseHeader('Content-Length') || '0');
+        return new Promise<ArrayBuffer>(async (resolve, reject) => {
+            try {
+                let lastLoaded = 0;
+
+                const response = await axios.get(url, {
+                    responseType: 'arraybuffer',
+                    timeout: this.updateCheckerOptions.timeout || 30000,
+                    onDownloadProgress: (progressEvent) => {
+                        const { loaded, total } = progressEvent;
+                        const chunkLength = loaded - lastLoaded;
+
+                        if (loaded === 0) {
+                            onProgress({
+                                event: 'Started',
+                                data: {
+                                    contentLength: total || 0,
+                                    url
+                                }
+                            });
+                        } else {
+                            onProgress({
+                                event: 'Progress',
+                                data: {
+                                    loaded,
+                                    total: total || 0,
+                                    chunkLength
+                                }
+                            });
+                        }
+
+                        lastLoaded = loaded;
+                    }
+                });
+
                 onProgress({
-                    event: 'Started',
+                    event: 'Finished',
                     data: {
-                        contentLength,
                         url
                     }
                 });
-            };
-            
-            // 下载进度
-            xhr.onprogress = (event) => {
-                const chunkLength = event.loaded - lastLoaded;
-                onProgress({
-                    event: 'Progress',
-                    data: {
-                        loaded: event.loaded,
-                        total: event.total,
-                        chunkLength
-                    }
-                });
-                lastLoaded = event.loaded;
-            };
-            
-            // 下载完成
-            xhr.onload = () => {
-                if (xhr.status === 200) {
-                    onProgress({
-                        event: 'Finished',
-                        data: {
-                            url
-                        }
-                    });
-                    resolve(xhr.response);
-                } else {
-                    reject(new Error(`Download failed with status ${xhr.status}`));
-                }
-            };
-            
-            // 下载错误
-            xhr.onerror = () => {
-                reject(new Error('Download failed due to network error'));
-            };
-            
-            // 下载超时
-            xhr.ontimeout = () => {
-                reject(new Error('Download timed out'));
-            };
-            
-            xhr.send();
+
+                resolve(response.data);
+            } catch (error) {
+                reject(new Error(`Download failed: ${error instanceof Error ? error.message : String(error)}`));
+            }
         });
     }
       private async installUpdate(downloadedData: ArrayBuffer): Promise<void> {
