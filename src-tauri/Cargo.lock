@@ -5469,7 +5469,7 @@ dependencies = [
 
 [[package]]
 name = "xx-mod-manager-tauri"
-version = "0.1.1-alpha.9"
+version = "0.1.12"
 dependencies = [
  "reqwest 0.11.27",
  "serde",
