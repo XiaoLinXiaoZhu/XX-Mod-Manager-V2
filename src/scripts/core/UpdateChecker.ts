@@ -220,7 +220,7 @@ class UpdateChecker {
 
 
     //执行安装程序
-    public async installUpdate(downloadedPath: string): Promise<void> {
+    private async installUpdate(downloadedPath: string): Promise<void> {
         try {
             // 获取文件的完整路径
             const fullPath = await invoke<string>('get_full_path', {
@@ -333,14 +333,16 @@ export async function checkForUpdates(
             : confirm('Do you want to install the update?');
 
         if (install) {
-            await installUpdate(filePath);
+            // await installUpdate(filePath);
+            await update.install();
             console.log('update installed');
             alert('update installed');
         } else {
             console.log(`cancelled install`);
             // 打开文件夹展示下载的文件
-            invoke('open_directory_with_default_app', {
-                pathStr: filePath
+            invoke('show_directory_in_explorer', {
+                pathStr: filePath,
+                ifCreate: true,
             }).then(() => {
                 console.log('opened directory');
             }).catch((error) => {
@@ -350,23 +352,4 @@ export async function checkForUpdates(
             console.log('update not installed');
         }
     }
-}
-
-export async function installUpdate(filePath: string): Promise<void> {
-    const updateChecker = new UpdateChecker({
-        urls: [
-            "https://raw.githubusercontent.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/main/updater/config.json",
-            'https://raw.githubusercontent.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/main/update.json',
-        ],
-        currentVersion: await getVersion(),
-        timeout: 30000,
-    });
-
-    updateChecker.installUpdate(filePath).then(() => {
-        console.log('update installed');
-        alert('update installed');
-    }).catch((error) => {
-        console.error('Error installing update:', error);
-        alert('Error installing update');
-    });
 }

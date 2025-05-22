@@ -681,14 +681,18 @@ pub async fn show_file_in_explorer(app_handle: tauri::AppHandle, path_str: Strin
     Ok(())
 }
 #[tauri::command]
-pub async fn show_directory_in_explorer(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
+pub async fn show_directory_in_explorer(app_handle: tauri::AppHandle, path_str: String, if_create: bool) -> Result<(), String> {
     let path = Path::new(&path_str);
     let resolved_path = get_resolved_path(&app_handle, path)?;
     let resolvd_path_str = resolved_path.to_str().ok_or("Invalid path")?;
     println!("Showing directory in explorer: {:?}", resolved_path);
     // 检查路径是否存在
-    if !resolved_path.exists() {
-        return Err(format!("Directory not found: {:?}", resolved_path));
+    if if_create {
+        // 如果需要创建目录，则检查目录是否存在
+        check_file_exists(&resolved_path, true, false)?;
+    } else {
+        // 如果不需要创建目录，则检查目录是否存在
+        check_file_exists(&resolved_path, false, true)?;
     }
 
     // 展示目录
