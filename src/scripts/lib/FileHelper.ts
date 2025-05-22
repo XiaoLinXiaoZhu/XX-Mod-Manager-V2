@@ -23,3 +23,14 @@ export async function writeFile(path: string, content: string, ifCreate: boolean
     }
 }
 
+export async function deleteFile(path: string): Promise<void> { 
+    try {
+        await invoke('delete_file', { pathStr: path });
+    } catch (error) {
+        console.error('Error deleting file:', error);
+        // don't throw error, just return
+        // throw error;
+        return;
+    }
+}
+

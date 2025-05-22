@@ -7,6 +7,7 @@ import { Command } from '@tauri-apps/plugin-shell';
 import { getVersion } from '@tauri-apps/api/app';
 
 import axios from 'axios';
+import { downloadFile, type downloadOptions } from '../lib/DownloadFile';
 
 type UpdateCheckerOptions = {
     urls: string[];
@@ -126,7 +127,7 @@ class UpdateChecker {
             downloadAndInstall: this.downloadAndInstall.bind(this),
             downloadOnly: async (onProgress: (event: DownloadProgressEvent) => void): Promise<string> => {
                 const filePath = await this.downloadOnly(onProgress);
-                if (!this.updateInfo) {return filePath;}
+                if (!this.updateInfo) { return filePath; }
                 this.updateInfo.downloadedFilePath = filePath;
                 this.updateInfo.downloadedFileName = filePath.split('/').pop() || null;
                 return filePath;
@@ -157,176 +158,66 @@ class UpdateChecker {
         // 构建备用链接列表，可以添加其他备用下载地址
         const downloadUrls = [mainUrl];
 
+        // 生成文件名，使用版本号和时间戳
+        const version = updateInfo ? updateInfo.version : 'unknown';
+        const timestamp = new Date().getTime();
+        const fileName = `./updater/xxmm_update_${version}_${timestamp}.exe`;
+
         let lastError: Error | null = null;
-        let downloadedData: ArrayBuffer | null = null;
+        let isSuccess = false;
 
         // 依次尝试每个下载链接，直到成功或全部失败
         for (const url of downloadUrls) {
-            try {
-                downloadedData = await this.downloadFile(url, onProgress);
-                // 下载成功，退出循环
+
+            const downloadOptions: downloadOptions = {
+                url,
+                targetPath: fileName,
+                onProgress: onProgress as any,
+                retryCount: 3,
+                retryDelay: 1000,
+                onError: (error) => {
+                    console.error(`Error downloading from ${url}:`, error);
+                    lastError = error instanceof Error ? error : new Error(String(error));
+                },
+                onComplete: () => {
+                    console.log(`Download completed from ${url}`);
+                    isSuccess = true;
+                }
+            };
+
+            await downloadFile(downloadOptions);
+
+            // 如果下载成功，退出循环
+            if (isSuccess) {
                 break;
-            } catch (error) {
-                console.warn(`Failed to download from ${url}:`, error);
-                lastError = error instanceof Error ? error : new Error(String(error));
-                // 继续尝试下一个 URL
+            } else {
+                console.warn(`Failed to download from ${url}:`, lastError);
             }
         }
 
         // 如果下载成功，写入更新,然后执行安装
-        if (downloadedData) {
-            const filePath = await this.writeUpdate(downloadedData);
-            // 执行安装程序
-            return filePath;
+        if (isSuccess) {
+            return fileName;
         } else {
             // 如果所有 URL 都失败了，抛出最后一个错误
-            throw new Error(`Failed to download update after trying all URLs: ${lastError?.message || 'Unknown error'}`);
+            throw new Error(`Failed to download update after trying all URLs: ${(lastError as any).message || 'Unknown error'}`);
         }
     }
 
     async downloadAndInstall(onProgress: (event: DownloadProgressEvent) => void): Promise<void> {
-        // 获取当前平台，这里假设为 windows-x86_64，也可以通过 Tauri API 获取
-        const platform = await this.getPlatform();
-
-        // 使用已保存的更新信息或重新获取
-        const updateInfo = this.updateInfo || await this.check();
-        if (!updateInfo || !updateInfo.platforms || !updateInfo.platforms[platform] || !updateInfo.platforms[platform].url) {
-            throw new Error(`No valid download URL found for platform ${platform}`);
-        }
-
-        const { url: mainUrl } = updateInfo.platforms[platform];
-        // 构建备用链接列表，可以添加其他备用下载地址
-        const downloadUrls = [mainUrl];
-
-        let lastError: Error | null = null;
-        let downloadedData: ArrayBuffer | null = null;
-
-        // 依次尝试每个下载链接，直到成功或全部失败
-        for (const url of downloadUrls) {
-            try {
-                downloadedData = await this.downloadFile(url, onProgress);
-                // 下载成功，退出循环
-                break;
-            } catch (error) {
-                console.warn(`Failed to download from ${url}:`, error);
-                lastError = error instanceof Error ? error : new Error(String(error));
-                // 继续尝试下一个 URL
-            }
-        }
+        const filePath = await this.downloadOnly(onProgress);
 
         // 如果下载成功，写入更新,然后执行安装
-        if (downloadedData) {
-            const filePath = await this.writeUpdate(downloadedData);
+        if (filePath) {
             // 执行安装程序
             await this.installUpdate(filePath);
         } else {
-            // 如果所有 URL 都失败了，抛出最后一个错误
-            throw new Error(`Failed to download update after trying all URLs: ${lastError?.message || 'Unknown error'}`);
+            console.error('Failed to download update');
+            throw new Error('Failed to download update');
         }
     }
-    private async downloadFile(url: string, onProgress: (event: DownloadProgressEvent) => void): Promise<ArrayBuffer> {
-        return new Promise<ArrayBuffer>(async (resolve, reject) => {
-            try {
-                // 通知开始下载
-                onProgress({
-                    event: 'Started',
-                    data: {
-                        contentLength: 0,
-                        url
-                    }
-                });
 
-                // 直接使用 Rust 函数下载文件，绕过所有 CORS 限制
-                try {
-                    console.log(`Downloading from ${url} using Rust backend...`);
-                    // 确保下载目录存在
-                    console.log(`Creating download directory...`);
-                    await invoke('create_directory', {
-                        pathStr: './updater'
-                    }).catch(e => console.warn('Unable to create directory (可能目录已存在):', e));
-                    // 使用临时文件路径
-                    const timestamp = new Date().getTime();
-                    const tempFilePath = `./updater/temp_${timestamp}.exe`;
 
-                    console.log(`Starting download to ${tempFilePath}...`);
-                    // 方法 1：直接下载到文件（推荐，一步到位）
-                    try {
-                        await invoke('download_file_to_path', {
-                            url,
-                            savePathStr: tempFilePath,
-                            timeoutMs: this.updateCheckerOptions.timeout || 30000
-                        });
-
-                        console.log(`Successfully downloaded file to ${tempFilePath}`);                        // 读取下载的文件内容
-                        const fileData = await invoke<number[]>('read_binary_file', {
-                            pathStr: tempFilePath,
-                            ifCreate: false
-                        });
-
-                        // 转换为 Uint8Array
-                        const data = new Uint8Array(fileData);
-                        // 删除临时文件（可选）
-                        await invoke('delete_file', {
-                            pathStr: tempFilePath
-                        }).catch(e => console.warn('Unable to delete temp file:', e));
-
-                        // 报告下载进度和完成
-                        onProgress({
-                            event: 'Progress',
-                            data: {
-                                loaded: data.byteLength,
-                                total: data.byteLength,
-                                chunkLength: data.byteLength
-                            }
-                        });
-
-                        onProgress({
-                            event: 'Finished',
-                            data: {
-                                url
-                            }
-                        });
-
-                        resolve(data.buffer);
-                    } catch (downloadError) {
-                        console.warn(`Direct file download failed: ${downloadError}`);
-
-                        // 方法 2：如果直接下载到文件失败，尝试下载到内存
-                        console.log(`Trying to download to memory...`); const binaryData = await invoke<number[]>('download_file_to_binary', {
-                            url,
-                            timeoutMs: this.updateCheckerOptions.timeout || 30000
-                        });
-
-                        const data = new Uint8Array(binaryData);
-
-                        // 报告下载进度和完成
-                        onProgress({
-                            event: 'Progress',
-                            data: {
-                                loaded: data.byteLength,
-                                total: data.byteLength,
-                                chunkLength: data.byteLength
-                            }
-                        });
-
-                        onProgress({
-                            event: 'Finished',
-                            data: {
-                                url
-                            }
-                        });
-
-                        resolve(data.buffer);
-                    }
-                } catch (error) {
-                    console.error(`Rust download failed: ${error instanceof Error ? error.message : String(error)}`);
-                    reject(new Error(`Download failed: ${error instanceof Error ? error.message : String(error)}`));
-                }
-            } catch (error) {
-                reject(new Error(`Download failed: ${error instanceof Error ? error.message : String(error)}`));
-            }
-        });
-    }
 
     //执行安装程序
     public async installUpdate(downloadedPath: string): Promise<void> {
@@ -381,37 +272,6 @@ class UpdateChecker {
         } catch (execError) {
             console.error('Error executing installer:', execError);
             throw execError;
-        }
-    }
-
-    private async writeUpdate(downloadedData: ArrayBuffer): Promise<string> {
-        // 实现安装逻辑
-        // 保存下载的更新文件到 updater 文件夹，然后执行安装
-        try {
-            console.log('Writing update to file...');
-
-            // 1. 将 ArrayBuffer 转换为 Uint8Array
-            const uint8Array = new Uint8Array(downloadedData);
-
-            // 2. 生成文件名，使用版本号和时间戳
-            const updateInfo = this.updateInfo;
-            const version = updateInfo ? updateInfo.version : 'unknown';
-            const timestamp = new Date().getTime();
-            const fileName = `./updater/xxmm_update_${version}_${timestamp}.exe`;
-            // 3. 保存下载的更新文件            
-            await invoke('write_binary_file', {
-                pathStr: fileName,
-                data: uint8Array,
-                ifCreate: true
-            });
-
-            console.log(`Update file saved to: ${fileName}`);
-
-            // 4. 输出安装文件路径
-            return fileName;
-        } catch (error) {
-            console.error('Error writing update file:', error);
-            throw new Error(`Failed to write update file: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
 }
@@ -471,7 +331,7 @@ export async function checkForUpdates(
         const install = checkIfInstall
             ? await checkIfInstall(update)
             : confirm('Do you want to install the update?');
-            
+
         if (install) {
             await installUpdate(filePath);
             console.log('update installed');
