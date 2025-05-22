@@ -569,14 +569,14 @@ pub async fn open_file_with_default_app(app_handle: tauri::AppHandle, path_str: 
     {
         Command::new("open")
             .arg(resolvd_path_str)
-            .status()?;
+            .status().map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "linux")]
     {
         // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
         Command::new("xdg-open")
             .arg(resolvd_path_str)
-            .status()?;
+            .status().map_err(|e| e.to_string())?;
     }
     
     Ok(())
@@ -604,14 +604,14 @@ pub async fn open_directory_with_default_app(app_handle: tauri::AppHandle, path_
     {
         Command::new("open")
             .arg(resolvd_path_str)
-            .status()?;
+            .status().map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "linux")]
     {
         // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
         Command::new("xdg-open")
             .arg(resolvd_path_str)
-            .status()?;
+            .status().map_err(|e| e.to_string())?;
     }
     Ok(())
 }
@@ -630,14 +630,14 @@ pub async fn open_url_with_default_browser(url: String) -> Result<(), String> {
     {
         Command::new("open")
             .arg(&url)
-            .status()?;
+            .status().map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "linux")]
     {
         // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
         Command::new("xdg-open")
             .arg(&url)
-            .status()?;
+            .status().map_err(|e| e.to_string())?;
     }
     
     Ok(())
@@ -668,14 +668,14 @@ pub async fn show_file_in_explorer(app_handle: tauri::AppHandle, path_str: Strin
         Command::new("open")
             .arg("-R")
             .arg(resolvd_path_str)
-            .status()?;
+            .status().map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "linux")]
     {
         // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
         Command::new("xdg-open")
             .arg(resolvd_path_str)
-            .status()?;
+            .status().map_err(|e| e.to_string())?;
     }
     
     Ok(())
@@ -706,14 +706,14 @@ pub async fn show_directory_in_explorer(app_handle: tauri::AppHandle, path_str: 
     {
         Command::new("open")
             .arg(resolvd_path_str)
-            .status()?;
+            .status().map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "linux")]
     {
         // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
         Command::new("xdg-open")
             .arg(resolvd_path_str)
-            .status()?;
+            .status().map_err(|e| e.to_string())?;
     }
     
     Ok(())
@@ -780,11 +780,11 @@ pub async fn open_program(
     }
     #[cfg(target_os = "macos")]
     {
-        command.status()?;
+        command.status().map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "linux")]
     {
-        command.status()?;
+        command.status().map_err(|e| e.to_string())?;
     }
     Ok(())
 }   

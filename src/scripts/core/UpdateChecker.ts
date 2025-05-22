@@ -278,6 +278,7 @@ class UpdateChecker {
 
 
 export async function checkForUpdates(
+    onGetNewVersion?: (update: InternalUpdateInfo) => Promise<void>,
     checkIfDownload?: (update: InternalUpdateInfo) => Promise<boolean>,
     checkIfInstall?: (update: InternalUpdateInfo) => Promise<boolean>
 ): Promise<void> {
@@ -292,12 +293,21 @@ export async function checkForUpdates(
     });
     const update = await updateChecker.check();
     if (update) {
-        console.log(
+        const defaultOnGetNewVersion = (update: InternalUpdateInfo) =>{
+                    console.log(
             `found update ${update.version} from ${update.pub_date} with notes ${update.notes}`
         );
         alert(
             `found update ${update.version} from ${update.pub_date} with notes ${update.notes}`
         );
+        }
+        if (onGetNewVersion){
+            onGetNewVersion(update);
+        }
+        else{
+            defaultOnGetNewVersion(update);
+        }
+        
         // 询问用户是否下载更新
         // 这里可以使用一个简单的 confirm 对话框，或者使用更复杂的 UI
         // 这里使用 confirm 对话框
