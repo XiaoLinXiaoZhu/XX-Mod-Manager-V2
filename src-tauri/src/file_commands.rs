@@ -68,7 +68,7 @@ pub fn get_resolved_path(app_handle: &tauri::AppHandle, path: &Path) -> Result<P
 }
 
 #[tauri::command]
-pub fn read_file(
+pub async fn read_file(
     app_handle: tauri::AppHandle,
     path_str: String,
     if_create: bool,
@@ -91,7 +91,7 @@ pub fn read_file(
 }
 
 #[tauri::command]
-pub fn write_file(
+pub async fn write_file(
     app_handle: tauri::AppHandle,
     path_str: String,
     content: String,
@@ -174,7 +174,7 @@ pub async fn write_binary_file(
 
 #[tauri::command]
 // rename file
-pub fn rename_file(
+pub async fn rename_file(
     app_handle: tauri::AppHandle,
     old_path_str: String,
     new_path_str: String,
@@ -190,7 +190,7 @@ pub fn rename_file(
 
 #[tauri::command]
 // rename directory
-pub fn rename_directory(
+pub async fn rename_directory(
     app_handle: tauri::AppHandle,
     old_path_str: String,
     new_path_str: String,
@@ -207,7 +207,7 @@ pub fn rename_directory(
 
 #[tauri::command]
 // delete file
-pub fn delete_file(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
+pub async fn delete_file(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
     let path = Path::new(&path_str);
     let resolved_path: PathBuf = get_resolved_path(&app_handle, path)?;
 
@@ -216,7 +216,7 @@ pub fn delete_file(app_handle: tauri::AppHandle, path_str: String) -> Result<(),
 
 #[tauri::command]
 // create directory
-pub fn create_directory(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
+pub async fn create_directory(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
     let path = Path::new(&path_str);
     let resolved_path: PathBuf = get_resolved_path(&app_handle, path)?;
 
@@ -225,7 +225,7 @@ pub fn create_directory(app_handle: tauri::AppHandle, path_str: String) -> Resul
 
 #[tauri::command]
 // delete directory
-pub fn delete_directory(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
+pub async fn delete_directory(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
     let path = Path::new(&path_str);
     let resolved_path: PathBuf = get_resolved_path(&app_handle, path)?;
 
@@ -234,7 +234,7 @@ pub fn delete_directory(app_handle: tauri::AppHandle, path_str: String) -> Resul
 
 #[tauri::command]
 // move file
-pub fn move_file(
+pub async fn move_file(
     app_handle: tauri::AppHandle,
     old_path_str: String,
     new_path_str: String,
@@ -251,7 +251,7 @@ pub fn move_file(
 
 #[tauri::command]
 // move directory
-pub fn move_directory(
+pub async fn move_directory(
     app_handle: tauri::AppHandle,
     old_path_str: String,
     new_path_str: String,
@@ -267,7 +267,7 @@ pub fn move_directory(
 
 #[tauri::command]
 // copy file
-pub fn copy_file(
+pub async fn copy_file(
     app_handle: tauri::AppHandle,
     old_path_str: String,
     new_path_str: String,
@@ -302,7 +302,7 @@ pub fn copy_file(
 
 #[tauri::command]
 // copy directory
-pub fn copy_directory(
+pub async fn copy_directory(
     app_handle: tauri::AppHandle,
     old_path_str: String,
     new_path_str: String,
@@ -355,7 +355,7 @@ pub fn is_directory_exists(app_handle: tauri::AppHandle, path_str: String) -> Re
 
 #[tauri::command]
 // get directory list
-pub fn get_directory_list(
+pub async fn get_directory_list(
     app_handle: tauri::AppHandle,
     path_str: String,
 ) -> Result<Vec<String>, String> {
@@ -390,7 +390,7 @@ pub fn get_full_path(app_handle: tauri::AppHandle, path_str: String) -> Result<S
 
 #[tauri::command]
 // create symlink
-pub fn create_symlink(
+pub async fn create_symlink(
     app_handle: tauri::AppHandle,
     target_str: String,
     link_str: String,
@@ -542,3 +542,175 @@ pub async fn download_file_to_binary(
     // 转换为Vec<u8>
     Ok(bytes.to_vec())
 }
+
+
+use std::process::Command;
+//-=============================================
+//- 打开文件、打开目录、在外部浏览器中打开链接
+#[tauri::command]
+pub async fn open_file_with_default_app(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
+    let path = Path::new(&path_str);
+    let resolved_path = get_resolved_path(&app_handle, path)?;
+    let resolvd_path_str = resolved_path.to_str().ok_or("Invalid path")?;
+    println!("Opening file with default app: {:?}", resolved_path);
+    // 检查路径是否存在
+    if !resolved_path.exists() {
+        return Err(format!("File not found: {:?}", resolved_path));
+    }
+
+    // 打开文件
+    #[cfg(target_os = "windows")]
+    {
+        Command::new("cmd")
+            .args(["/C", "start", resolvd_path_str])
+            .status().map_err(|e| e.to_string())?;
+    }
+    #[cfg(target_os = "macos")]
+    {
+        Command::new("open")
+            .arg(resolvd_path_str)
+            .status()?;
+    }
+    #[cfg(target_os = "linux")]
+    {
+        // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
+        Command::new("xdg-open")
+            .arg(resolvd_path_str)
+            .status()?;
+    }
+    
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn open_directory_with_default_app(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
+    let path = Path::new(&path_str);
+    let resolved_path = get_resolved_path(&app_handle, path)?;
+    let resolvd_path_str = resolved_path.to_str().ok_or("Invalid path")?;
+    println!("Opening directory with default app: {:?}", resolved_path);
+    // 检查路径是否存在
+    if !resolved_path.exists() {
+        return Err(format!("Directory not found: {:?}", resolved_path));
+    }
+
+    // 打开目录
+    #[cfg(target_os = "windows")]
+    {
+        Command::new("cmd")
+            .args(["/C", "start", resolvd_path_str])
+            .status().map_err(|e| e.to_string())?;
+    }
+    #[cfg(target_os = "macos")]
+    {
+        Command::new("open")
+            .arg(resolvd_path_str)
+            .status()?;
+    }
+    #[cfg(target_os = "linux")]
+    {
+        // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
+        Command::new("xdg-open")
+            .arg(resolvd_path_str)
+            .status()?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn open_url_with_default_browser(url: String) -> Result<(), String> {
+    println!("Opening URL with default browser: {}", url);
+    // 打开链接
+    #[cfg(target_os = "windows")]
+    {
+        Command::new("cmd")
+            .args(["/C", "start", &url])
+            .status().map_err(|e| e.to_string())?;
+    }
+    #[cfg(target_os = "macos")]
+    {
+        Command::new("open")
+            .arg(&url)
+            .status()?;
+    }
+    #[cfg(target_os = "linux")]
+    {
+        // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
+        Command::new("xdg-open")
+            .arg(&url)
+            .status()?;
+    }
+    
+    Ok(())
+}
+
+
+//-=============================================
+/**
+ * @description: 打开程序
+ * @param {app_handle} app_handle
+ * @param {path_str} path_str
+ * @param {args} args
+ * @param {hide} hide
+ * @param {uac} uac
+ */
+#[tauri::command]
+pub async fn open_program(
+    app_handle: tauri::AppHandle,
+    path_str: String,
+    args: Option<String>,
+    hide: Option<bool>,
+    uac: Option<bool>,
+) -> Result<(), String> {
+    let path = Path::new(&path_str);
+    let resolved_path = get_resolved_path(&app_handle, path)?;
+
+    // debug
+    println!("Opening program: {:?}", resolved_path);
+
+    // 检查路径是否存在
+    if !resolved_path.exists() {
+        return Err(format!("Program not found: {:?}", resolved_path));
+    }
+
+    // 构建命令
+    let mut command = Command::new(resolved_path);
+
+    // 添加参数
+    if let Some(args) = args {
+        command.args(args.split_whitespace());
+    }
+
+    // 设置隐藏窗口
+    if let Some(hide) = hide {
+        if hide {
+            #[cfg(target_os = "windows")]
+            {
+                command.arg("/C");
+            }
+        }
+    }
+    // 设置 UAC 提升
+    if let Some(uac) = uac {
+        if uac {
+            #[cfg(target_os = "windows")]
+            {
+                command.arg("/runas");
+            }
+        }
+    }
+    // 执行命令
+    #[cfg(target_os = "windows")]
+    {
+        command.status().map_err(|e| e.to_string())?;
+    }
+    #[cfg(target_os = "macos")]
+    {
+        command.status()?;
+    }
+    #[cfg(target_os = "linux")]
+    {
+        command.status()?;
+    }
+    Ok(())
+}   
+

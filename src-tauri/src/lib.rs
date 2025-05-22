@@ -35,7 +35,11 @@ pub fn run() {
             file_commands::create_symlink,
             file_commands::is_symlink_supported,
             file_commands::download_file_to_path,
-            file_commands::download_file_to_binary
+            file_commands::download_file_to_binary,
+            file_commands::open_directory_with_default_app,
+            file_commands::open_file_with_default_app,
+            file_commands::open_url_with_default_browser,
+            file_commands::open_program
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
