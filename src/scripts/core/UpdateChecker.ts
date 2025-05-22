@@ -338,7 +338,16 @@ export async function checkForUpdates(
             alert('update installed');
         } else {
             console.log(`cancelled install`);
-            alert('cancelled install');
+            // 打开文件夹展示下载的文件
+            invoke('open_directory_with_default_app', {
+                pathStr: filePath
+            }).then(() => {
+                console.log('opened directory');
+            }).catch((error) => {
+                console.error('Error opening directory:', error);
+                alert('Error opening directory');
+            });
+            console.log('update not installed');
         }
     }
 }

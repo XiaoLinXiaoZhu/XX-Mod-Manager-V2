@@ -643,6 +643,77 @@ pub async fn open_url_with_default_browser(url: String) -> Result<(), String> {
     Ok(())
 }
 
+//-=============================================
+//- 展示打开文件，展示打开目录
+#[tauri::command]
+pub async fn show_file_in_explorer(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
+    let path = Path::new(&path_str);
+    let resolved_path = get_resolved_path(&app_handle, path)?;
+    let resolvd_path_str = resolved_path.to_str().ok_or("Invalid path")?;
+    println!("Showing file in explorer: {:?}", resolved_path);
+    // 检查路径是否存在
+    if !resolved_path.exists() {
+        return Err(format!("File not found: {:?}", resolved_path));
+    }
+
+    // 展示文件
+    #[cfg(target_os = "windows")]
+    {
+        Command::new("explorer")
+            .arg(resolvd_path_str)
+            .status().map_err(|e| e.to_string())?;
+    }
+    #[cfg(target_os = "macos")]
+    {
+        Command::new("open")
+            .arg("-R")
+            .arg(resolvd_path_str)
+            .status()?;
+    }
+    #[cfg(target_os = "linux")]
+    {
+        // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
+        Command::new("xdg-open")
+            .arg(resolvd_path_str)
+            .status()?;
+    }
+    
+    Ok(())
+}
+#[tauri::command]
+pub async fn show_directory_in_explorer(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
+    let path = Path::new(&path_str);
+    let resolved_path = get_resolved_path(&app_handle, path)?;
+    let resolvd_path_str = resolved_path.to_str().ok_or("Invalid path")?;
+    println!("Showing directory in explorer: {:?}", resolved_path);
+    // 检查路径是否存在
+    if !resolved_path.exists() {
+        return Err(format!("Directory not found: {:?}", resolved_path));
+    }
+
+    // 展示目录
+    #[cfg(target_os = "windows")]
+    {
+        Command::new("explorer")
+            .arg(resolvd_path_str)
+            .status().map_err(|e| e.to_string())?;
+    }
+    #[cfg(target_os = "macos")]
+    {
+        Command::new("open")
+            .arg(resolvd_path_str)
+            .status()?;
+    }
+    #[cfg(target_os = "linux")]
+    {
+        // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
+        Command::new("xdg-open")
+            .arg(resolvd_path_str)
+            .status()?;
+    }
+    
+    Ok(())
+}
 
 //-=============================================
 /**

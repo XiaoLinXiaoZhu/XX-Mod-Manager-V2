@@ -39,7 +39,9 @@ pub fn run() {
             file_commands::open_directory_with_default_app,
             file_commands::open_file_with_default_app,
             file_commands::open_url_with_default_browser,
-            file_commands::open_program
+            file_commands::open_program,
+            file_commands::show_file_in_explorer,
+            file_commands::show_directory_in_explorer
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
