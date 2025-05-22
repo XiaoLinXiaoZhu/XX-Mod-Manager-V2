@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 use std::fs;
 use std::time::Duration;
 use tauri::Manager;
+use std::process::Command;
 
 fn check_file_exists(
     path: &PathBuf,
@@ -544,7 +545,7 @@ pub async fn download_file_to_binary(
 }
 
 
-use std::process::Command;
+
 //-=============================================
 //- 打开文件、打开目录、在外部浏览器中打开链接
 #[tauri::command]

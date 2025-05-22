@@ -1,7 +1,7 @@
 {
   "version": "0.1.13",
-  "notes": "- 0.1.13\n- feat: 更新版本号至0.1.12，修改相关配置文件以支持新版本\n- feat: 更新版本号至0.1.12，优化目录展示功能，调整更新安装逻辑\n- feat: 添加展示文件和目录的功能，支持在资源管理器中打开指定路径\n- chore: 更新版本号并修改相关配置文件\n- chore: 更新版本号并修改相关配置文件\n- feat: 实现下载功能，支持从内存和文件下载，添加下载进度回调和错误处理\n- feat: 添加文件和目录的默认应用打开功能，更新更新检查器以支持下载和安装更新\n- 更新了打开安装程序\n- feat: add HTTP plugin support and file download functionality\n- chore: 更新版本号并修改相关配置文件",
-  "pub_date": "2025-05-22T11:19:22.217Z",
+  "notes": "- feat: 更新 xx-mod-manager-tauri 版本至 0.1.13\n- chore: 更新版本号并修改相关配置文件\n- 0.1.13\n- feat: 更新版本号至0.1.12，修改相关配置文件以支持新版本\n- feat: 更新版本号至0.1.12，优化目录展示功能，调整更新安装逻辑\n- feat: 添加展示文件和目录的功能，支持在资源管理器中打开指定路径\n- chore: 更新版本号并修改相关配置文件\n- chore: 更新版本号并修改相关配置文件\n- feat: 实现下载功能，支持从内存和文件下载，添加下载进度回调和错误处理\n- feat: 添加文件和目录的默认应用打开功能，更新更新检查器以支持下载和安装更新\n- 更新了打开安装程序\n- feat: add HTTP plugin support and file download functionality\n- chore: 更新版本号并修改相关配置文件",
+  "pub_date": "2025-05-22T23:35:30.113Z",
   "platforms": {
     "windows-x86_64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJENTM1QTc0QzVENkREODkKUldTSjNkYkZkRnBUTFlKcURFREtqT3dFVC9NUlluKzlGYlZBWFBLYlgxYjBFVXllanEwazZmeE0K",

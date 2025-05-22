@@ -1,3 +1,7 @@
+use tauri::Manager;
+mod wake_up;
+mod window_commands;
+mod argv;
 mod file_commands;
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -41,8 +45,26 @@ pub fn run() {
             file_commands::open_url_with_default_browser,
             file_commands::open_program,
             file_commands::show_file_in_explorer,
-            file_commands::show_directory_in_explorer
+            file_commands::show_directory_in_explorer,
+            argv::get_command_line_args,
+            wake_up::main_window_ready
         ])
+        .setup(|app| {
+            let args = argv::get_args();
+            argv::handle_cli();
+            println!("Arguments: {:?}", args);
+
+            // 如果 开启了开发者工具，则打开开发者工具
+            if args.dev_tools {
+                if let Some(window) = app.get_webview_window("main") {
+                    #[cfg(debug_assertions)]
+                    window.open_devtools();
+                } else {
+                    eprintln!("Failed to get the main webview window.");
+                }
+            }
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

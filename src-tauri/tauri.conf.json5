@@ -8,7 +8,8 @@
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "bun run build",
     "frontendDist": "../dist"
-  },  "app": {
+  },  
+  "app": {
     "windows": [
       {
         "title": "xx-mod-manager-tauri",
@@ -21,7 +22,8 @@
     "security": {
       "csp": null
     }
-  },  "plugins": {
+  },  
+  "plugins": {
     "shell": {
       "open": true
     }
@@ -38,17 +40,4 @@
       "icons/icon.ico"
     ]
   },
-  // "plugins": {
-  //   "updater": {
-  //     "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJENTM1QTc0QzVENkREODkKUldTSjNkYkZkRnBUTFlKcURFREtqT3dFVC9NUlluKzlGYlZBWFBLYlgxYjBFVXllanEwazZmeE0K",
-  //     "endpoints": [
-  //       "https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/latest/download/latest.json",
-  //       // "https://releases.myapp.com/{{target}}/{{arch}}/{{current_version}}",
-  //       // or a static github json file
-  //     ],
-  //     "windows": {
-  //       "installMode": "passive",
-  //     }
-  //   }
-  // }
 }
