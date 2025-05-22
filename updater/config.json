@@ -1,11 +1,11 @@
 {
-  "version": "0.1.12",
-  "notes": "- feat: 实现下载功能，支持从内存和文件下载，添加下载进度回调和错误处理\n- feat: 添加文件和目录的默认应用打开功能，更新更新检查器以支持下载和安装更新\n- 更新了打开安装程序\n- feat: add HTTP plugin support and file download functionality\n- chore: 更新版本号并修改相关配置文件\n- 0.1.12\n- chore: 更新版本号并修改相关配置文件\n- chore: 更新 tauri 配置文件格式至 json5，并同步版本号\n- chore: 更新版本号至 0.1.10，并修改相关配置文件",
-  "pub_date": "2025-05-22T04:58:17.209Z",
+  "version": "0.1.9",
+  "notes": "- chore: 更新版本号并修改相关配置文件\n- feat: 实现下载功能，支持从内存和文件下载，添加下载进度回调和错误处理\n- feat: 添加文件和目录的默认应用打开功能，更新更新检查器以支持下载和安装更新\n- 更新了打开安装程序\n- feat: add HTTP plugin support and file download functionality\n- chore: 更新版本号并修改相关配置文件\n- 0.1.12\n- chore: 更新版本号并修改相关配置文件\n- chore: 更新 tauri 配置文件格式至 json5，并同步版本号\n- chore: 更新版本号至 0.1.10，并修改相关配置文件\n- 0.1.11\n- chore: 更新版本号并修改相关配置文件\n- 0.1.6\n- chore: 更新版本号至 ${npm_package_version} 并修改相关配置文件\n- chore: 更新版本号至 0.1.10，并修改相关配置文件\n- 0.1.10\n- chore: 更新版本号至 0.1.9 并修改更新说明\n- 0.1.9\n- chore: 清理 .gitignore 和 tauri.conf.json5 中的无用条目",
+  "pub_date": "2025-05-22T04:58:39.869Z",
   "platforms": {
     "windows-x86_64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJENTM1QTc0QzVENkREODkKUldTSjNkYkZkRnBUTFlKcURFREtqT3dFVC9NUlluKzlGYlZBWFBLYlgxYjBFVXllanEwazZmeE0K",
-      "url": "https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/download/v0.1.12/xx-mod-manager-tauri_0.1.12_x64-setup.exe"
+      "url": "https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/releases/download/v0.1.9/xx-mod-manager-tauri_0.1.9_x64-setup.exe"
     }
   }
 }
