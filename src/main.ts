@@ -6,20 +6,9 @@ import 'sober'
 import { EventSystem, EventType } from './scripts/core/EventSystem.ts';
 
 //-================ 检查更新 =================
-import { checkForUpdates } from './scripts/core/UpdateChecker.ts';
-import { ConfigLoader, useConfig } from './scripts/core/ConfigLoader.ts';
+
 import { emit, listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
-
-// checkForUpdates();
-
-import { ModLoader } from './scripts/lib/ModLoader.ts';
-ModLoader.addModSourceFolder("D:\\GameResource\\WWMI\\ModSource").then(() => {
-    console.log('ModLoader: addModSourceFolder success');
-    ModLoader.loadMods();
-}).catch((err) => {
-    console.error('ModLoader: addModSourceFolder error', err);
-});
 
 
 //-================ 初始化 =================
@@ -62,5 +51,31 @@ listen('wake-up', (event) => {
     EventSystem.trigger(EventType.wakeUp);
 });
 
-invoke('main_window_ready');
+//-======= 接收 snack 事件 =======-//
+import { Snackbar } from 'sober';
+listen('snack', (event) => {
+    // debug
+    console.log('snack event received', event);
+    const payload = event.payload as any;
+    let message = payload[0];
+    let snackType = payload[1];
+    let duration = payload[2];
+    let align = payload[3];
+    // 确保 snackType 和 align 是全部小写
+    snackType = snackType.toLowerCase() as "error" | "none" | "info" | "success" | "warning";
+    align = align.toLowerCase() as "auto" | "top" | "bottom";
+    // debug
+    console.log('snack ' + message + ' ' + snackType + ' ' + duration + ' ' + align);
+    Snackbar.builder({
+        text: message,
+        type: snackType,
+        duration,
+        align,
+    }).show();
+});
 
+
+
+
+import { init } from './scripts/core/XXMMCore.ts';
+init();

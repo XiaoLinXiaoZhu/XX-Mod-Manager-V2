@@ -28,12 +28,6 @@ onMounted(() => {
   setTimeout(() => {
     mods.value = ModLoader.mods;
   }, 2000);
-
-  setTimeout(async () => {
-    // 尝试修改一下 mods 的值
-    ModLoader.mods[0].name.value = 'New Mod Name123';
-    await ModLoader.mods[0].setPreviewByPath("E:/29659/Pictures/3a6a9ce92d681d70a4afb62c5806b128.jpg");
-  }, 4000);
 });
 
 </script>
