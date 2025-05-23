@@ -5586,7 +5586,7 @@ dependencies = [
 
 [[package]]
 name = "xx-mod-manager-tauri"
-version = "0.1.13"
+version = "0.1.14"
 dependencies = [
  "clap",
  "reqwest 0.11.27",

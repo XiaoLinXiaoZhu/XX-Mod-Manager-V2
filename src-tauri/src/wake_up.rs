@@ -21,7 +21,7 @@ pub async fn main_window_ready<R: Runtime>(app: tauri::AppHandle<R>) -> Result<(
 }
 
 pub fn send_wake_up<R: Runtime>(app: tauri::AppHandle<R>) -> Result<(), String> {
-    if unsafe { WAKE_UP_CONDITION } <= WAKE_UP_NEEDS {
+    if unsafe { WAKE_UP_CONDITION } != WAKE_UP_NEEDS {
         return Ok(());
     }
     app.emit("wake-up", "wake-up").map_err(|e| e.to_string())?;

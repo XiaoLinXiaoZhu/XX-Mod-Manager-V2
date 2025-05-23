@@ -4,12 +4,10 @@ import router from './router/index.ts';
 import { i18nInstance, setI18nLocale } from './locals/index.ts';
 import 'sober'
 import { EventSystem, EventType } from './scripts/core/EventSystem.ts';
-import { getConfig } from './scripts/core/OldConfigLoader.ts';
-
 
 //-================ 检查更新 =================
 import { checkForUpdates } from './scripts/core/UpdateChecker.ts';
-import { ConfigLoader, useStorage } from './scripts/core/ConfigLoader.ts';
+import { ConfigLoader, useConfig } from './scripts/core/ConfigLoader.ts';
 import { emit, listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
 
