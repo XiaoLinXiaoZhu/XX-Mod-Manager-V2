@@ -11,7 +11,16 @@ import { ConfigLoader, useConfig } from './scripts/core/ConfigLoader.ts';
 import { emit, listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
 
-checkForUpdates();
+// checkForUpdates();
+
+import { ModLoader } from './scripts/lib/ModLoader.ts';
+ModLoader.addModSourceFolder("D:\\GameResource\\WWMI\\ModSource").then(() => {
+    console.log('ModLoader: addModSourceFolder success');
+    ModLoader.loadMods();
+}).catch((err) => {
+    console.error('ModLoader: addModSourceFolder error', err);
+});
+
 
 //-================ 初始化 =================
 const vueApp = createApp(App);

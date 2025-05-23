@@ -3,22 +3,38 @@ import axios from "axios";
 
 // 图片缓存
 const imageCache: { [key: string]: string } = {};
-export async function getImage(filePath: string): Promise<string> {
+export const EmptyImage = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+export async function getImage(filePath: string,reload: boolean = false): Promise<string> {
     // 检查缓存中是否存在图片
-    if (imageCache[filePath]) {
+    if (imageCache[filePath] && !reload) {
         return imageCache[filePath];
     }
-    // 如果缓存中不存在，则加载图片
+    // 如果缓存中不存在或者需要重新加载，则调用 loadImage 函数
     return loadImage(filePath);
 }
+export async function releaseImage(filePath: string): Promise<void> {
+    // 释放图片缓存
+    if (imageCache[filePath]) {
+        URL.revokeObjectURL(imageCache[filePath]);
+        delete imageCache[filePath];
+    }
+}
 
-export async function loadImage(filePath: string, ifCreate: boolean = false): Promise<string> {    try {
+export async function loadImage(filePath: string, ifCreate: boolean = false): Promise<string> {
+    if (filePath === undefined || filePath === null || filePath === '') {
+        console.warn('loadImage: filePath is empty');
+        return EmptyImage;
+    }
+    
+    try {
+        //debug
+        console.log('Step2: load image', filePath, "\n" ,new Error().stack);
         const binaryData = await invoke<number[]>('read_binary_file', { pathStr: filePath, ifCreate: ifCreate });
-
         // 检查数据是否为数组
         if (!Array.isArray(binaryData)) {
             throw new Error('Expected binary data to be an array of numbers');
         }
+
 
         // 将数组转换为 Uint8Array
         const uint8Array = new Uint8Array(binaryData);
@@ -45,11 +61,13 @@ export async function loadImage(filePath: string, ifCreate: boolean = false): Pr
         const url = URL.createObjectURL(blob);
         // cache the image
         imageCache[filePath] = url;
+        // debug
+        console.log('Step3: load image success', filePath, url);
         return url;
     } catch (error) {
-        console.error(error);
+        console.error("Error loading image:", filePath, error);
         // return a empty image
-        return "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+        return EmptyImage;
     }
 }
 
@@ -120,6 +138,29 @@ export async function writeImageFromUrl(filePath: string, url: string, ifCreate:
         await invoke('write_binary_file', { pathStr: filePath, data, ifCreate });
     } catch (error) {
         console.error('Error writing image file from url:', error);
+        // don't throw error, just return
+        // throw error;
+        return;
+    }
+}
+
+export async function writeImageFromBase64(filePath: string, base64: string, ifCreate: boolean = false): Promise<void> {
+    try {
+        // Handle data URLs (e.g., "data:image/png;base64,...")
+        let rawBase64 = base64;
+        if (base64.includes(';base64,')) {
+            rawBase64 = base64.split(';base64,').pop() || '';
+        }
+        
+        const binaryString = atob(rawBase64);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        await invoke('write_binary_file', { pathStr: filePath, data: bytes, ifCreate });
+    } catch (error) {
+        console.error('Error writing image file from base64:', error);
         // don't throw error, just return
         // throw error;
         return;

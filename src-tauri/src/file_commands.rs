@@ -276,25 +276,9 @@ pub async fn copy_file(
     let old_path = Path::new(&old_path_str);
     let new_path = Path::new(&new_path_str);
 
-    let resolved_old_path = if old_path.is_absolute() {
-        old_path.to_path_buf()
-    } else {
-        let resource_dir = app_handle
-            .path()
-            .resource_dir()
-            .map_err(|_| "Resource directory not found".to_string())?;
-        resource_dir.join(old_path)
-    };
+    let resolved_old_path = get_resolved_path(&app_handle, old_path)?;
 
-    let resolved_new_path = if new_path.is_absolute() {
-        new_path.to_path_buf()
-    } else {
-        let resource_dir = app_handle
-            .path()
-            .resource_dir()
-            .map_err(|_| "Resource directory not found".to_string())?;
-        resource_dir.join(new_path)
-    };
+    let resolved_new_path = get_resolved_path(&app_handle, new_path)?;
 
     fs::copy(resolved_old_path, resolved_new_path)
         .map(|_| ())
@@ -341,8 +325,9 @@ pub async fn copy_directory(
 pub fn is_file_exists(app_handle: tauri::AppHandle, path_str: String) -> Result<bool, String> {
     let path = Path::new(&path_str);
     let resolved_path = get_resolved_path(&app_handle, path)?;
-
-    Ok(resolved_path.exists())
+    // debug
+    println!("Resolved path for file existence check: {:?}, exists: {}, is_file: {}", resolved_path, resolved_path.exists(), resolved_path.is_file());
+    Ok(resolved_path.exists() && resolved_path.is_file())
 }
 
 #[tauri::command]
@@ -351,7 +336,9 @@ pub fn is_directory_exists(app_handle: tauri::AppHandle, path_str: String) -> Re
     let path = Path::new(&path_str);
     let resolved_path = get_resolved_path(&app_handle, path)?;
 
-    Ok(resolved_path.exists())
+    // debug
+    println!("Resolved path for directory existence check: {:?}, exists: {}, is_dir: {}", resolved_path, resolved_path.exists(), resolved_path.is_dir());
+    Ok(resolved_path.exists() && resolved_path.is_dir())
 }
 
 #[tauri::command]

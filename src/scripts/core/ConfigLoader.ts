@@ -4,7 +4,7 @@ import { join } from '@tauri-apps/api/path';
 import { Storage } from '../lib/Storge';
 
 class ConfigLoaderClass extends Storage {
-    protected _storageName: string = 'config';
+    public storageName: string = 'config';
     async loadDefaultConfig(): Promise<void> {
         const appPath = await getAppdataDir();
         const defaultConfigPath = await join(appPath, 'config.json');
