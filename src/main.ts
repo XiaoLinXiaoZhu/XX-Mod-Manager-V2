@@ -10,6 +10,8 @@ import { getConfig } from './scripts/core/OldConfigLoader.ts';
 //-================ 检查更新 =================
 import { checkForUpdates } from './scripts/core/UpdateChecker.ts';
 import { ConfigLoader, useStorage } from './scripts/core/ConfigLoader.ts';
+import { emit, listen } from '@tauri-apps/api/event';
+import { invoke } from '@tauri-apps/api/core';
 
 checkForUpdates();
 
@@ -26,14 +28,8 @@ setI18nLocale("en-US");
 
 //------------ 初次打开时展示教程页面 ------------
 EventSystem.on(EventType.wakeUp, () => {
-    const isFirstLoad = getConfig('firstLoad') ? getConfig('firstLoad') : true;
-    if (isFirstLoad) {
-        // debug 
-        console.log('first load, show tutorial page');
-        router.push({
-            name: 'Tutorial',
-        });
-    }
+    //debug
+    console.log('wakeUp event triggered');
 });
 
 // 测试 唤醒事件触发
@@ -51,8 +47,13 @@ document.addEventListener('contextmenu', (e) => {
     e.preventDefault();
 });
 
+//-======= 接收 wakeUp 事件 =======-//
+// 这里的事件是从 rust 端发过来的
+listen('wake-up', (event) => {
+    // debug
+    console.log('wakeUp event received', event);
+    EventSystem.trigger(EventType.wakeUp);
+});
 
-
-
-
+invoke('main_window_ready');
 

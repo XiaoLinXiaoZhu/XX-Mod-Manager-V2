@@ -1,4 +1,5 @@
 use tauri::Manager;
+use wake_up::send_wake_up;
 mod wake_up;
 mod window_commands;
 mod argv;
@@ -63,6 +64,9 @@ pub fn run() {
                     eprintln!("Failed to get the main webview window.");
                 }
             }
+
+            let _ = send_wake_up(app.handle().clone());
+
             Ok(())
         })
         .run(tauri::generate_context!())

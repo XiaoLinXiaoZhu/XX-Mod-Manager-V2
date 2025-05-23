@@ -50,7 +50,7 @@ pub enum Commands {
 
 
 #[tauri::command]
-pub async fn get_command_line_args(app_handle: tauri::AppHandle) -> Result<Args, String> {
+pub async fn get_command_line_args(_app_handle: tauri::AppHandle) -> Result<Args, String> {
     let args = Args::parse();
     Ok(args)
 }
