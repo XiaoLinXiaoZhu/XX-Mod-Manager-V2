@@ -1,14 +1,16 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router/index.ts';
-import { i18nInstance,setI18nLocale } from './locals/index.ts';
+import { i18nInstance, setI18nLocale } from './locals/index.ts';
 import 'sober'
 import { EventSystem, EventType } from './scripts/core/EventSystem.ts';
-import { getConfig } from './scripts/core/ConfigLoader.ts';
+import { getConfig } from './scripts/core/OldConfigLoader.ts';
 
 
 //-================ 检查更新 =================
 import { checkForUpdates } from './scripts/core/UpdateChecker.ts';
+import { ConfigLoader, useStorage } from './scripts/core/ConfigLoader.ts';
+
 checkForUpdates();
 
 //-================ 初始化 =================
