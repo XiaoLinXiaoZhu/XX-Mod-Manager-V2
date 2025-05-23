@@ -1,6 +1,6 @@
 [package]
 name = "xx-mod-manager-tauri"
-version = "0.1.13"
+version = "0.1.14"
 description = "A Tauri App"
 authors = ["XLXZ"]
 edition = "2024"
