@@ -23,6 +23,9 @@
     overflow: hidden;
     position: relative;
     background-image: url('@assets/background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 
     .berger-header {
         position:fixed;
@@ -35,6 +38,12 @@
         align-items: center;
 
         border-bottom: 1px solid #eee;
+        -webkit-app-region: drag; // 允许拖动窗口
+
+        // 但是它的子元素设置为非拖动
+        & > * {
+            -webkit-app-region: no-drag; // 禁止子元素拖动
+        }
     }
 
     .berger-content {

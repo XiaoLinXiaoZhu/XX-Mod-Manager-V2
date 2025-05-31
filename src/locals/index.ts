@@ -27,6 +27,6 @@ export const setI18nLocale = (locale: I18nLocale) => {
 };
 
 // 暴露它的翻译函数
-export const t = (key: string) => {
+export const $t = (key: string) => {
     return i18nInstance.global.t(key);
 };

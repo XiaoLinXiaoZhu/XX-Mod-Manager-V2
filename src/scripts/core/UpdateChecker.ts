@@ -76,15 +76,16 @@ class UpdateChecker {
         }
 
         return false;
-    }
-
-    async check(): Promise<InternalUpdateInfo | null> {
+    }    async check(): Promise<InternalUpdateInfo | null> {
         const { urls, currentVersion, timeout } = this.updateCheckerOptions;
+        
+        let lastError: Error | null = null;
+        let foundVersionButNotNewer = false;
 
         for (const url of urls) {
             try {
                 const response = await axios.get(url, { timeout }).then(res => res.data).catch(error => {
-                    throw new Error(`Request failed: ${error.message}`);
+                    throw new Error(`请求失败: ${error.message}`);
                 });
 
                 const updateInfo = this.formatUpdateInfo(response);
@@ -94,20 +95,35 @@ class UpdateChecker {
                         this.updateInfo = updateInfo;
                         return updateInfo;
                     } else {
-                        // try to check the next url
-                        console.log(`Version ${updateInfo.version} is not newer than current version ${currentVersion}.`);
+                        // 找到了版本信息，但不是较新的版本
+                        foundVersionButNotNewer = true;
+                        console.log(`版本 ${updateInfo.version} 不比当前版本 ${currentVersion} 更新。`);
                     }
                 } else {
-                    console.error('Invalid response format from url:', url, response);
+                    console.error('从URL获取到的响应格式无效:', url, response);
+                    lastError = new Error(`从 ${url} 获取的响应格式无效`);
                 }
             } catch (error) {
-                console.warn(`Error checking update from ${url}:`, error);
-                // Continue to the next URL
+                console.warn(`从 ${url} 检查更新时出错:`, error);
+                lastError = error instanceof Error ? error : new Error(String(error));
+                // 继续尝试下一个URL
             }
         }
 
-        console.error('No valid update found after checking all URLs.');
-        return null;
+        // 如果找到了版本信息，但不是较新的版本，则不是错误
+        if (foundVersionButNotNewer) {
+            console.log('当前已是最新版本。');
+            return null;
+        }
+
+        // 所有URL都检查完了，但没有找到有效的更新
+        if (lastError) {
+            console.error('检查所有URL后未找到有效更新。', lastError);
+            throw lastError; // 抛出错误，让调用者处理
+        } else {
+            console.error('检查所有URL后未找到有效更新。');
+            throw new Error('无法获取更新信息');
+        }
     }
 
     formatUpdateInfo(data: any): InternalUpdateInfo | null {
@@ -142,16 +158,14 @@ class UpdateChecker {
         // 获取当前平台，这里假设为 windows-x86_64，也可以通过 Tauri API 获取
         const platform = 'windows-x86_64'; // 可以根据需要动态确定
         return platform;
-    }
-
-    async downloadOnly(onProgress: (event: DownloadProgressEvent) => void): Promise<string> {
+    }    async downloadOnly(onProgress: (event: DownloadProgressEvent) => void): Promise<string> {
         // 获取当前平台，这里假设为 windows-x86_64，也可以通过 Tauri API 获取
         const platform = await this.getPlatform();
 
         // 使用已保存的更新信息或重新获取
         const updateInfo = this.updateInfo || await this.check();
         if (!updateInfo || !updateInfo.platforms || !updateInfo.platforms[platform] || !updateInfo.platforms[platform].url) {
-            throw new Error(`No valid download URL found for platform ${platform}`);
+            throw new Error(`未找到适用于平台 ${platform} 的有效下载链接`);
         }
 
         const { url: mainUrl } = updateInfo.platforms[platform];
@@ -168,6 +182,7 @@ class UpdateChecker {
 
         // 依次尝试每个下载链接，直到成功或全部失败
         for (const url of downloadUrls) {
+            console.log(`尝试从 ${url} 下载更新...`);
 
             const downloadOptions: downloadOptions = {
                 url,
@@ -176,31 +191,41 @@ class UpdateChecker {
                 retryCount: 3,
                 retryDelay: 1000,
                 onError: (error) => {
-                    console.error(`Error downloading from ${url}:`, error);
+                    console.error(`从 ${url} 下载时出错:`, error);
                     lastError = error instanceof Error ? error : new Error(String(error));
                 },
                 onComplete: () => {
-                    console.log(`Download completed from ${url}`);
+                    console.log(`从 ${url} 下载完成`);
                     isSuccess = true;
                 }
             };
 
-            await downloadFile(downloadOptions);
-
-            // 如果下载成功，退出循环
-            if (isSuccess) {
-                break;
-            } else {
-                console.warn(`Failed to download from ${url}:`, lastError);
+            try {
+                await downloadFile(downloadOptions);
+                
+                // 如果下载成功，退出循环
+                if (isSuccess) {
+                    break;
+                } else {
+                    console.warn(`从 ${url} 下载失败:`, lastError);
+                }
+            } catch (error) {
+                console.error(`从 ${url} 下载过程中发生异常:`, error);
+                lastError = error instanceof Error ? error : new Error(String(error));
             }
         }
 
-        // 如果下载成功，写入更新,然后执行安装
+        // 如果下载成功，返回文件路径
         if (isSuccess) {
+            // 更新内部状态，记录下载的文件路径和名称
+            if (this.updateInfo) {
+                this.updateInfo.downloadedFilePath = fileName;
+                this.updateInfo.downloadedFileName = fileName.split('/').pop() || null;
+            }
             return fileName;
         } else {
             // 如果所有 URL 都失败了，抛出最后一个错误
-            throw new Error(`Failed to download update after trying all URLs: ${(lastError as any).message || 'Unknown error'}`);
+            throw new Error(`尝试所有下载链接后下载更新失败: ${lastError?.message || '未知错误'}`);
         }
     }
 
@@ -217,72 +242,129 @@ class UpdateChecker {
         }
     }
 
-
-
     //执行安装程序
     private async installUpdate(downloadedPath: string): Promise<void> {
+        if (!downloadedPath) {
+            throw new Error('安装路径无效');
+        }
+        
         try {
             // 获取文件的完整路径
             const fullPath = await invoke<string>('get_full_path', {
                 pathStr: downloadedPath
+            }).catch(error => {
+                console.error('获取完整路径失败:', error);
+                throw new Error(`无法获取安装文件的完整路径: ${error}`);
             });
 
-            console.log(`Starting installer from: ${fullPath}`);
+            console.log(`正在启动安装程序: ${fullPath}`);
 
+            let installerStarted = false;
+            
+            // 首先尝试使用Command执行安装程序
             try {
-                // 使用Command执行安装程序
-                // 在Windows上使用更简单的PowerShell调用方式
+                // 在Windows上使用PowerShell调用方式
                 const command = Command.create('exec-powershell', [`& "${fullPath}"`]);
 
                 // 执行命令
                 await command.execute();
-
-                console.log('Installer started successfully');
-
-
+                console.log('通过PowerShell成功启动安装程序');
+                installerStarted = true;
             } catch (execError) {
-                // 如果执行安装程序失败，尝试使用 tauri 后端的 open_program 来执行
-                console.error('Error executing installer with Command:', execError);
-                console.log('Trying to execute installer with Tauri backend...');
+                // 记录错误但不立即抛出，因为我们会尝试备用方法
+                console.error('使用Command执行安装程序失败:', execError);
+                console.log('尝试使用Tauri后端执行安装程序...');
+            }
+            
+            // 如果第一种方法失败，尝试使用tauri后端的open_program来执行
+            if (!installerStarted) {
                 try {
-                    invoke('open_program', {
+                    await invoke('open_program', {
                         pathStr: fullPath,
                         args: '',
                         hide: false,
                         uac: true,
-                    }).then(() => {
-                        console.log('Installer started successfully with Tauri backend');
-                    }).catch((tauriError) => {
-                        console.error('Error executing installer with Tauri backend:', tauriError);
-                        throw tauriError;
                     });
-                    console.log('Installer started successfully with Tauri backend');
+                    console.log('通过Tauri后端成功启动安装程序');
+                    installerStarted = true;
                 } catch (tauriError) {
-                    console.error('Error executing installer with Tauri backend:', tauriError);
-                    throw tauriError;
+                    console.error('使用Tauri后端执行安装程序失败:', tauriError);
+                    throw new Error(`无法启动安装程序: ${tauriError}`);
                 }
             }
+            
+            if (!installerStarted) {
+                throw new Error('无法启动安装程序，所有尝试均失败');
+            }
 
-            // 5. 给安装程序一点时间启动
+            // 给安装程序一点时间启动
+            console.log('等待安装程序启动...');
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // 6. 关闭当前应用程序
-            console.log('Exiting application...');
-            await exit(0); // 使用 exit(0) 而不是 relaunch() 因为我们是要退出并安装新版本
+            // 关闭当前应用程序
+            console.log('正在退出应用程序...');
+            try {
+                await exit(0); // 使用 exit(0) 而不是 relaunch() 因为我们是要退出并安装新版本
+            } catch (exitError) {
+                console.error('应用程序退出失败:', exitError);
+                throw new Error(`应用程序退出失败: ${exitError}`);
+            }
         } catch (execError) {
-            console.error('Error executing installer:', execError);
-            throw execError;
+            console.error('执行安装程序时发生错误:', execError);
+            throw execError instanceof Error ? execError : new Error(String(execError));
         }
     }
 }
 
-
+export type checkForUpdatesOptions = {
+    // 开始检查更新时的回调
+    onStartGetNewVersion?: () => Promise<void>;
+    
+    // 网络错误，无法获取更新信息时的回调
+    onNetworkError?: (error: Error) => Promise<void>;
+    
+    // 当前已是最新版本的回调
+    onAlreadyLatestVersion?: () => Promise<void>;
+    
+    // 获取到新版本的回调
+    onGetNewVersion?: (update: InternalUpdateInfo) => Promise<void>;
+    
+    // 询问是否下载新版本的回调
+    checkIfDownload?: (update: InternalUpdateInfo) => Promise<boolean>;
+    
+    // 下载进度回调
+    onDownloadProgress?: (downloaded: number, total: number) => Promise<void>;
+    
+    // 下载错误回调
+    onDownloadError?: (error: Error) => Promise<void>;
+    
+    // 下载完成回调
+    onDownloadComplete?: (filePath: string) => Promise<void>;
+    
+    // 询问是否安装新版本的回调
+    checkIfInstall?: (update: InternalUpdateInfo) => Promise<boolean>;
+    
+    // 安装错误回调
+    onInstallError?: (error: Error) => Promise<void>;
+};
 export async function checkForUpdates(
-    onGetNewVersion?: (update: InternalUpdateInfo) => Promise<void>,
-    checkIfDownload?: (update: InternalUpdateInfo) => Promise<boolean>,
-    checkIfInstall?: (update: InternalUpdateInfo) => Promise<boolean>
+    options: checkForUpdatesOptions
 ): Promise<void> {
-    alert('checking for updates');
+    const { 
+        onStartGetNewVersion = async () => { console.log('正在检查更新...'); },
+        onNetworkError = async (error) => { console.error('网络错误:', error); },
+        onAlreadyLatestVersion = async () => { console.log('当前已是最新版本'); alert('当前已是最新版本'); },
+        onGetNewVersion = async (update) => { console.log('发现新版本:', update); alert(`发现新版本: ${update.version}\n发布于: ${update.pub_date}\n更新说明: ${update.notes}`); },
+        checkIfDownload = async (update) => { return confirm(`是否要下载新版本 ${update.version}？`); },
+        onDownloadProgress = async (downloaded, total) => { console.log(`下载进度: ${downloaded} / ${total}`); },
+        onDownloadError = async (error) => { console.error('下载错误:', error); },
+        onDownloadComplete = async (filePath) => { console.log('下载完成:', filePath); },
+        checkIfInstall = async (update) => { return confirm(`是否要安装新版本 ${update.version}？`); },
+        onInstallError = async (error) => { console.error('安装错误:', error); }
+    } = options;
+    
+    await onStartGetNewVersion();
+    
     const updateChecker = new UpdateChecker({
         urls: [
             "https://raw.githubusercontent.com/XiaoLinXiaoZhu/XX-Mod-Manager-V2/main/updater/config.json",
@@ -291,75 +373,96 @@ export async function checkForUpdates(
         currentVersion: await getVersion(),
         timeout: 30000,
     });
-    const update = await updateChecker.check();
-    if (update) {
-        const defaultOnGetNewVersion = (update: InternalUpdateInfo) =>{
-                    console.log(
-            `found update ${update.version} from ${update.pub_date} with notes ${update.notes}`
-        );
-        alert(
-            `found update ${update.version} from ${update.pub_date} with notes ${update.notes}`
-        );
-        }
-        if (onGetNewVersion){
-            onGetNewVersion(update);
-        }
-        else{
-            defaultOnGetNewVersion(update);
+    
+    try {
+        // 2. 检查更新
+        const update = await updateChecker.check();
+        
+        // 3. 处理检查结果
+        if (!update) {
+            // 当前已是最新版本
+            await onAlreadyLatestVersion();
+            return;
         }
         
-        // 询问用户是否下载更新
-        // 这里可以使用一个简单的 confirm 对话框，或者使用更复杂的 UI
-        // 这里使用 confirm 对话框
-        const download = checkIfDownload
-            ? await checkIfDownload(update)
-            : confirm('Do you want to download the update?');
+        // 4. 发现新版本
+        await onGetNewVersion(update);
+
+        // 5. 询问是否下载新版本
+        const download = await checkIfDownload(update);
         if (!download) {
             return;
         }
+        
+        // 6. 下载新版本
         let downloaded = 0;
         let contentLength = 0;
-
-        const filePath = await update.downloadOnly((event) => {
-            switch (event.event) {
-                case 'Started':
-                    contentLength = event.data.contentLength || 0;
-                    console.log(`started downloading ${event.data.contentLength} bytes`);
-                    break;
-                case 'Progress':
-                    downloaded += event.data.chunkLength || 0;
-                    console.log(`downloaded ${downloaded} from ${contentLength}`);
-                    break;
-                case 'Finished':
-                    console.log('download finished');
-                    break;
-            }
-        });
-        console.log(`downloaded file to ${filePath}`);
-
-        // 询问用户是否安装更新
-        const install = checkIfInstall
-            ? await checkIfInstall(update)
-            : confirm('Do you want to install the update?');
-
-        if (install) {
-            // await installUpdate(filePath);
-            await update.install();
-            console.log('update installed');
-            alert('update installed');
-        } else {
-            console.log(`cancelled install`);
-            // 打开文件夹展示下载的文件
-            invoke('show_directory_in_explorer', {
-                pathStr: filePath,
-                ifCreate: true,
-            }).then(() => {
-                console.log('opened directory');
-            }).catch((error) => {
-                console.error('Error opening directory:', error);
-                alert('Error opening directory');
+        
+        try {
+            const filePath = await update.downloadOnly((event) => {
+                switch (event.event) {
+                    case 'Started':
+                        contentLength = event.data.contentLength || 0;
+                        console.log(`开始下载，总大小 ${event.data.contentLength} 字节`);
+                        break;
+                    case 'Progress':
+                        downloaded += event.data.chunkLength || 0;
+                        console.log(`已下载 ${downloaded} / ${contentLength}`);
+                        
+                        // 调用下载进度回调
+                        if (onDownloadProgress) {
+                            onDownloadProgress(downloaded, contentLength).catch(err => {
+                                console.error('下载进度回调错误:', err);
+                            });
+                        }
+                        break;
+                    case 'Finished':
+                        console.log('下载完成');
+                        break;
+                }
             });
-            console.log('update not installed');
+            
+            console.log(`文件已下载到: ${filePath}`);
+            
+            // 7. 下载完成回调
+            await onDownloadComplete(filePath);
+            
+            // 8. 询问是否安装新版本
+            const install = await checkIfInstall(update);
+
+            if (install) {
+                try {
+                    // 9. 安装新版本
+                    await update.install();
+                    console.log('更新已安装');
+                    alert('更新已安装');
+                } catch (installError) {
+                    // 10. 处理安装错误
+                    console.error('安装更新时发生错误:', installError);
+                    await onInstallError(installError instanceof Error ? installError : new Error(String(installError)));
+                }
+            } else {
+                console.log(`取消安装`);
+                // 打开文件夹展示下载的文件
+                invoke('show_directory_in_explorer', {
+                    pathStr: filePath,
+                    ifCreate: true,
+                }).then(() => {
+                    console.log('已打开目录');
+                }).catch((error) => {
+                    console.error('打开目录出错:', error);
+                    alert('打开目录出错');
+                });
+                console.log('未安装更新');
+            }
+        } catch (downloadError) {
+            // 处理下载错误
+            console.error('下载更新时发生错误:', downloadError);
+            await onDownloadError(downloadError instanceof Error ? downloadError : new Error(String(downloadError)));
         }
+    } catch (networkError) {
+        // 处理网络错误
+        console.error('检查更新时发生网络错误:', networkError);
+        await onNetworkError(networkError instanceof Error ? networkError : new Error(String(networkError)));
     }
 }

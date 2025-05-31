@@ -85,7 +85,8 @@
     "ignore": "Ignore",
     "changeNotSave": "Unsaved changes detected",
     "ifSaveChange": "Save changes?",
-    "batch-operation": "Batch operation"
+    "batch-operation": "Batch operation",
+    "batch-set-character": "batch set character"
   },
   "buttons": {
     "addPreset": "Add preset",
@@ -102,7 +103,9 @@
     "confirm": "confirm",
     "refresh": "refresh",
     "all": "All",
-    "selected": "Selected"
+    "selected": "Selected",
+    "back": "Back",
+    "checkUpdate": "Check Update"
   },
   "author": "author",
   "caimogu": "Caimogu",

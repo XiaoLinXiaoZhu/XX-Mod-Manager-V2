@@ -9,10 +9,6 @@ import { ModLoader } from '@/scripts/lib/ModLoader';
 
 //-================ 主进程入口 =================
 export async function init() {
-    //--- 检查更新 ---
-    // 不阻塞主线程
-    // checkForUpdates();
-
     const argv = await getArgv() as any;
     // 如果有 useCustomConfig 参数，则加载自定义配置
     if (argv.useCustomConfig && await isDirectoryExists(argv.useCustomConfig)) {
@@ -20,6 +16,12 @@ export async function init() {
     } else {
         // 如果没有 useCustomConfig 参数，则加载默认配置
         await ConfigLoader.loadDefaultConfig();
+    }
+
+    //--- 检查更新 ---
+    const ifCheckUpdatesOnStart = useConfig('checkUpdatesOnStart', false);
+    if (ifCheckUpdatesOnStart.value) {
+        checkForUpdates();
     }
 
     //--- 加载默认配置 ---

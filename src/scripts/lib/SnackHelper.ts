@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { type I18nLocale,t,currentLanguage } from "@/locals";
+import { type I18nLocale,$t,currentLanguage } from "@/locals";
 
 export type TranslatedText = Record<I18nLocale, string>;
 
@@ -40,4 +40,16 @@ export async function t_snack(message: TranslatedText, type: SnackType = 'info')
         return;
     }
     snack(message[currentLanguage], type);
+}
+
+export async function $t_snack(message: string, type: SnackType = 'info') {
+    const translatedMessage = $t(message);
+    if (translatedMessage === message) {
+        // 如果翻译失败，直接使用原始消息
+        await snack(message, type);
+    }
+    else {
+        // 如果翻译成功，使用翻译后的消息
+        await snack(translatedMessage, type);
+    }
 }

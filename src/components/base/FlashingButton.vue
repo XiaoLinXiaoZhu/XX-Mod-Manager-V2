@@ -31,13 +31,13 @@ const handleClick = () => {
         emits('click')
         btn.classList.remove('blinking')
         blendButton.classList.remove('blinking')
-    }, 500)
+    }, 400)
 }
 </script>
 
 <style lang="scss" scoped>
 $flash-color: #ccff00;
-$flash-duration: 0.5s;
+$flash-duration: 0.4s;
 
 .blend-button {
     width: fit-content;
@@ -47,7 +47,6 @@ $flash-duration: 0.5s;
 
     // filter mod
     &.blinking {
-        background-color: black;
         filter: brightness(1.2);
     }
 }
@@ -63,7 +62,7 @@ $flash-duration: 0.5s;
     &.blinking {
         animation-iteration-count: infinite;
         animation-direction: alternate;
-        animation-timing-function: ease-in-out;
+        // animation-timing-function: ease-in-out;
         animation-duration: $flash-duration;
         animation-name: glow;
 
