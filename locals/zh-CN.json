@@ -89,6 +89,7 @@
     "batch-set-character": "批量设置角色"
   },
   "buttons": {
+    "back": "返回",
     "save": "保存",
     "cancel": "取消",
     "reset": "重置",

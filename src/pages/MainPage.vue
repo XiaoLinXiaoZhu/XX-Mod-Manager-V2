@@ -1,33 +1,61 @@
 <template>
-  <s-scroll-view style="width: 100%;height: auto;">
-    <div v-for="(mod, index) in mods" :key="index" class="mod-item">
-      <h2>{{ mod.name.value }}</h2>
-      <p>{{ mod.location.value }}</p>
-      <p>Version: {{ mod.id.value }}</p>
-      <!-- preview -->
-      <div class="preview" v-if="mod.previewUrlRef">
-        <img :src="mod.previewUrlRef" alt="Preview" v-if="mod.previewUrlRef" style="width: 50%;"/>
-        <p v-if="mod.previewUrlRef">Preview URL: {{ mod.previewUrlRef }}</p>
-        <div v-else>Loading preview...</div>
+  <BergerFrame>
+    <template #header>
+      <BackButton />
+      <h1>Main Page</h1>
+    </template>
+
+    <template #content>
+      <p>Welcome to the main page!</p>
+      <p>This is where you can find the latest updates and features.</p>
+      <div class="ball-container">
+        <div class="test-ball"></div>
       </div>
-    </div>
-  </s-scroll-view>
+    </template>
+
+    <template #footer>
+      <p>&copy; 2023 Your Company</p>
+    </template>
+  </BergerFrame>
 </template>
 
 <script setup lang="ts">
-import { ModInfo } from '@/scripts/lib/ModInfo';
-import { ref, onMounted} from 'vue';
-import { ModLoader } from '@/scripts/lib/ModLoader';
-
-const mods = ref<ModInfo[]>([]);
-
-onMounted(() => {
-  // Load mods from the ModInfo class
-  // debug
-  console.log('Loading mods...');
-  setTimeout(() => {
-    mods.value = ModLoader.mods;
-  }, 2000);
-});
-
+import BergerFrame from '@/components/base/BergerFrame.vue';
+import BackButton from '@/components/BackButton.vue';
 </script>
+
+<style scoped lang="scss">
+.ball-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+
+  // background-color: black;
+  // // mix-blend-mode: lighten;
+  // filter: brightness(2)  contrast(50);
+}
+
+.test-ball {
+  width: 100px;
+  height: 100px;
+  background-color: #0000FF;
+  border-radius: 50%;
+  position: relative;
+  border: 2px solid #FF00FF;
+
+  // 通过filter将其调整为黄色纯色
+  filter: invert(50%) sepia(100%) saturate(9999%) hue-rotate(87deg) brightness(20);
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    // background-color: #ccff00; // 黄色
+    // mix-blend-mode: color; // 混合模式
+  }
+}
+</style>

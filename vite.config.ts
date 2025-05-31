@@ -31,6 +31,7 @@ export default defineConfig(async () => {
       alias: {
         "@": path.resolve(__dirname, "./src"),
         "@assets": path.resolve(__dirname, "./src/assets"),
+        "@locals": path.resolve(__dirname, "./locals"),
       },
     },
 

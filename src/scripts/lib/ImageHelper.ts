@@ -28,7 +28,7 @@ export async function loadImage(filePath: string, ifCreate: boolean = false): Pr
     
     try {
         //debug
-        console.log('Step2: load image', filePath, "\n" ,new Error().stack);
+        // console.log('Step2: load image', filePath, "\n" ,new Error().stack);
         const binaryData = await invoke<number[]>('read_binary_file', { pathStr: filePath, ifCreate: ifCreate });
         // 检查数据是否为数组
         if (!Array.isArray(binaryData)) {
@@ -62,7 +62,7 @@ export async function loadImage(filePath: string, ifCreate: boolean = false): Pr
         // cache the image
         imageCache[filePath] = url;
         // debug
-        console.log('Step3: load image success', filePath, url);
+        // console.log('Step3: load image success', filePath, url);
         return url;
     } catch (error) {
         console.error("Error loading image:", filePath, error);

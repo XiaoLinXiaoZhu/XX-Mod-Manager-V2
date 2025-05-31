@@ -3,7 +3,7 @@ import { ConfigLoader, useConfig } from '@/scripts/core/ConfigLoader.ts';
 import { getArgv } from '../lib/Argv';
 import { isDirectoryExists } from '../lib/FileHelper';
 import { invoke } from '@tauri-apps/api/core';
-import { setI18nLocale, I18nLocale } from '@/locals';
+import { setI18nLocale, I18nLocale } from '@locals/index.ts';
 import { snack } from '../lib/SnackHelper';
 import { ModLoader } from '@/scripts/lib/ModLoader';
 
