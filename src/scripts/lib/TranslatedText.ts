@@ -1,4 +1,4 @@
-import { currentLanguage,setI18nLocale,type I18nLocale } from "@locals/index.ts";
+import { currentLanguage,setI18nLocale,type I18nLocale } from "@/locals";
 
 /** @class
  * @classdesc TranslatedText 用于简化多语言文本的获取

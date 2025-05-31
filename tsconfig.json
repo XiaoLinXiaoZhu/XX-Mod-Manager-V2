@@ -8,7 +8,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@assets/*": ["./src/assets/*"],
-      "@locals/*": ["./locals/*"],
+      "@locals/*": ["./src/locals/*"],
     },
 
     /* Bundler mode */

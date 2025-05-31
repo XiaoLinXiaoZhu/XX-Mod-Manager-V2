@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router/index.ts';
-import { i18nInstance, setI18nLocale } from '@locals/index.ts';
+import { i18nInstance, setI18nLocale } from '@/locals/index.ts';
 import 'sober'
 import { EventSystem, EventType } from './scripts/core/EventSystem.ts';
 

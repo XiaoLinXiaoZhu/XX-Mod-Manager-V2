@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { type I18nLocale,t,currentLanguage } from "@locals/index.ts";
+import { type I18nLocale,t,currentLanguage } from "@/locals";
 
 export type TranslatedText = Record<I18nLocale, string>;
 
