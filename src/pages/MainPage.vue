@@ -6,11 +6,7 @@
     </template>
 
     <template #content>
-      <p>Welcome to the main page!</p>
-      <p>This is where you can find the latest updates and features.</p>
-      <div class="ball-container">
-        <div class="test-ball"></div>
-      </div>
+      
     </template>
 
     <template #footer>
@@ -25,7 +21,13 @@
         </s-icon-button>
         {{ $t('buttons.checkUpdate') }}
       </s-tooltip>
-
+        <s-tooltip>
+          <div slot="trigger" class="version-info">
+            <span>{{ $t('currentVersion') + versionData.version }}</span>
+            <span>{{ $t('author') + ":  XLXZ" }}</span>
+          </div>
+          <span>{{ $t('versionBuildTime') + versionData.pub_date }}</span>
+        </s-tooltip>
     </template>
   </BergerFrame>
 </template>
@@ -35,6 +37,7 @@ import BergerFrame from '@/components/base/BergerFrame.vue';
 import BackButton from '@/components/BackButton.vue';
 import { $t_snack} from '@/scripts/lib/SnackHelper';
 import { checkForUpdates } from '@/scripts/core/UpdateChecker';
+import { versionData  } from '@/scripts/lib/VersionInfo';
 
 const handleCheckUpdate = async () => {
   // Logic to check for updates
@@ -44,9 +47,12 @@ const handleCheckUpdate = async () => {
     onStartGetNewVersion: async () => {
       await $t_snack("buttons.checkUpdate", "info");
     },
+    onAlreadyLatestVersion: async () => {
+      await $t_snack("message.alreadyLatestVersion", "success");
+    },
   });
-  // You can implement the actual update check logic here
 };
+
 </script>
 
 <style scoped lang="scss">
@@ -55,5 +61,17 @@ const handleCheckUpdate = async () => {
   padding: 0px;
   width: 40px;
   height: 40px;
+}
+
+.version-info{
+  font-size: 14px;
+  padding-left: 20px;
+  height: 40px;
+
+
+  color: var(--s-color-on-surface-variant);
+  display: flex;
+  // 竖向排列
+  flex-direction: column;
 }
 </style>

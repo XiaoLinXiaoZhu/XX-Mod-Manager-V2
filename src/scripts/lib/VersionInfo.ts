@@ -8,3 +8,8 @@ export function getVersionInfo() {
 export function getVersionNote(){
     return updaterConfig.notes;
 }
+
+export const versionData = updaterConfig;
+export function getVersionData() {
+    return updaterConfig;
+}

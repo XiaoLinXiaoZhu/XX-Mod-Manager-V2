@@ -9,7 +9,8 @@
     "updateAvailable": "有新版本可用",
     "updateAvailableInfo": "是否前往下载？",
     "updateNotAvailable": "当前已是最新版本",
-    "updateError": "检查更新失败，请检查网络连接"
+    "updateError": "检查更新失败，请检查网络连接",
+    "alreadyLatestVersion": "当前已是最新版本"
   },
   "element": {
     "section": {
@@ -170,5 +171,7 @@
     "title": "请输入密码",
     "cancel": "取消输入密码，退出解压",
     "confirm": "确认密码："
-  }
+  },
+  "currentVersion": "当前版本：",
+  "versionBuildTime": "构建时间："
 }
