@@ -12,9 +12,9 @@
     </template>
 
     <template #content>
-      <div class="main-content">
+      <div class="main-content" style="height: 100%; width: 100%;">
         <!-- 主页面有三个主要功能: 查看所有的子配置项，新建新的仓库，打开设置面板 -->
-        <TestCardPage />
+        <TestCardPage style="height: 100%; width: 100%;" />
       </div>
     </template>
 
@@ -50,6 +50,7 @@ import { checkForUpdates } from '@/scripts/core/UpdateChecker';
 import { versionData  } from '@/scripts/lib/VersionInfo';
 import TestCardPage from '@/components/TestCardPage.vue';
 import SectionSelector from '@/components/base/sectionSelector.vue';
+import SortTest from '@/components/SortTest.vue';
 const handleCheckUpdate = async () => {
   // Logic to check for updates
   console.log('Checking for updates...');

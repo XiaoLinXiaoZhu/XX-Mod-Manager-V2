@@ -4,24 +4,20 @@
       v-for="(game, index) in games" 
       :key="game.id"
       :target-x="cardTargetPositions[index]?.x || index * (CARD_WIDTH + CARD_MARGIN)"
-      :target-y="cardTargetPositions[index]?.y || 0"
+      :target-y="0"
       :initial-x="initialCardPositions[index]?.x || index * (CARD_WIDTH + CARD_MARGIN)"
       :initial-y="0"
-      :mouse-x="isDraggingCard && index === draggingIndex ? dragStartX : undefined"
-      :mouse-y="isDraggingCard && index === draggingIndex ? dragStartY : undefined"
       :width="CARD_WIDTH"
       :height="CARD_HEIGHT"
       :easing="isDraggingCard && index === draggingIndex ? DRAG_EASING : REARRANGE_EASING"
-      :rotation-mode="isDraggingCard && index === draggingIndex ? 'simulation' : 'simple'"
       :rotation-easing="ROTATION_EASING"
       :max-rotation="isDraggingCard && index === draggingIndex ? MAX_DRAG_ROTATION : MAX_REARRANGE_ROTATION"
-      :stability-delay="1000"
+      :stability-delay="200"
       :initially-static="true"
       ref="animatedElements"
       class="card-wrapper"
     >
-    <FlippableElement>
-              <div 
+      <div 
         class="card"
         :class="{ 'dragging': isDraggingCard && index === draggingIndex }"
         @mousedown="startDrag($event, index)"
@@ -29,8 +25,6 @@
         <img :src="game.cover" :alt="game.name" class="card-image">
         <div class="card-title">{{ game.name }}</div>
       </div>
-    </FlippableElement>
-
     </animated-element>
     <div 
       class="insertion-indicator"
@@ -43,7 +37,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, onBeforeUnmount, computed } from 'vue';
 import AnimatedElement from './base/AnimatedElement.vue';
-import FlippableElement from './base/FlippableElement.vue';
 
 // 定义游戏类型接口
 interface Game {
@@ -71,10 +64,10 @@ const CARD_MARGIN = 20;
 const CARD_SCALE_WHEN_DRAGGING = 1.05;
 
 // 动画参数配置
-const DRAG_EASING = 0.25; // 拖拽时的缓动系数
-const REARRANGE_EASING = 0.17; // 重排时的缓动系数
-const ROTATION_EASING = 0.3; // 旋转的缓动系数
-const MAX_DRAG_ROTATION = 9990; // 拖拽时的最大旋转角度
+const DRAG_EASING = 0.15; // 拖拽时的缓动系数
+const REARRANGE_EASING = 0.08; // 重排时的缓动系数
+const ROTATION_EASING = 0.12; // 旋转的缓动系数
+const MAX_DRAG_ROTATION = 25; // 拖拽时的最大旋转角度
 const MAX_REARRANGE_ROTATION = 20; // 重排时的最大旋转角度
 
 // DOM引用
@@ -143,8 +136,8 @@ const onDrag = (event: MouseEvent) => {
   const offsetY = event.clientY - dragStartY.value;
   
   // 获取当前拖拽卡片的原始位置
-  const originalX = draggingIndex.value * (CARD_WIDTH + CARD_MARGIN);
-
+  const originalX = index * (CARD_WIDTH + CARD_MARGIN);
+  
   // 更新拖拽卡片的目标位置
   cardTargetPositions[draggingIndex.value] = {
     x: originalX + offsetX,
