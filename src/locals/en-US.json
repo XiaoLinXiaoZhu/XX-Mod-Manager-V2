@@ -4,7 +4,13 @@
     "alert": {
       "emptyModSourceOrTarget": "mod destination folder or mod source folder is empty"
     },
-    "requireRefresh": "Program needs to be refreshed to apply changes"
+    "requireRefresh": "Program needs to be refreshed to apply changes",
+    "alreadyLatestVersion": "The current version is the latest version.",
+    "checkUpdate": "Check for updates",
+    "updateAvailable": "A new version is available.",
+    "updateAvailableInfo": "Would you like to proceed to download?",
+    "updateError": "Check for updates failed. Please check your network connection.",
+    "updateNotAvailable": "The latest version was not obtained."
   },
   "element": {
     "section": {
@@ -15,7 +21,8 @@
       "basic": "Basics",
       "advanced": "Advanced",
       "auto": "Auto",
-      "more": "More"
+      "more": "More",
+      "games": "Games"
     },
     "filter": {
       "all": "All",
@@ -165,5 +172,7 @@
     "title": "Please Enter Password",
     "cancel": "Cancel entering password and exit decompression",
     "confirm": "Confirm Password:"
-  }
+  },
+  "currentVersion": "Current Version: ",
+  "versionBuildTime": "Build time: "
 }

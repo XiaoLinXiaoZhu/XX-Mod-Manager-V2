@@ -13,7 +13,8 @@
 
     <template #content>
       <div class="main-content">
-        <!-- 主页面有三个主要功能 -->
+        <!-- 主页面有三个主要功能: 查看所有的子配置项，新建新的仓库，打开设置面板 -->
+        <TestCardPage />
       </div>
     </template>
 
@@ -43,11 +44,12 @@
 <script setup lang="ts">
 import BergerFrame from '@/components/base/BergerFrame.vue';
 import BackButton from '@/components/BackButton.vue';
+import { $t, currentLanguageRef } from '@/locals';
 import { $t_snack} from '@/scripts/lib/SnackHelper';
 import { checkForUpdates } from '@/scripts/core/UpdateChecker';
 import { versionData  } from '@/scripts/lib/VersionInfo';
-import SectionSelector from '@/components/base/SectionSelector.vue';
-
+import TestCardPage from '@/components/TestCardPage.vue';
+import SectionSelector from '@/components/base/sectionSelector.vue';
 const handleCheckUpdate = async () => {
   // Logic to check for updates
   console.log('Checking for updates...');
@@ -62,11 +64,16 @@ const handleCheckUpdate = async () => {
   });
 };
 
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const currentSection = ref('Section 1');
-const sections = ref(['Section 1', 'Section 2', 'Section 3', 'Section 4']);
+const sections = ref([$t('element.section.games'), $t('element.section.help'), $t('element.section.settings')]);
 const currentIndex = ref(0);
+
+watch(currentLanguageRef, () => {
+  // 当语言变化时，重新设置 sections
+  sections.value = [$t('element.section.games'), $t('element.section.help'), $t('element.section.settings')];
+});
 
 onMounted(() => {
 });

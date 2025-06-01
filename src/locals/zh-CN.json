@@ -8,7 +8,7 @@
     "checkUpdate": "检查更新",
     "updateAvailable": "有新版本可用",
     "updateAvailableInfo": "是否前往下载？",
-    "updateNotAvailable": "当前已是最新版本",
+    "updateNotAvailable": "没有获取到最新版本",
     "updateError": "检查更新失败，请检查网络连接",
     "alreadyLatestVersion": "当前已是最新版本"
   },
@@ -21,7 +21,8 @@
       "basic": "基础",
       "advanced": "管理",
       "auto": "自动",
-      "more": "更多"
+      "more": "更多",
+      "games": "游戏"
     },
     "filter": {
       "all": "全部",
