@@ -75,7 +75,10 @@ listen('snack', (event) => {
 });
 
 
-
+EventSystem.on(EventType.wakeUp, async () => {
+    $t_snack("message.hello", "success");
+});
 
 import { init } from './scripts/core/XXMMCore.ts';
+import { $t_snack } from './scripts/lib/SnackHelper.ts';
 init();

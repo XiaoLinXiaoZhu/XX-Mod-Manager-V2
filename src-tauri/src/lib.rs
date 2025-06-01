@@ -66,7 +66,7 @@ pub fn run() {
                     eprintln!("Failed to get the main webview window.");
                 }
             }
-
+            unsafe { wake_up::WAKE_UP_CONDITION += 1 };
             let _ = send_wake_up(app.handle().clone());
 
             Ok(())

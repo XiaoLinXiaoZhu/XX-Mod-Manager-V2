@@ -1,16 +1,14 @@
-// 之前的configloader.ts 有一些地方非常麻烦这里想要优化一下：
-import { getAppdataDir } from '@/scripts/lib/FileHelper';
-import { join } from '@tauri-apps/api/path';
-import { Storage } from '../lib/Storge';
+import { StorageValue,Storage } from '../lib/Storge';
+import { useGlobalConfig } from './GlobalConfigLoader';
 
-class ConfigLoaderClass extends Storage {
-    public storageName: string = 'config';
-    async loadDefaultConfig(): Promise<void> {
-        const appPath = await getAppdataDir();
-        const defaultConfigPath = await join(appPath, 'config.json');
-        await this.loadFrom(defaultConfigPath);
+class SubConfigLoaderClass extends Storage {
+    public storageName: string = 'subconfig';
+
+    // useConfig 方法,当没有获取的值时，先尝试从 GlobalConfigLoader 中获取,如果它也没有，则返回默认值
+    useConfig<T>(key: string, defaultValue: T, useGlobal: boolean = true): StorageValue<T> {
+        return useGlobal ? this.useStorage(key, useGlobalConfig(key, "" as any).value || defaultValue) : this.useStorage(key, defaultValue);
     }
 }
 
-export const ConfigLoader = new ConfigLoaderClass();
-export const useConfig = ConfigLoader.useStorage.bind(ConfigLoader);
+export const ConfigLoader = new SubConfigLoaderClass();
+export const useConfig = ConfigLoader.useConfig.bind(ConfigLoader);

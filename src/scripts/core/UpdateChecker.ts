@@ -348,21 +348,21 @@ export type checkForUpdatesOptions = {
     onInstallError?: (error: Error) => Promise<void>;
 };
 export async function checkForUpdates(
-    options: checkForUpdatesOptions
+    options?: checkForUpdatesOptions
 ): Promise<void> {
     const { 
         onStartGetNewVersion = async () => { console.log('正在检查更新...'); },
-        onNetworkError = async (error) => { console.error('网络错误:', error); },
+        onNetworkError = async (error: Error) => { console.error('网络错误:', error); },
         onAlreadyLatestVersion = async () => { console.log('当前已是最新版本'); alert('当前已是最新版本'); },
-        onGetNewVersion = async (update) => { console.log('发现新版本:', update); alert(`发现新版本: ${update.version}\n发布于: ${update.pub_date}\n更新说明: ${update.notes}`); },
-        checkIfDownload = async (update) => { return confirm(`是否要下载新版本 ${update.version}？`); },
-        onDownloadProgress = async (downloaded, total) => { console.log(`下载进度: ${downloaded} / ${total}`); },
-        onDownloadError = async (error) => { console.error('下载错误:', error); },
-        onDownloadComplete = async (filePath) => { console.log('下载完成:', filePath); },
-        checkIfInstall = async (update) => { return confirm(`是否要安装新版本 ${update.version}？`); },
-        onInstallError = async (error) => { console.error('安装错误:', error); }
-    } = options;
-    
+        onGetNewVersion = async (update: InternalUpdateInfo) => { console.log('发现新版本:', update); alert(`发现新版本: ${update.version}\n发布于: ${update.pub_date}\n更新说明: ${update.notes}`); },
+        checkIfDownload = async (update: InternalUpdateInfo) => { return confirm(`是否要下载新版本 ${update.version}？`); },
+        onDownloadProgress = async (downloaded: number, total: number) => { console.log(`下载进度: ${downloaded} / ${total}`); },
+        onDownloadError = async (error: Error) => { console.error('下载错误:', error); },
+        onDownloadComplete = async (filePath: string) => { console.log('下载完成:', filePath); },
+        checkIfInstall = async (update: InternalUpdateInfo) => { return confirm(`是否要安装新版本 ${update.version}？`); },
+        onInstallError = async (error: Error) => { console.error('安装错误:', error); }
+    } = options || {};
+
     await onStartGetNewVersion();
     
     const updateChecker = new UpdateChecker({

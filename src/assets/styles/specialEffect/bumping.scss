@@ -1,0 +1,13 @@
+// 一个跳跃的动画效果，物体不断变大变小
+@keyframes bump {
+  0%, 100% {
+    --border-thickness: 50px;
+  }
+  50% {
+    --border-thickness: 10px;
+  }
+}
+// 应用 bump 动画到特定元素
+.OO-bump {
+    --border-thickness: 50px;
+}

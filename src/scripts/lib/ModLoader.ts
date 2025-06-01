@@ -2,10 +2,10 @@
 import { ModInfo } from './ModInfo';
 import { isDirectoryExists,getDirectoryList } from "./FileHelper";
 import { join } from "@tauri-apps/api/path";
-import { useConfig } from '../core/ConfigLoader';
+import { useGlobalConfig } from '../core/GlobalConfigLoader';
 
 export class ModLoader {
-    public static modSourceFolders = useConfig('modSourceFolders', [] as string[]).getRef();
+    public static modSourceFolders = useGlobalConfig('modSourceFolders', [] as string[]).getRef();
     static async addModSourceFolder(folder: string) {
         // check一下是否存在
         if (folder === undefined || folder === null || folder === '') {

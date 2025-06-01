@@ -1,12 +1,13 @@
 <template>
-<FlashingButton>
-    <s-tooltip>
-    <div slot="trigger" class="back-button">
-    </div>
-    {{ $t('buttons.back') }}
-    </s-tooltip>
-</FlashingButton>
+    <FlashingButton>
+        <s-tooltip>
+            <div slot="trigger" class="back-button">
+            </div>
+            {{ $t('buttons.back') }}
+        </s-tooltip>
+    </FlashingButton>
 </template>
+
 <script setup lang="ts">
 import FlashingButton from './base/FlashingButton.vue';
 </script>

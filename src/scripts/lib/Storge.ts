@@ -141,13 +141,7 @@ export class Storage {
             valueRef = ref<T>(storedValue);
             this._refCache[key] = valueRef;
         }
-        console.log(`useStorage ${key} ${valueRef.value}`);
-
-        const set = async (newValue: T) => {
-            valueRef!.value = newValue;
-            this._data[key] = newValue;
-            await this.save();
-        };
+        console.log(`useStorage from ${this.storageName} \n`, key, this._data[key]);
 
         const storage = this;
         return {
@@ -159,7 +153,11 @@ export class Storage {
                 storage._data[key] = newValue;
                 storage.save();
             },
-            set,
+            set: async (newValue: T) => {
+                valueRef!.value = newValue;
+                this._data[key] = newValue;
+                await this.save();
+            },
             getRef: () => valueRef!,
         };
     }

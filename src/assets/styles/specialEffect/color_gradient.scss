@@ -1,0 +1,74 @@
+// 用来渲染一些特殊效果的样式
+// Define variables based on theme and system preference
+:root {
+    --color-gradient-from-dark: #9fb900;
+    --color-gradient-to-dark: #f2d900;
+
+    --color-gradient-from-light: #53727E;
+    --color-gradient-to-light: #0E3F3C;
+}
+
+// Apply theme-based gradients
+s-page:not([theme]),
+s-page[theme="auto"] {
+    @media (prefers-color-scheme: dark) {
+        --is-dark: 1;
+        --color-gradient-from: var(--color-gradient-from-dark);
+        --color-gradient-to: var(--color-gradient-to-dark);
+    }
+
+    @media (prefers-color-scheme: light) {
+        --is-dark: 0;
+        --color-gradient-from: var(--color-gradient-from-light);
+        --color-gradient-to: var(--color-gradient-to-light);
+    }
+}
+
+s-page[theme="dark"] {
+    --is-dark: 1;
+    --color-gradient-from: var(--color-gradient-from-dark);
+    --color-gradient-to: var(--color-gradient-to-dark);
+}
+
+s-page[theme="light"] {
+    --is-dark: 0;
+    --color-gradient-from: var(--color-gradient-from-light);
+    --color-gradient-to: var(--color-gradient-to-light);
+}
+
+s-page {
+    & .OO-color-gradient {
+        animation: gradientAnimation 4s ease-in-out infinite;
+    }
+
+    & .OO-color-gradient-variant {
+        background: linear-gradient(45deg, var(--color-gradient-from), var(--color-gradient-to));
+        background-size: 400% 400%;
+        animation: gradientAnimationVariant 4s ease-in-out infinite;
+    }
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-color: var(--color-gradient-from);
+  }
+  50% {
+    background-color: var(--color-gradient-to);
+  }
+  100% {
+    background-color: var(--color-gradient-from);
+  }
+
+}
+
+@keyframes gradientAnimationVariant {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

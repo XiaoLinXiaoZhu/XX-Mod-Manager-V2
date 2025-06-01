@@ -19,6 +19,8 @@ export let currentLanguage : I18nLocale = "en-US"; // 默认语言
 export let currentLanguageRef = ref<I18nLocale>(currentLanguage); // 当前语言的引用
 
 export const setI18nLocale = (locale: I18nLocale) => {
+    // debug
+    console.log(`设置语言从 ${i18nInstance.global.locale.value} 到 ${locale}`);
     i18nInstance.global.locale.value = locale;
     currentLanguage = locale;
     currentLanguageRef.value = locale;

@@ -4,6 +4,7 @@ import SwitchConfigPage from "../pages/SwitchConfigPage.vue";
 // 教程页面
 import TutorialPage from "../pages/TutorialPage.vue";
 import TestRW from "../pages/TestRW.vue";
+import ModListPage from "../pages/ModListPage.vue";
 
 export default createRouter({
   history: createWebHistory("/"),
@@ -12,6 +13,11 @@ export default createRouter({
       path: "/",
       name: "Main",
       component: MainPage,
+    },
+    {
+      path: "/mod-list",
+      name: "ModList",
+      component: ModListPage,
     },
     {
       path: "/switch-config",

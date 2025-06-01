@@ -1,6 +1,6 @@
 {
   "message": {
-    "hello": "你好，世界",
+    "hello": "欢迎使用 XX-ModsManager（XXMM）",
     "alert": {
       "emptyModSourceOrTarget": "mod目标文件夹或mod源文件夹为空"
     },

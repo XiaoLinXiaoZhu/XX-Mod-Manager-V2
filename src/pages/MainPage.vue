@@ -2,11 +2,19 @@
   <BergerFrame>
     <template #header>
       <BackButton />
-      <h1>Main Page</h1>
+      <h1 draggable>Main Page</h1>
+      <SectionSelector
+        :sections="sections"
+        v-model:currentSection="currentSection"
+        v-model:index="currentIndex"
+        style="position: absolute; width: 500px; right: 10px;"
+      />
     </template>
 
     <template #content>
-      
+      <div class="main-content">
+        <!-- 主页面有三个主要功能 -->
+      </div>
     </template>
 
     <template #footer>
@@ -38,6 +46,7 @@ import BackButton from '@/components/BackButton.vue';
 import { $t_snack} from '@/scripts/lib/SnackHelper';
 import { checkForUpdates } from '@/scripts/core/UpdateChecker';
 import { versionData  } from '@/scripts/lib/VersionInfo';
+import SectionSelector from '@/components/base/SectionSelector.vue';
 
 const handleCheckUpdate = async () => {
   // Logic to check for updates
@@ -52,6 +61,15 @@ const handleCheckUpdate = async () => {
     },
   });
 };
+
+import { onMounted, ref } from 'vue';
+
+const currentSection = ref('Section 1');
+const sections = ref(['Section 1', 'Section 2', 'Section 3', 'Section 4']);
+const currentIndex = ref(0);
+
+onMounted(() => {
+});
 
 </script>
 
