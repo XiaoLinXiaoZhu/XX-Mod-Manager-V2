@@ -58,7 +58,18 @@ s-page {
   100% {
     background-color: var(--color-gradient-from);
   }
+}
 
+// 渐变 border 的动画效果
+@keyframes gradientBorderAnimation {
+  0%,100% {
+    border-color: var(--color-gradient-from);
+    outline-color: var(--color-gradient-from);
+  }
+  50% {
+    border-color: var(--color-gradient-to);
+    outline-color: var(--color-gradient-to);
+  }
 }
 
 @keyframes gradientAnimationVariant {
@@ -71,4 +82,17 @@ s-page {
   100% {
     background-position: 0% 50%;
   }
+}
+
+@keyframes gradientBorderAnimationVariant {
+  0% {
+    border-image-source: linear-gradient(45deg, var(--color-gradient-from), var(--color-gradient-to));
+  }
+  50% {
+    border-image-source: linear-gradient(45deg, var(--color-gradient-to), var(--color-gradient-from));
+  }
+  100% {
+    border-image-source: linear-gradient(45deg, var(--color-gradient-from), var(--color-gradient-to));
+  }
+  
 }

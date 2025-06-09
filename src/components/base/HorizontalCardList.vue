@@ -144,7 +144,7 @@ const deltaX = new MouseEventBinder(0)
         }
     })
     .bindMouseUp((event, ref) => {
-        if (!isDragging.value) return;
+        // if (!isDragging.value) return;
         if (Math.abs(ref.value) < CLICK_THRESHOLD) {
             // 如果拖动距离小于阈值，认为是点击
             handleClick(event);
@@ -254,7 +254,7 @@ onMounted(() => {
     display: flex;
     overflow-x: auto;
     overflow-y: visible;
-    padding: 10px 50%;
+    padding: 120px 50%;
 
     gap: 20px;
 

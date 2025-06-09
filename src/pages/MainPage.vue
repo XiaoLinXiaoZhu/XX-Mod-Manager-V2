@@ -14,9 +14,10 @@
           {{ currentCardIndex }}
           <div
             style="display: flex; flex-direction: column; height: 100%; width: 100%;flex: 0 0 auto;align-content: center;justify-content: center;align-items: center;">
-            <HorizontalCardList style="width: 100%; overflow: visible;"
-              v-model:focused-index="currentCardIndex">
-              <div class="card">AddNewRepo</div>
+            <HorizontalCardList style="width: 100%; overflow: visible;" v-model:focused-index="currentCardIndex">
+              <div class="card">AddNewRepo
+                <div class="card-hover"> 123213 </div>
+              </div>
               <div class="card">Card 1</div>
               <div class="card">Card 2</div>
               <div class="card">Card 3</div>
@@ -33,9 +34,27 @@
               <div class="card">Card 2</div>
               <div class="card">Card 3</div>
             </HorizontalCardList>
-            <!-- 增减debug按钮 -->
-            <s-button class="OO-button" @click="currentCardIndex++">{{ $t('buttons.addDebug') }}</s-button>
-            <s-button class="OO-button" @click="currentCardIndex--">{{ $t('buttons.removeDebug') }}</s-button>
+            <!-- 增减按钮 -->
+            <s-icon class="card-list-icon-button right" @click="currentCardIndex += 1">
+              <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12575" width="200"
+                height="200">
+                <path d="M819.2 512l-472.064 512L204.8 870.4 535.552 512 204.8 153.6 347.136 0 819.2 512z"></path>
+              </svg>
+            </s-icon>
+            <s-icon class="card-list-icon-button left" @click="currentCardIndex -= 1">
+              <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
+                <g transform="scale(-1, 1) translate(-1024, 0)">
+                  <path d="M819.2 512l-472.064 512L204.8 870.4 535.552 512 204.8 153.6 347.136 0 819.2 512z"></path>
+                </g>
+              </svg>
+            </s-icon>
+            <!-- 一个悬浮在中间的指示箭头 -->
+            <s-icon class="card-list-indicator">
+              <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+                <path d="M512 0l-512 512h1024z"></path>
+              </svg>
+            </s-icon>
+
           </div>
           <div>
             <p>{{ $t('element.helpContent') }}</p>
@@ -72,21 +91,24 @@
 </template>
 
 <script setup lang="ts">
-import SectionSelector from '@/components/base/SectionSelector.vue';
-import HorizontalScrollBar from '@/components/base/HorizontalScrollBar.vue';
 import BergerFrame from '@/components/base/BergerFrame.vue';
 import BackButton from '@/components/BackButton.vue';
+
+import SectionSelector from '@/components/base/SectionSelector.vue';
+import SectionSlider from '@/components/base/SectionSlider.vue';
+import HorizontalCardList from '@/components/base/HorizontalCardList.vue';
+
+import { computed, onMounted, ref, watch } from 'vue';
+
+
 import { $t, currentLanguageRef } from '@/locals';
 import { $t_snack } from '@/scripts/lib/SnackHelper';
 import { checkForUpdates } from '@/scripts/core/UpdateChecker';
 import { versionData } from '@/scripts/lib/VersionInfo';
-import DragableCardList from '@/components/DragableCardList.vue';
-import HorizontalCardList from '@/components/base/HorizontalCardList.vue';
 
 const handleCheckUpdate = async () => {
   // Logic to check for updates
   console.log('Checking for updates...');
-
   checkForUpdates({
     onStartGetNewVersion: async () => {
       await $t_snack("buttons.checkUpdate", "info");
@@ -97,8 +119,10 @@ const handleCheckUpdate = async () => {
   });
 };
 
-import { computed, onMounted, ref, watch } from 'vue';
-import SectionSlider from '@/components/base/SectionSlider.vue';
+const clickChecker = (event: MouseEvent, index: number, callback: ((e: MouseEvent) => void)) => {
+  if (currentCardIndex.value === index) callback(event);
+}
+
 
 const currentSection = ref('Section 1');
 const sections = ref([$t('element.section.games'), $t('element.section.help'), $t('element.section.settings')]);
@@ -141,6 +165,7 @@ watch(currentCardIndex, (newIndex) => {
 }
 
 .card {
+  position: relative;
   flex: 0 0 auto;
   width: 200px;
   height: 300px;
@@ -159,12 +184,84 @@ watch(currentCardIndex, (newIndex) => {
 
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
-  
-
-  &.focus {
-    outline: 2px solid var(--s-color-primary);
-    transform: scale(1.05);
+  & .card-hover {
+    display: none;
   }
 
+  &.focus {
+    // outline: 20px solid var(--s-color-primary);
+    border: 2px solid var(--s-color-primary);
+    transform: scale(1.05);
+    animation: gradientBorderAnimation 3s infinite alternate;
+
+    & .card-hover {
+      position: absolute;
+      top: 100%;
+      width: 200px;
+
+      display: flex;
+
+      border: 10px solid white;
+      z-index: 10;
+
+      animation: fadeInFromBottom 0.25s ease-in-out;
+    }
+  }
+
+}
+
+.card-list-icon-button {
+  position: absolute;
+  top: 46%;
+  height: 8%;
+  width: 8%;
+
+  &.left {
+    left: 10px;
+  }
+
+  &.right {
+    right: 10px;
+  }
+
+  &:hover {
+    color: var(--s-color-on-surface);
+  }
+
+  &:active {
+    color: var(--s-color-primary);
+  }
+}
+
+.card-list-indicator {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(180deg);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bounce-padding 0.7s infinite ease-in-out;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@keyframes bounce-padding {
+  0%,
+  100% {
+    padding-top: 10px;
+    padding-bottom: 0;
+  }
+
+  50% {
+    padding-top: 0px;
+    padding-bottom: 10px;
+  }
 }
 </style>

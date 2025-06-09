@@ -1,6 +1,8 @@
 /* @import url(./sober-theme.css); */
 @import url(./specialEffect/color_gradient.scss);
 @import url(./specialEffect/bumping.scss);
+@import url(./specialEffect/fade_in.scss);
+
 
 @font-face {
   font-family: "Impact";
