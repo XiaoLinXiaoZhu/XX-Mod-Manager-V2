@@ -11,10 +11,12 @@
       <div class="main-content" style="height: 100%; width: 100%;overflow: hidden;">
         <!-- 主页面有三个主要功能: 查看所有的子配置项，新建新的仓库，打开设置面板 -->
         <SectionSlider :currentSection="currentIndex" class="section-slider">
+          {{ currentCardIndex }}
           <div
             style="display: flex; flex-direction: column; height: 100%; width: 100%;flex: 0 0 auto;align-content: center;justify-content: center;align-items: center;">
-            <HorizontalCardList style="width: 100%; overflow-y: visible; overflow-x: auto;"
-              v-bind:focused-index="currentCardIndex">
+            <HorizontalCardList style="width: 100%; overflow: visible;"
+              v-model:focused-index="currentCardIndex">
+              <div class="card">AddNewRepo</div>
               <div class="card">Card 1</div>
               <div class="card">Card 2</div>
               <div class="card">Card 3</div>
@@ -101,7 +103,7 @@ import SectionSlider from '@/components/base/SectionSlider.vue';
 const currentSection = ref('Section 1');
 const sections = ref([$t('element.section.games'), $t('element.section.help'), $t('element.section.settings')]);
 const currentIndex = ref(0);
-const currentCardIndex = ref(0);
+const currentCardIndex = ref(1);
 
 watch(currentLanguageRef, () => {
   // 当语言变化时，重新设置 sections
@@ -109,6 +111,11 @@ watch(currentLanguageRef, () => {
 });
 
 onMounted(() => {
+});
+
+watch(currentCardIndex, (newIndex) => {
+  // debug
+  console.log('Current card index changed:', newIndex);
 });
 
 </script>
@@ -131,5 +138,33 @@ onMounted(() => {
   display: flex;
   // 竖向排列
   flex-direction: column;
+}
+
+.card {
+  flex: 0 0 auto;
+  width: 200px;
+  height: 300px;
+  margin: 10px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background-color: var(--s-color-surface);
+  border-radius: 8px;
+  box-shadow: var(--s-elevation-1);
+
+  // cursor: pointer;
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  
+
+  &.focus {
+    outline: 2px solid var(--s-color-primary);
+    transform: scale(1.05);
+  }
+
 }
 </style>
