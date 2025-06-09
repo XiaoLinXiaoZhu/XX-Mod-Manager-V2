@@ -159,9 +159,9 @@ const onDrag = (event: MouseEvent) => {
 const updateInsertionPosition = (event: MouseEvent) => {
   if (!containerRef.value || draggingIndex.value < 0) return;
   
-  // 计算相对容器的鼠标位置
+  // 计算相对容器的鼠标位置，修正横向滚动
   const containerRect = containerRef.value.getBoundingClientRect();
-  const relativeX = event.clientX - containerRect.left;
+  const relativeX = event.clientX - containerRect.left + containerRef.value.scrollLeft;
   
   // 计算最近的插入位置
   let newInsertionIndex = Math.floor(relativeX / (CARD_WIDTH + CARD_MARGIN));
@@ -234,6 +234,15 @@ const stopDrag = () => {
 // 组件挂载时初始化
 onMounted(() => {
   initCardPositions();
+
+  const scrollSpeed = 1; // 滚动速度
+  containerRef.value?.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    if (!containerRef.value) return;
+    containerRef.value.scrollLeft += e.deltaY * scrollSpeed;
+    // debug
+    console.log(`Scroll Left: ${containerRef.value.scrollLeft}, DeltaY: ${e.deltaY}`);
+  }, { passive: false });
 });
 
 // 组件卸载前清理
@@ -249,7 +258,6 @@ onBeforeUnmount(() => {
   position: relative;
   width: 100%;
   height: 350px; // 卡片高度 + 一些额外空间
-  padding: 20px 0;
   overflow: hidden;
 }
 
@@ -266,13 +274,15 @@ onBeforeUnmount(() => {
   user-select: none;
   width: 100%;
   height: 100%;
-  
+  z-index: 1;
+
   &.dragging {
     cursor: grabbing;
     pointer-events: none;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); // 增强拖拽时的阴影
-    transform: scale(1.05);
+    transform: scale(1.09);
     opacity: 0.9;
+    z-index: 10; // 提升拖拽卡片的层级
   }
   
   .card-image {

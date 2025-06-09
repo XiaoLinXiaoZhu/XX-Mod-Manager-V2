@@ -6,6 +6,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     "paths": {
+      "@/components/*": ["./src/components/*"],
       "@/*": ["./src/*"],
       "@assets/*": ["./src/assets/*"],
       "@locals/*": ["./src/locals/*"],

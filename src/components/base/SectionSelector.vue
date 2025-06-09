@@ -3,26 +3,28 @@
         <div class="slider OO-color-gradient OO-bump" :style="sliderStyle" ref="sliderRef"></div>
         <div class="section-selector">
             <div v-for="(sec, index) in sections" :key="index" class="section-item"
-                :class="{ active: sec === currentSection }" @mousedown="setCurrentSection(index)" ref="sectionRefs">
+                :class="{ active: index == currentIndex }" @mousedown="setCurrentSection(index)" ref="sectionRefs">
                 <p> {{ sec }} </p>
             </div>
         </div>
     </div>
 </template>
 
-<script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue';
-import { animate } from 'animejs';
+<script setup lang="ts">
+import { ref, watch, onMounted, nextTick } from 'vue';
 const props = defineProps({
     sections: {
-        type: Array,
+        type: Array as () => string[],
         default: () => [],
         required: true,
-        validator: (value) => {
+        validator: (value: unknown) => {
+            if (!Array.isArray(value)) return false;
             return value.every(sec => typeof sec === 'string');
         }
     }
 });
+
+// v-model binding
 const currentSection = defineModel("currentSection", {
     type: String,
     required: false
@@ -31,7 +33,8 @@ const currentIndex = defineModel("index", {
     default: 0,
     required: false
 });
-const setCurrentSection = (idx) => {
+
+const setCurrentSection = (idx: number) => {
     if (props.sections.length <= 0) {
         currentIndex.value = 0;
         currentSection.value = '';
@@ -49,8 +52,9 @@ watch(currentIndex, (newIndex) => {
 });
 
 //-================= slider =========================
-const sectionRefs = ref([]);
+const sectionRefs = ref<HTMLElement[]>([]);
 const sliderRef = ref();
+const sliderStyle = ref<Record<string, string>>({});
 const sliderPadding = 10; // Padding for the slider
 const updateSliderStyle = () => {
     const el = sectionRefs.value[currentIndex.value];
@@ -78,24 +82,28 @@ const updateSliderStyle = () => {
         transform: `translateX(${sliderLeft}px) skew(-20deg)`,
     };
 };
-const sliderStyle = ref('');
+
 watch(() => currentIndex.value, () => {
     updateSliderStyle();
 });
 
 watch(() => props.sections, (newSection) => {
-    if (!newSection.includes(currentSection.value)) {
+    if (newSection.length <= 0 || currentIndex.value >= newSection.length) {
         setCurrentSection(0);
-    }
-    nextTick(() => {
+    } else {
+        // 如果不超出范围，则更新仍然使用当前索引，但是需要刷新滑块样式
         updateSliderStyle();
-    });
+    }
 });
+
 onMounted(() => {
     console.log('SectionSelector mounted with sections:', sectionRefs.value, sectionRefs.value.length, props.sections);
-    if (props.sections.length > 0 && !props.sections.includes(currentSection.value) && !currentIndex.value) {
-        setCurrentSection(0);
+    if (props.sections.length > 0) {
+        if (!currentIndex.value || currentIndex.value >= props.sections.length) {
+            setCurrentSection(0);
+        }
     }
+    setCurrentSection(currentIndex.value);
     updateSliderStyle();
 
     window.addEventListener('resize', () => {

@@ -3,18 +3,24 @@
     <template #header>
       <BackButton />
       <h1 draggable>Main Page</h1>
-      <SectionSelector
-        :sections="sections"
-        v-model:currentSection="currentSection"
-        v-model:index="currentIndex"
-        style="position: absolute; width: 500px; right: 10px;"
-      />
+      <SectionSelector :sections="sections" v-model:currentSection="currentSection" v-model:index="currentIndex"
+        style="position: absolute; width: 500px; right: 10px;" />
     </template>
 
     <template #content>
-      <div class="main-content" style="height: 100%; width: 100%;">
+      <div class="main-content" style="height: 100%; width: 100%;overflow: hidden;">
         <!-- 主页面有三个主要功能: 查看所有的子配置项，新建新的仓库，打开设置面板 -->
-        <TestCardPage style="height: 100%; width: 100%;" />
+        <SectionSlider :currentSection="currentIndex" class="section-slider">
+          <div style="display: flex; flex-direction: column; height: 100%; width: 100%;flex: 0 0 auto;align-content: center;justify-content: center;align-items: center;">
+          </div>
+          <div>
+            <p>{{ $t('element.helpContent') }}</p>
+          </div>
+          <div>
+            <p>{{ $t('element.settingsContent') }}</p>
+          </div>
+        </SectionSlider>
+
       </div>
     </template>
 
@@ -30,31 +36,32 @@
         </s-icon-button>
         {{ $t('buttons.checkUpdate') }}
       </s-tooltip>
-        <s-tooltip>
-          <div slot="trigger" class="version-info">
-            <span>{{ $t('currentVersion') + versionData.version }}</span>
-            <span>{{ $t('author') + ":  XLXZ" }}</span>
-          </div>
-          <span>{{ $t('versionBuildTime') + versionData.pub_date }}</span>
-        </s-tooltip>
+      <s-tooltip>
+        <div slot="trigger" class="version-info">
+          <span>{{ $t('currentVersion') + versionData.version }}</span>
+          <span>{{ $t('author') + ": XLXZ" }}</span>
+        </div>
+        <span>{{ $t('versionBuildTime') + versionData.pub_date }}</span>
+      </s-tooltip>
     </template>
   </BergerFrame>
 </template>
 
 <script setup lang="ts">
+import SectionSelector from '@/components/base/SectionSelector.vue';
+import HorizontalScrollBar from '@/components/base/HorizontalScrollBar.vue';
 import BergerFrame from '@/components/base/BergerFrame.vue';
 import BackButton from '@/components/BackButton.vue';
 import { $t, currentLanguageRef } from '@/locals';
-import { $t_snack} from '@/scripts/lib/SnackHelper';
+import { $t_snack } from '@/scripts/lib/SnackHelper';
 import { checkForUpdates } from '@/scripts/core/UpdateChecker';
-import { versionData  } from '@/scripts/lib/VersionInfo';
+import { versionData } from '@/scripts/lib/VersionInfo';
 import TestCardPage from '@/components/TestCardPage.vue';
-import SectionSelector from '@/components/base/sectionSelector.vue';
-import SortTest from '@/components/SortTest.vue';
+
 const handleCheckUpdate = async () => {
   // Logic to check for updates
   console.log('Checking for updates...');
-  
+
   checkForUpdates({
     onStartGetNewVersion: async () => {
       await $t_snack("buttons.checkUpdate", "info");
@@ -66,6 +73,7 @@ const handleCheckUpdate = async () => {
 };
 
 import { computed, onMounted, ref, watch } from 'vue';
+import SectionSlider from '@/components/base/SectionSlider.vue';
 
 const currentSection = ref('Section 1');
 const sections = ref([$t('element.section.games'), $t('element.section.help'), $t('element.section.settings')]);
@@ -89,7 +97,7 @@ onMounted(() => {
   height: 40px;
 }
 
-.version-info{
+.version-info {
   font-size: 14px;
   padding-left: 20px;
   height: 40px;

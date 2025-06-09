@@ -1,7 +1,7 @@
 {
   "version": "0.1.14",
-  "notes": "- feat: 添加游戏选择器组件，支持拖拽排序和添加新游戏功能，优化用户体验\n- feat: 优化配置加载器，添加全局配置支持，更新多个组件和样式，增强用户体验\n- feat: 添加版本信息显示和更新检查功能，优化用户体验\n- feat: 更新本地化文件，添加多语言支持和检查更新功能\n- refactor: restructure localization files and update i18n implementation\n- feat: Add new components and styles for improved UI\n- feat: 添加 snack 消息处理功能，支持多语言提示\n- feat: Refactor mod loading and management system\n- feat: 更新版本号至0.1.14，优化配置加载器和唤醒事件逻辑\n- chore: 更新版本号并修改相关配置文件\n- 0.1.14\n- feat: 更新命令行参数处理，优化唤醒事件的发送和接收逻辑\n- feat: 重构配置加载器，优化文件操作功能，添加二进制文件读写和目录管理功能\n- feat: 添加命令行参数支持，更新相关依赖和功能\n- feat: 更新 xx-mod-manager-tauri 版本至 0.1.13\n- chore: 更新版本号并修改相关配置文件",
-  "pub_date": "2025-06-01T18:48:29.710Z",
+  "notes": "- feat: Implement draggable card component with animated transitions\n- feat: 添加游戏选择器组件，支持拖拽排序和添加新游戏功能，优化用户体验\n- feat: 优化配置加载器，添加全局配置支持，更新多个组件和样式，增强用户体验\n- feat: 添加版本信息显示和更新检查功能，优化用户体验\n- feat: 更新本地化文件，添加多语言支持和检查更新功能\n- refactor: restructure localization files and update i18n implementation\n- feat: Add new components and styles for improved UI\n- feat: 添加 snack 消息处理功能，支持多语言提示\n- feat: Refactor mod loading and management system\n- feat: 更新版本号至0.1.14，优化配置加载器和唤醒事件逻辑\n- chore: 更新版本号并修改相关配置文件\n- 0.1.14\n- feat: 更新命令行参数处理，优化唤醒事件的发送和接收逻辑\n- feat: 重构配置加载器，优化文件操作功能，添加二进制文件读写和目录管理功能\n- feat: 添加命令行参数支持，更新相关依赖和功能\n- feat: 更新 xx-mod-manager-tauri 版本至 0.1.13\n- chore: 更新版本号并修改相关配置文件",
+  "pub_date": "2025-06-09T02:10:01.244Z",
   "platforms": {
     "windows-x86_64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJENTM1QTc0QzVENkREODkKUldTSjNkYkZkRnBUTFlKcURFREtqT3dFVC9NUlluKzlGYlZBWFBLYlgxYjBFVXllanEwazZmeE0K",
