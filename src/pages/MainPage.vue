@@ -11,7 +11,29 @@
       <div class="main-content" style="height: 100%; width: 100%;overflow: hidden;">
         <!-- 主页面有三个主要功能: 查看所有的子配置项，新建新的仓库，打开设置面板 -->
         <SectionSlider :currentSection="currentIndex" class="section-slider">
-          <div style="display: flex; flex-direction: column; height: 100%; width: 100%;flex: 0 0 auto;align-content: center;justify-content: center;align-items: center;">
+          <div
+            style="display: flex; flex-direction: column; height: 100%; width: 100%;flex: 0 0 auto;align-content: center;justify-content: center;align-items: center;">
+            <HorizontalCardList style="width: 100%; overflow-y: visible; overflow-x: auto;"
+              v-bind:focused-index="currentCardIndex">
+              <div class="card">Card 1</div>
+              <div class="card">Card 2</div>
+              <div class="card">Card 3</div>
+              <div class="card">Card 1</div>
+              <div class="card">Card 2</div>
+              <div class="card">Card 3</div>
+              <div class="card">Card 1</div>
+              <div class="card">Card 2</div>
+              <div class="card">Card 3</div>
+              <div class="card">Card 1</div>
+              <div class="card">Card 2</div>
+              <div class="card">Card 3</div>
+              <div class="card">Card 1</div>
+              <div class="card">Card 2</div>
+              <div class="card">Card 3</div>
+            </HorizontalCardList>
+            <!-- 增减debug按钮 -->
+            <s-button class="OO-button" @click="currentCardIndex++">{{ $t('buttons.addDebug') }}</s-button>
+            <s-button class="OO-button" @click="currentCardIndex--">{{ $t('buttons.removeDebug') }}</s-button>
           </div>
           <div>
             <p>{{ $t('element.helpContent') }}</p>
@@ -56,7 +78,8 @@ import { $t, currentLanguageRef } from '@/locals';
 import { $t_snack } from '@/scripts/lib/SnackHelper';
 import { checkForUpdates } from '@/scripts/core/UpdateChecker';
 import { versionData } from '@/scripts/lib/VersionInfo';
-import TestCardPage from '@/components/TestCardPage.vue';
+import DragableCardList from '@/components/DragableCardList.vue';
+import HorizontalCardList from '@/components/base/HorizontalCardList.vue';
 
 const handleCheckUpdate = async () => {
   // Logic to check for updates
@@ -78,6 +101,7 @@ import SectionSlider from '@/components/base/SectionSlider.vue';
 const currentSection = ref('Section 1');
 const sections = ref([$t('element.section.games'), $t('element.section.help'), $t('element.section.settings')]);
 const currentIndex = ref(0);
+const currentCardIndex = ref(0);
 
 watch(currentLanguageRef, () => {
   // 当语言变化时，重新设置 sections
