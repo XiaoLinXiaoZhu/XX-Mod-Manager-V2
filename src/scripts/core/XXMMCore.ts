@@ -8,6 +8,7 @@ import { setI18nLocale, I18nLocale } from '@/locals';
 import { snack } from '../lib/SnackHelper';
 import { ModLoader } from '@/scripts/lib/ModLoader';
 import { useRouter } from 'vue-router';
+import { EventSystem, EventType } from './EventSystem';
 
 //-================ 主进程入口 =================
 export async function init() {
@@ -54,4 +55,5 @@ export async function init() {
 
     // 加载完毕，触发事件，之后，如果是第一次打开程序（而不是刷新页面），则会触发 wakeUp 事件
     invoke('main_window_ready');
+    EventSystem.trigger(EventType.initDone);
 }

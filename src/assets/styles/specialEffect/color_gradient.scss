@@ -39,6 +39,10 @@ s-page[theme="light"] {
 s-page {
     & .OO-color-gradient {
         animation: gradientAnimation 4s ease-in-out infinite;
+
+        &.OO-button{
+          color: var(--s-color-surface);
+        }
     }
 
     & .OO-color-gradient-variant {

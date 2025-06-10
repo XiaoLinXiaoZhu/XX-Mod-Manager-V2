@@ -112,7 +112,8 @@
     "refresh": "刷新",
     "all": "全部",
     "selected": "已选择",
-    "checkUpdate": "检查更新"
+    "checkUpdate": "检查更新",
+    "addNewRepo": "+"
   },
   "firstLoad": {
     "huan-ying-shi-yong-xxmodmanagerxxmm": "欢迎使用 XX-mod-manager(XXMM)",

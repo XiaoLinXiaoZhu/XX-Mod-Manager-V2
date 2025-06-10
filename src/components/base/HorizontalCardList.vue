@@ -15,7 +15,6 @@ const focusedIndex = defineModel<number>('focusedIndex', {
     type: Number
 });
 
-type dragThresholdType = "fix" | "dynamic";
 const props = defineProps({
     dragThresholdType: {
         type: String as () => "fix" | "dynamic",

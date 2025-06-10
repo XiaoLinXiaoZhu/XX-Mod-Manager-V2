@@ -10,3 +10,37 @@
     opacity: 1;
   }
 }
+
+// 从下方淡入，且闪烁两下 --s-color-primary
+@keyframes fadeInFromBottomFlash {
+  0% {
+    margin-top: 10%;
+    opacity: 0;
+    color: var(--s-color-primary);
+    background-color: var(--s-color-primary);
+  }
+  40% {
+    margin-top: 0;
+    opacity: 1;
+    color: var(--s-color-primary);
+    background-color: var(--s-color-primary);
+  }
+  50% {
+    opacity: 0.3;
+  }
+  60% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.3;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    margin-top: 0;
+    opacity: 1;
+    color: var(--s-color-primary);
+    background-color: var(--s-color-primary);
+  }
+}

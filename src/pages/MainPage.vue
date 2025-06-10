@@ -12,27 +12,25 @@
         <!-- 主页面有三个主要功能: 查看所有的子配置项，新建新的仓库，打开设置面板 -->
         <SectionSlider :currentSection="currentIndex" class="section-slider">
           {{ currentCardIndex }}
+          <div>
+            <button @click="showDialog = true">打开对话框</button>
+          </div>
           <div
             style="display: flex; flex-direction: column; height: 100%; width: 100%;flex: 0 0 auto;align-content: center;justify-content: center;align-items: center;">
             <HorizontalCardList style="width: 100%; overflow: visible;" v-model:focused-index="currentCardIndex">
               <div class="card">AddNewRepo
-                <div class="card-hover"> 123213 </div>
+                <s-button class="card-hover OO-button">
+                  {{ $t('buttons.addNewRepo') }}
+                </s-button>
               </div>
-              <div class="card">Card 1</div>
-              <div class="card">Card 2</div>
-              <div class="card">Card 3</div>
-              <div class="card">Card 1</div>
-              <div class="card">Card 2</div>
-              <div class="card">Card 3</div>
-              <div class="card">Card 1</div>
-              <div class="card">Card 2</div>
-              <div class="card">Card 3</div>
-              <div class="card">Card 1</div>
-              <div class="card">Card 2</div>
-              <div class="card">Card 3</div>
-              <div class="card">Card 1</div>
-              <div class="card">Card 2</div>
-              <div class="card">Card 3</div>
+              <div class="card">test 1</div>
+              <div v-for="(repo, index) in repos" :key="index" class="card">
+                <div class="card-hover">
+                  <s-button class="OO-button">
+                    {{ repo.name }}
+                  </s-button>
+                </div>
+              </div>
             </HorizontalCardList>
             <!-- 增减按钮 -->
             <s-icon class="card-list-icon-button right" @click="currentCardIndex += 1">
@@ -88,6 +86,12 @@
       </s-tooltip>
     </template>
   </BergerFrame>
+
+  <DialogTemplate v-model:visible="showDialog" :close-on-click-mask="false" width="500px">
+              <template #default>
+                <p>这是一个可交互的对话框内容。</p>
+              </template>
+            </DialogTemplate>
 </template>
 
 <script setup lang="ts">
@@ -98,13 +102,19 @@ import SectionSelector from '@/components/base/SectionSelector.vue';
 import SectionSlider from '@/components/base/SectionSlider.vue';
 import HorizontalCardList from '@/components/base/HorizontalCardList.vue';
 
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch, type Ref } from 'vue';
 
+import { useGlobalConfig } from '@/scripts/core/GlobalConfigLoader';
+import { type repo } from '@/scripts/lib/Repo';
+import DialogTemplate from '@/dialogs/dialogTemplate.vue';
+
+let repos: Ref<repo[]> | null = null;
 
 import { $t, currentLanguageRef } from '@/locals';
 import { $t_snack } from '@/scripts/lib/SnackHelper';
 import { checkForUpdates } from '@/scripts/core/UpdateChecker';
 import { versionData } from '@/scripts/lib/VersionInfo';
+import { EventSystem, EventType } from '@/scripts/core/EventSystem';
 
 const handleCheckUpdate = async () => {
   // Logic to check for updates
@@ -119,9 +129,7 @@ const handleCheckUpdate = async () => {
   });
 };
 
-const clickChecker = (event: MouseEvent, index: number, callback: ((e: MouseEvent) => void)) => {
-  if (currentCardIndex.value === index) callback(event);
-}
+const showDialog = ref(false);
 
 
 const currentSection = ref('Section 1');
@@ -134,7 +142,17 @@ watch(currentLanguageRef, () => {
   sections.value = [$t('element.section.games'), $t('element.section.help'), $t('element.section.settings')];
 });
 
+
+EventSystem.on(EventType.initDone, () => {
+  repos = useGlobalConfig('repos', [] as repo[]).getRef();
+});
 onMounted(() => {
+  // 初始化时获取 repos
+  if (repos) {
+    console.log('Repos initialized:', repos.value);
+  } else {
+    console.warn('Repos not initialized yet.');
+  }
 });
 
 watch(currentCardIndex, (newIndex) => {
@@ -196,15 +214,13 @@ watch(currentCardIndex, (newIndex) => {
 
     & .card-hover {
       position: absolute;
-      top: 100%;
+      top: calc(100% + 20px);
       width: 200px;
 
       display: flex;
-
-      border: 10px solid white;
       z-index: 10;
 
-      animation: fadeInFromBottom 0.25s ease-in-out;
+      animation: fadeInFromBottomFlash 0.25s ease-in-out;
     }
   }
 
@@ -253,6 +269,7 @@ watch(currentCardIndex, (newIndex) => {
 }
 
 @keyframes bounce-padding {
+
   0%,
   100% {
     padding-top: 10px;
