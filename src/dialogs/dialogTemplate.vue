@@ -37,10 +37,12 @@ const visible = defineModel<boolean>("visible", {
 })
 
 // Props
-const props = defineProps<{
-    closeOnClickMask?: boolean
-    width?: string
-}>()
+const props = defineProps({
+    closeOnClickMask: {
+        type: Boolean,
+        default: true
+    }
+})
 
 // Emits
 const emit = defineEmits<{

@@ -1,17 +1,19 @@
 <template>
     <div class="route-list">
         <h1>XX Mod Manager {{ $route.name }}</h1>
-        <h2>Tauriapp Version: {{ version }}  |  Package Version: {{ versionInfo }}</h2>
-        <pre>{{ versionNote }}</pre>
         <h2>You are currently on the {{ $route.name }} page</h2>
         <nav>
             <ul>
-                <li><router-link to="/">Main</router-link></li>
-                <li><router-link to="/switch-config">Switch Config</router-link></li>
-                <li><router-link to="/tutorial">Tutorial</router-link></li>
-                <li><router-link to="/test-rw">Test RW</router-link></li>
+                <!-- <li><router-link to="/">Main</router-link></li> -->
+                 <li><s-button class="OO-button" @click="$router.push('/');">Main</s-button></li>
+                <li><s-button class="OO-button" @click="$router.push('/switch-config')">Switch Config</s-button></li>
+                <li><s-button class="OO-button" @click="$router.push('/tutorial')">Tutorial</s-button></li>
+                <li><s-button class="OO-button" @click="$router.push('/test-rw')">Test RW</s-button></li>
+                <li><s-button class="OO-button" @click="$router.push('/test-dialog')">Test Dialog</s-button></li>
             </ul>
         </nav>
+        <h2>Tauriapp Version: {{ version }} | Package Version: {{ versionInfo }}</h2>
+        <pre>{{ versionNote }}</pre>
     </div>
 </template>
 <script lang="ts" setup>
@@ -40,5 +42,4 @@ onMounted(async () => {
     padding-left: 20px;
     width: calc(100%);
 }
-
 </style>
