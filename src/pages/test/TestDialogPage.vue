@@ -2,7 +2,7 @@
   <BergerFrame>
     <template #header>
       <BackButton />
-      <h1 draggable>Main Page</h1>
+      <h1 draggable>Test Dialog Page</h1>
       <SectionSelector :sections="sections" v-model:currentSection="currentSection" v-model:index="currentIndex"
         style="position: absolute; width: 500px; right: 10px;" />
     </template>

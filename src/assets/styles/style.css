@@ -1,4 +1,5 @@
 /* @import url(./sober-theme.css); */
+@import url(./variable.scss);
 @import url(./specialEffect/color_gradient.scss);
 @import url(./specialEffect/bumping.scss);
 @import url(./specialEffect/fade_in.scss);

@@ -1,7 +1,7 @@
 <template>
     <transition name="fade">
         <div v-show="visible" class="dialog-overlay" @click.self="handleMaskClick"
-            :class="{ 'close-on-click-mask': props.closeOnClickMask, 'show': visible }">
+            :class="{ 'close-on-click-mask': props.closeOnClickMask, 'show': visible }" :style="{ zIndex: _zIndex }">
             <div class="dialog-content">
                 <div class="dialog-header font-hongmeng">
                     <slot name="header">
@@ -24,6 +24,11 @@
 
 <script setup lang="ts">
 import { defineProps, defineEmits, defineModel, watch } from 'vue'
+import { CSSVariable } from '@/assets/styles/CSSVariableManager';
+import { ref } from 'vue';
+const zIndex = CSSVariable['--oo-z-index'];
+// 只复制 zIndex 的值，避免直接修改 CSSVariable 中的值
+const _zIndex = ref(zIndex.value);
 
 // 使用 defineModel 来替代 v-model,控制显示状态
 const visible = defineModel<boolean>("visible", {
@@ -47,8 +52,11 @@ const emit = defineEmits<{
 watch(visible, (newValue) => {
     if (newValue) {
         emit('show')
+        zIndex.value += 1;
+        _zIndex.value = zIndex.value;
     } else {
-        emit('dismiss')
+        emit('dismiss');
+        zIndex.value -= 1; // 减少 z-index
     }
 })
 
@@ -85,7 +93,7 @@ function handleMaskClick() {
 
     align-items: center;
     justify-content: center;
-    z-index: 9999;
+    z-index: var(--oo-z-index, 999);
 
     background-color: rgba(0, 0, 0, 0.7);
     opacity: 1;

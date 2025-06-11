@@ -13,8 +13,8 @@
 <script setup lang="ts">
 //debug
 import { onMounted, ref } from 'vue';
-import RouteList from './RouteList.vue';
-import {readFile, writeFile} from '../scripts/lib/FileHelper.ts';
+import RouteList from '@/pages/RouteList.vue';
+import {readFile, writeFile} from '@/scripts/lib/FileHelper.ts';
 import { loadImage,writeImageFromUrl } from '@/scripts/lib/ImageHelper';
 
 console.log("TestRW loaded");
