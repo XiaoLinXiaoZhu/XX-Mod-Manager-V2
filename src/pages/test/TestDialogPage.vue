@@ -19,13 +19,13 @@
         </template>
     </BergerFrame>
 
-    <DialogTemplate v-model:visible="showDialog" :close-on-click-mask="false" width="500px">
+    <DialogTemplate v-model:visible="showDialog" :close-on-click-mask="false">
         <template #default>
             <p>这是一个可交互的对话框内容。</p>
             <button @click="showDialog2 = true">打开第二个对话框</button>
         </template>
     </DialogTemplate>
-    <DialogTemplate v-model:visible="showDialog2" :close-on-click-mask="false" width="500px">
+    <DialogTemplate v-model:visible="showDialog2" :close-on-click-mask="false">
         <template #default>
             <p>用于测试多个对话框的显示。当前对话框: 2</p>
             <button @click="showDialog3 = true">打开第三个对话框</button>
@@ -33,7 +33,7 @@
             <s-button class="OO-button" @click="snack('这是一个测试消息', 'info')">测试 Snack</s-button>
         </template>
     </DialogTemplate>
-    <DialogTemplate v-model:visible="showDialog3" :close-on-click-mask="true" width="500px">
+    <DialogTemplate v-model:visible="showDialog3" :close-on-click-mask="true">
         <template #default>
             <p>这是第三个对话框。当前对话框: 3</p>
             <p>可以点击遮罩关闭对话框</p>
@@ -42,7 +42,7 @@
             <s-button class="OO-button" @click="$t_snack('这是一个测试消息', 'info')">测试 Snack</s-button>
         </template>
     </DialogTemplate>
-    <DialogTemplate v-model:visible="showDialog4" :close-on-click-mask="false" width="500px">
+    <DialogTemplate v-model:visible="showDialog4" :close-on-click-mask="false">
         <template #default>
             <p>这是第四个对话框。当前对话框: 4</p>
             <button @click="showDialog4 = false">关闭对话框</button>
