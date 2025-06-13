@@ -827,3 +827,61 @@ pub async fn open_program(
     }
     Ok(())
 }
+
+#[tauri::command]
+// 拼接路径，将处理 .. 作为返回父目录
+pub fn join_path(app_handle: tauri::AppHandle, base_path_str: String, relative_path_str: String) -> Result<String, String> {
+    let base_path = Path::new(&base_path_str);
+    let relative_path = Path::new(&relative_path_str);
+    
+    // 如果相对路径是绝对路径，则直接返回它
+    if relative_path.is_absolute() {
+        return Ok(relative_path.to_string_lossy().to_string());
+    }
+    
+    // 拼接路径
+    let mut result_path = if base_path.is_absolute() {
+        base_path.to_path_buf()
+    } else {
+        // 如果基础路径是相对路径，先解析为绝对路径
+        get_resolved_path(&app_handle, base_path)?
+    };
+    
+    // 逐级处理相对路径的每个部分
+    for component in relative_path.components() {
+        match component {
+            std::path::Component::ParentDir => {
+                // 处理 .. 返回父目录
+                if !result_path.pop() {
+                    return Err("Cannot go up from root directory".to_string());
+                }
+            },
+            std::path::Component::Normal(name) => {
+                // 添加正常的路径组件
+                result_path.push(name);
+            },
+            std::path::Component::CurDir => {
+                // . 表示当前目录，不做任何操作
+            },
+            _ => {
+                // 其他情况（如根目录、前缀）通常不需要特殊处理
+            }
+        }
+    }
+    
+    Ok(result_path.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+// 判断路径是否有父目录
+pub fn has_parent_directory(path_str: String) -> Result<bool, String> {
+    let path = Path::new(&path_str);
+    
+    // 检查路径是否有父目录
+    match path.parent() {
+        Some(_) => Ok(true),
+        None => Ok(false),
+    }
+}
+
+//-=============================================

@@ -41,14 +41,7 @@
             </s-icon>
         </div>
     </div>
-    <DialogTemplate id="dialog-add-game-repo" v-model:visible="showAddRepoDialog" :close-on-click-mask="false">
-        <template #header>
-            <h3>{{ $t('dialogs.addNewRepo') }}</h3>
-        </template>
-        <template #default>
-            <p>{{ $t('dialogs.addNewRepoContent') }}</p>
-        </template>
-    </DialogTemplate>
+    <CreateGameRepo v-model:visible="showAddRepoDialog" />
 </template>
 
 <script setup lang="ts">
@@ -58,7 +51,7 @@ import { type Ref, ref, watch, onMounted } from 'vue';
 import { $t } from '@/locals/index';
 import { useGlobalConfig } from '@/scripts/core/GlobalConfigLoader';
 import { EventSystem, EventType } from '@/scripts/core/EventSystem';
-import DialogTemplate from '@/dialogs/dialogTemplate.vue';
+import CreateGameRepo from '@/dialogs/CreateGameRepo.vue';
 
 
 let repos: Ref<repo[]> | null = null;

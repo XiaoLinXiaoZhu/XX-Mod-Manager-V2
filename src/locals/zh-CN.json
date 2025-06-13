@@ -10,7 +10,10 @@
     "updateAvailableInfo": "是否前往下载？",
     "updateNotAvailable": "没有获取到最新版本",
     "updateError": "检查更新失败，请检查网络连接",
-    "alreadyLatestVersion": "当前已是最新版本"
+    "alreadyLatestVersion": "当前已是最新版本",
+    "error": {
+      "repoLocationRequired": "你需要填写有效的 仓库地址"
+    }
   },
   "element": {
     "section": {

@@ -14,6 +14,18 @@ export type SettingBarDataBase = {
     callback?: (value: any) => void;
 }
 
+export type SettingBarDataString = {
+    type: "string" | "markdown";
+    name?: string;
+    dataRef: Ref<string>; // 用于双向绑定的引用
+    displayName?: string;
+    description?: string;
+    t_displayName?: TranslatedText;
+    t_description?: TranslatedText;
+    onChange?: (value: string) => boolean | void;
+    callback?: (value: string) => void;
+}
+
 export type SettingBarDataSelect = {
     type: "select";
     name?: string;

@@ -49,6 +49,8 @@ pub fn run() {
             file_commands::open_program,
             file_commands::show_file_in_explorer,
             file_commands::show_directory_in_explorer,
+            file_commands::join_path,
+            file_commands::has_parent_directory,
             file_dialog::open_file_dialog,
             argv::get_command_line_args,
             wake_up::main_window_ready,

@@ -219,6 +219,26 @@ export async function downloadFileToBinary(url: string, timeoutMs?: number): Pro
     }
 }
 
+// 拼接路径，处理 .. 为返回父目录
+export async function joinPath(basePath: string, relativePath: string): Promise<string> {
+    try {
+        return await invoke<string>('join_path', { basePathStr: basePath, relativePathStr: relativePath });
+    } catch (error) {
+        console.error('Error joining paths:', error);
+        return '';
+    }
+}
+
+// 判断路径是否有父目录
+export async function hasParentDirectory(path: string): Promise<boolean> {
+    try {
+        return await invoke<boolean>('has_parent_directory', { pathStr: path });
+    } catch (error) {
+        console.error('Error checking parent directory:', error);
+        return false;
+    }
+}
+
 // 用默认应用打开文件
 export async function openFileWithDefaultApp(path: string): Promise<void> {
     try {

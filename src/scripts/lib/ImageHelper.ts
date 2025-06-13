@@ -1,10 +1,13 @@
 import { invoke } from "@tauri-apps/api/core";
 import axios from "axios";
 
+export type PathOrUrl = string;
+export type ImageBase64 = string;
+
 // 图片缓存
-const imageCache: { [key: string]: string } = {};
-export const EmptyImage = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-export async function getImage(filePath: string,reload: boolean = false): Promise<string> {
+const imageCache: { [key: PathOrUrl]: ImageBase64 } = {};
+export const EmptyImage: ImageBase64 = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+export async function getImage(filePath: PathOrUrl, reload: boolean = false): Promise<ImageBase64> {
     // 检查缓存中是否存在图片
     if (imageCache[filePath] && !reload) {
         return imageCache[filePath];
@@ -12,7 +15,7 @@ export async function getImage(filePath: string,reload: boolean = false): Promis
     // 如果缓存中不存在或者需要重新加载，则调用 loadImage 函数
     return loadImage(filePath);
 }
-export async function releaseImage(filePath: string): Promise<void> {
+export async function releaseImage(filePath: PathOrUrl): Promise<void> {
     // 释放图片缓存
     if (imageCache[filePath]) {
         URL.revokeObjectURL(imageCache[filePath]);
@@ -20,7 +23,7 @@ export async function releaseImage(filePath: string): Promise<void> {
     }
 }
 
-export async function loadImage(filePath: string, ifCreate: boolean = false): Promise<string> {
+export async function loadImage(filePath: PathOrUrl, ifCreate: boolean = false): Promise<ImageBase64> {
     if (filePath === undefined || filePath === null || filePath === '') {
         console.warn('loadImage: filePath is empty');
         return EmptyImage;
@@ -34,7 +37,6 @@ export async function loadImage(filePath: string, ifCreate: boolean = false): Pr
         if (!Array.isArray(binaryData)) {
             throw new Error('Expected binary data to be an array of numbers');
         }
-
 
         // 将数组转换为 Uint8Array
         const uint8Array = new Uint8Array(binaryData);
@@ -58,7 +60,7 @@ export async function loadImage(filePath: string, ifCreate: boolean = false): Pr
         // 创建 Blob 对象
         const blob = new Blob([uint8Array], { type: mimeType });
         // 创建 URL 对象
-        const url = URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob) as ImageBase64;
         // cache the image
         imageCache[filePath] = url;
         // debug
@@ -71,7 +73,7 @@ export async function loadImage(filePath: string, ifCreate: boolean = false): Pr
     }
 }
 
-export async function writeImage(filePath: string, data: string, ifCreate: boolean = false): Promise<void> {
+export async function writeImage(filePath: PathOrUrl, data: ImageBase64, ifCreate: boolean = false): Promise<void> {
     try {
         await invoke('write_image_file', { pathStr: filePath, data, ifCreate });
     } catch (error) {
@@ -82,7 +84,7 @@ export async function writeImage(filePath: string, data: string, ifCreate: boole
     }
 }
 
-export async function writeImageFromUrl(filePath: string, url: string, ifCreate: boolean = false): Promise<void> {
+export async function writeImageFromUrl(filePath: PathOrUrl, url: PathOrUrl, ifCreate: boolean = false): Promise<void> {
     try {
         // 从 url 加载 图片 转为 uint8array
         // url 可能是 blob url 或者 http url
@@ -103,21 +105,6 @@ export async function writeImageFromUrl(filePath: string, url: string, ifCreate:
         // 这里使用 fetch 下载图片
         else if (url.startsWith('http')) {
 
-            // const response = await fetch(url, {
-            //     method: 'GET',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'Accept': 'image/*'
-            //     },
-            //     mode: 'cors', // 允许跨域请求
-            //     credentials: 'omit' // 根据实际情况调整
-            // });
-
-            // if (!response.ok) {
-            //     throw new Error(`HTTP error! status: ${response.status}`);
-            // }
-            // 获取响应体作为 ArrayBuffer
-
             // use axios to download image
             const response = await axios.get(url, {
                 responseType: 'arraybuffer',
@@ -134,7 +121,7 @@ export async function writeImageFromUrl(filePath: string, url: string, ifCreate:
         }
         // 如果不是 blob url 也不是 http url，则认为是本地文件
         // 直接读取文件
-        const data = getImage(url);
+        const data = await getImage(url);
         await invoke('write_binary_file', { pathStr: filePath, data, ifCreate });
     } catch (error) {
         console.error('Error writing image file from url:', error);
@@ -144,7 +131,7 @@ export async function writeImageFromUrl(filePath: string, url: string, ifCreate:
     }
 }
 
-export async function writeImageFromBase64(filePath: string, base64: string, ifCreate: boolean = false): Promise<void> {
+export async function writeImageFromBase64(filePath: PathOrUrl, base64: ImageBase64, ifCreate: boolean = false): Promise<void> {
     try {
         // Handle data URLs (e.g., "data:image/png;base64,...")
         let rawBase64 = base64;
