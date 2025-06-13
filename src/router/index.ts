@@ -8,39 +8,55 @@ import ModListPage from "../pages/ModListPage.vue";
 // 测试界面
 import TestRW from "@/pages/test/TestRW.vue";
 import TestDialogPage from "@/pages/test/TestDialogPage.vue";
+import TestSelectFile from "@/pages/test/TestSelectFile.vue";
+import TestSettingBar from "@/pages/test/TestSettingBar.vue";
+
+export const routes = [
+  {
+    path: "/",
+    name: "Main",
+    component: MainPage,
+  },
+  {
+    path: "/mod-list",
+    name: "ModList",
+    component: ModListPage,
+  },
+  {
+    path: "/switch-config",
+    name: "SwitchConfig",
+    component: SwitchConfigPage,
+  },
+  {
+    path: "/tutorial",
+    name: "Tutorial",
+    component: TutorialPage,
+  },
+  {
+    path: "/test-rw",
+    name: "TestRW",
+    component: TestRW,
+  },
+  {
+    path: "/test-dialog",
+    name: "TestDialog",
+    component: TestDialogPage,
+  },
+  {
+
+    path: "/test-select-file",
+    name: "TestSelectFile",
+    component: TestSelectFile,
+  },
+  {
+    path: "/test-setting-bar",
+    name: "TestSettingBar",
+    component: TestSettingBar,
+  }
+];
+
 
 export default createRouter({
   history: createWebHistory("/"),
-  routes: [
-    {
-      path: "/",
-      name: "Main",
-      component: MainPage,
-    },
-    {
-      path: "/mod-list",
-      name: "ModList",
-      component: ModListPage,
-    },
-    {
-      path: "/switch-config",
-      name: "SwitchConfig",
-      component: SwitchConfigPage,
-    },
-    {
-      path: "/tutorial",
-      name: "Tutorial",
-      component: TutorialPage,
-    },
-    {
-      path: "/test-rw",
-      name: "TestRW",
-      component: TestRW,
-    },
-    {
-      path: "/test-dialog",
-      name: "TestDialog",
-      component: TestDialogPage,
-    },
-  ],
+  routes: routes,
 });

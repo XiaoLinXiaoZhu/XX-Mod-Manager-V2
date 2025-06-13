@@ -4,12 +4,9 @@
         <h2>You are currently on the {{ $route.name }} page</h2>
         <nav>
             <ul>
-                <!-- <li><router-link to="/">Main</router-link></li> -->
-                 <li><s-button class="OO-button" @click="$router.push('/');">Main</s-button></li>
-                <li><s-button class="OO-button" @click="$router.push('/switch-config')">Switch Config</s-button></li>
-                <li><s-button class="OO-button" @click="$router.push('/tutorial')">Tutorial</s-button></li>
-                <li><s-button class="OO-button" @click="$router.push('/test-rw')">Test RW</s-button></li>
-                <li><s-button class="OO-button" @click="$router.push('/test-dialog')">Test Dialog</s-button></li>
+                <li v-for="route in routes" :key="route.path">
+                    <s-button class="OO-button" @click="$router.push(route.path)">{{ route.name }}</s-button>
+                </li>
             </ul>
         </nav>
         <h2>Tauriapp Version: {{ version }} | Package Version: {{ versionInfo }}</h2>
@@ -19,6 +16,7 @@
 <script lang="ts" setup>
 import { getVersion } from '@tauri-apps/api/app';
 import { getVersionInfo, getVersionNote } from '@/scripts/lib/VersionInfo';
+import { routes } from '@/router';
 import { onMounted, ref } from 'vue';
 
 const version = ref<string>('0.0.0');

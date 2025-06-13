@@ -1,6 +1,7 @@
 <template>
   <RouterView />
   <dialogRouteList />
+  <div class="gradient-controller"></div>
 </template>
 
 <script setup lang="ts">

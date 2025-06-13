@@ -1,10 +1,11 @@
 use tauri::Manager;
 use wake_up::send_wake_up;
-mod wake_up;
-mod window_commands;
 mod argv;
 mod file_commands;
 mod snack;
+mod wake_up;
+mod window_commands;
+mod file_dialog;
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -48,6 +49,7 @@ pub fn run() {
             file_commands::open_program,
             file_commands::show_file_in_explorer,
             file_commands::show_directory_in_explorer,
+            file_dialog::open_file_dialog,
             argv::get_command_line_args,
             wake_up::main_window_ready,
             snack::snack,

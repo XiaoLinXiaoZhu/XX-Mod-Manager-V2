@@ -4,7 +4,8 @@
   "description": "Capability for the main window",
   "windows": [
     "main"
-  ],  "permissions": [
+  ],
+  "permissions": [
     "core:default",
     "opener:default",
     "process:default",

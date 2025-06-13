@@ -1,7 +1,7 @@
 // 这里对 snack 消息直接转发
 // 目的是让 程序在任何地方都能使用 snack
-use tauri::{Emitter, Runtime};
 use serde::{Deserialize, Serialize};
+use tauri::{Emitter, Runtime};
 
 // none, info, success, warning, error
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -20,8 +20,16 @@ pub enum SnackAlign {
 }
 
 #[tauri::command]
-pub async fn snack<R: Runtime>(app: tauri::AppHandle<R>, _window: tauri::Window<R>, message: String, snack_type: SnackType,duration: u64,align: SnackAlign) -> Result<(), String> {
-   // 转发到 主进程
-    app.emit("snack", (message, snack_type, duration, align)).map_err(|e| e.to_string())?;
+pub async fn snack<R: Runtime>(
+    app: tauri::AppHandle<R>,
+    _window: tauri::Window<R>,
+    message: String,
+    snack_type: SnackType,
+    duration: u64,
+    align: SnackAlign,
+) -> Result<(), String> {
+    // 转发到 主进程
+    app.emit("snack", (message, snack_type, duration, align))
+        .map_err(|e| e.to_string())?;
     Ok(())
 }

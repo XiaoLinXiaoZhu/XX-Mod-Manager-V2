@@ -445,9 +445,9 @@ p {
 
 .OO-setting-bar .OO-s-text-field-container>s-text-field {
   position: absolute;
-  --text-field-border-radius: 29px;
-  --text-field-padding: 15px;
-  --border-radius: 29px;
+  --text-field-border-radius: 20px;
+  --text-field-padding: 20px;
+  --border-radius: 20px;
   border-radius: 29px;
   background-color: var(--s-color-background);
 
@@ -455,7 +455,7 @@ p {
   --border-color: var(--s-color-outline-variant);
   height: calc(100%);
   right: 0;
-  min-height: 0px;
+  min-height: 40px;
   min-width: 155px;
   width: calc(100% - 40px);
   max-width: 305px;

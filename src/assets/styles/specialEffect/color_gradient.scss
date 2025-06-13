@@ -28,12 +28,14 @@ s-page[theme="dark"] {
     --is-dark: 1;
     --color-gradient-from: var(--color-gradient-from-dark);
     --color-gradient-to: var(--color-gradient-to-dark);
+    --color-gradienting: var(--color-gradient-from-dark);
 }
 
 s-page[theme="light"] {
     --is-dark: 0;
     --color-gradient-from: var(--color-gradient-from-light);
     --color-gradient-to: var(--color-gradient-to-light);
+    --color-gradienting: var(--color-gradient-from-light);
 }
 
 s-page {
@@ -50,6 +52,24 @@ s-page {
         background-size: 400% 400%;
         animation: gradientAnimationVariant 4s ease-in-out infinite;
     }
+}
+
+@keyframes inheritColorChange {
+  0%   { background-color: var(--color-gradient-from); }
+  50%  { background-color: var(--color-gradient-to); }
+  100% { background-color: var(--color-gradient-from); }
+}
+
+@keyframes gradientColorVaribleAnimation {
+  0% {
+    --s-color-gradienting: var(--color-gradient-from);
+  }
+  50% {
+    --s-color-gradienting: var(--color-gradient-to);
+  }
+  100% {
+    --s-color-gradienting: var(--color-gradient-from);
+  }
 }
 
 @keyframes gradientAnimation {

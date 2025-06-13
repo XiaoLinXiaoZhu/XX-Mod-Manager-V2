@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
-import { type I18nLocale,$t,currentLanguage } from "@/locals";
+import { $t,currentLanguage,TranslatedText } from "@/locals/index";
 
-export type TranslatedText = Record<I18nLocale, string>;
+
 
 /* @enum
  * @desc 用于标记 Snack 的类型

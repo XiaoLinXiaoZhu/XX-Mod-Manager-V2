@@ -175,5 +175,8 @@
     "confirm": "确认密码："
   },
   "currentVersion": "当前版本：",
-  "versionBuildTime": "构建时间："
+  "versionBuildTime": "构建时间：",
+  "dialogs": {
+    "addNewRepo": "添加新的仓库"
+  }
 }

@@ -2,9 +2,9 @@
 use std::path::{Path, PathBuf};
 // use std::{fs, path};
 use std::fs;
+use std::process::Command;
 use std::time::Duration;
 use tauri::Manager;
-use std::process::Command;
 
 fn check_file_exists(
     path: &PathBuf,
@@ -217,7 +217,10 @@ pub async fn delete_file(app_handle: tauri::AppHandle, path_str: String) -> Resu
 
 #[tauri::command]
 // create directory
-pub async fn create_directory(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
+pub async fn create_directory(
+    app_handle: tauri::AppHandle,
+    path_str: String,
+) -> Result<(), String> {
     let path = Path::new(&path_str);
     let resolved_path: PathBuf = get_resolved_path(&app_handle, path)?;
 
@@ -226,7 +229,10 @@ pub async fn create_directory(app_handle: tauri::AppHandle, path_str: String) ->
 
 #[tauri::command]
 // delete directory
-pub async fn delete_directory(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
+pub async fn delete_directory(
+    app_handle: tauri::AppHandle,
+    path_str: String,
+) -> Result<(), String> {
     let path = Path::new(&path_str);
     let resolved_path: PathBuf = get_resolved_path(&app_handle, path)?;
 
@@ -326,7 +332,12 @@ pub fn is_file_exists(app_handle: tauri::AppHandle, path_str: String) -> Result<
     let path = Path::new(&path_str);
     let resolved_path = get_resolved_path(&app_handle, path)?;
     // debug
-    println!("Resolved path for file existence check: {:?}, exists: {}, is_file: {}", resolved_path, resolved_path.exists(), resolved_path.is_file());
+    println!(
+        "Resolved path for file existence check: {:?}, exists: {}, is_file: {}",
+        resolved_path,
+        resolved_path.exists(),
+        resolved_path.is_file()
+    );
     Ok(resolved_path.exists() && resolved_path.is_file())
 }
 
@@ -337,7 +348,12 @@ pub fn is_directory_exists(app_handle: tauri::AppHandle, path_str: String) -> Re
     let resolved_path = get_resolved_path(&app_handle, path)?;
 
     // debug
-    println!("Resolved path for directory existence check: {:?}, exists: {}, is_dir: {}", resolved_path, resolved_path.exists(), resolved_path.is_dir());
+    println!(
+        "Resolved path for directory existence check: {:?}, exists: {}, is_dir: {}",
+        resolved_path,
+        resolved_path.exists(),
+        resolved_path.is_dir()
+    );
     Ok(resolved_path.exists() && resolved_path.is_dir())
 }
 
@@ -474,24 +490,28 @@ pub async fn download_file_to_path(
         .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
 
     // 执行请求 - 异步
-    let response = client.get(&url)
+    let response = client
+        .get(&url)
         .send()
         .await
         .map_err(|e| format!("Failed to download file: {}", e))?;
 
     // 检查响应状态
     if !response.status().is_success() {
-        return Err(format!("Failed to download file, status code: {}", response.status()));
+        return Err(format!(
+            "Failed to download file, status code: {}",
+            response.status()
+        ));
     }
 
     // 读取响应内容 - 异步
-    let bytes = response.bytes()
+    let bytes = response
+        .bytes()
         .await
         .map_err(|e| format!("Failed to read response: {}", e))?;
 
     // 写入文件
-    fs::write(&resolved_save_path, bytes)
-        .map_err(|e| format!("Failed to write file: {}", e))?;
+    fs::write(&resolved_save_path, bytes).map_err(|e| format!("Failed to write file: {}", e))?;
 
     Ok(())
 }
@@ -512,31 +532,37 @@ pub async fn download_file_to_binary(
         .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
 
     // 执行请求 - 异步
-    let response = client.get(&url)
+    let response = client
+        .get(&url)
         .send()
         .await
         .map_err(|e| format!("Failed to download file: {}", e))?;
 
     // 检查响应状态
     if !response.status().is_success() {
-        return Err(format!("Failed to download file, status code: {}", response.status()));
+        return Err(format!(
+            "Failed to download file, status code: {}",
+            response.status()
+        ));
     }
 
     // 读取响应内容 - 异步
-    let bytes = response.bytes()
+    let bytes = response
+        .bytes()
         .await
         .map_err(|e| format!("Failed to read response: {}", e))?;
-    
+
     // 转换为Vec<u8>
     Ok(bytes.to_vec())
 }
 
-
-
 //-=============================================
 //- 打开文件、打开目录、在外部浏览器中打开链接
 #[tauri::command]
-pub async fn open_file_with_default_app(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
+pub async fn open_file_with_default_app(
+    app_handle: tauri::AppHandle,
+    path_str: String,
+) -> Result<(), String> {
     let path = Path::new(&path_str);
     let resolved_path = get_resolved_path(&app_handle, path)?;
     let resolvd_path_str = resolved_path.to_str().ok_or("Invalid path")?;
@@ -551,27 +577,33 @@ pub async fn open_file_with_default_app(app_handle: tauri::AppHandle, path_str: 
     {
         Command::new("cmd")
             .args(["/C", "start", resolvd_path_str])
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "macos")]
     {
         Command::new("open")
             .arg(resolvd_path_str)
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "linux")]
     {
         // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
         Command::new("xdg-open")
             .arg(resolvd_path_str)
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
-    
+
     Ok(())
 }
 
 #[tauri::command]
-pub async fn open_directory_with_default_app(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
+pub async fn open_directory_with_default_app(
+    app_handle: tauri::AppHandle,
+    path_str: String,
+) -> Result<(), String> {
     let path = Path::new(&path_str);
     let resolved_path = get_resolved_path(&app_handle, path)?;
     let resolvd_path_str = resolved_path.to_str().ok_or("Invalid path")?;
@@ -586,20 +618,23 @@ pub async fn open_directory_with_default_app(app_handle: tauri::AppHandle, path_
     {
         Command::new("cmd")
             .args(["/C", "start", resolvd_path_str])
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "macos")]
     {
         Command::new("open")
             .arg(resolvd_path_str)
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "linux")]
     {
         // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
         Command::new("xdg-open")
             .arg(resolvd_path_str)
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
     Ok(())
 }
@@ -612,29 +647,35 @@ pub async fn open_url_with_default_browser(url: String) -> Result<(), String> {
     {
         Command::new("cmd")
             .args(["/C", "start", &url])
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "macos")]
     {
         Command::new("open")
             .arg(&url)
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "linux")]
     {
         // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
         Command::new("xdg-open")
             .arg(&url)
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
-    
+
     Ok(())
 }
 
 //-=============================================
 //- 展示打开文件，展示打开目录
 #[tauri::command]
-pub async fn show_file_in_explorer(app_handle: tauri::AppHandle, path_str: String) -> Result<(), String> {
+pub async fn show_file_in_explorer(
+    app_handle: tauri::AppHandle,
+    path_str: String,
+) -> Result<(), String> {
     let path = Path::new(&path_str);
     let resolved_path = get_resolved_path(&app_handle, path)?;
     let resolvd_path_str = resolved_path.to_str().ok_or("Invalid path")?;
@@ -649,27 +690,34 @@ pub async fn show_file_in_explorer(app_handle: tauri::AppHandle, path_str: Strin
     {
         Command::new("explorer")
             .arg(resolvd_path_str)
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "macos")]
     {
         Command::new("open")
             .arg("-R")
             .arg(resolvd_path_str)
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "linux")]
     {
         // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
         Command::new("xdg-open")
             .arg(resolvd_path_str)
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
-    
+
     Ok(())
 }
 #[tauri::command]
-pub async fn show_directory_in_explorer(app_handle: tauri::AppHandle, path_str: String, if_create: bool) -> Result<(), String> {
+pub async fn show_directory_in_explorer(
+    app_handle: tauri::AppHandle,
+    path_str: String,
+    if_create: bool,
+) -> Result<(), String> {
     let path = Path::new(&path_str);
     let resolved_path = get_resolved_path(&app_handle, path)?;
     let resolvd_path_str = resolved_path.to_str().ok_or("Invalid path")?;
@@ -688,22 +736,25 @@ pub async fn show_directory_in_explorer(app_handle: tauri::AppHandle, path_str: 
     {
         Command::new("explorer")
             .arg(resolvd_path_str)
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "macos")]
     {
         Command::new("open")
             .arg(resolvd_path_str)
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
     #[cfg(target_os = "linux")]
     {
         // 在大多数Linux发行版中，'xdg-open' 是用来打开文件的默认命令
         Command::new("xdg-open")
             .arg(resolvd_path_str)
-            .status().map_err(|e| e.to_string())?;
+            .status()
+            .map_err(|e| e.to_string())?;
     }
-    
+
     Ok(())
 }
 
@@ -775,5 +826,4 @@ pub async fn open_program(
         command.status().map_err(|e| e.to_string())?;
     }
     Ok(())
-}   
-
+}

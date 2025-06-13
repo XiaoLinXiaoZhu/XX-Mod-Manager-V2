@@ -2,7 +2,7 @@
 use clap::{Parser, Subcommand};
 use serde::Serialize;
 
-#[derive(Parser, Debug,Serialize)]
+#[derive(Parser, Debug, Serialize)]
 #[command(version, about, long_about = None)]
 // devMode: devMode, // 用于控制特殊信息的输出
 // page: "main" || "firstpage" ||  “switchConfig”. // 用于控制直接跳转到指定页面
@@ -30,7 +30,7 @@ pub struct Args {
     pub command: Option<Commands>,
 }
 
-#[derive(Subcommand, Debug,Serialize)]
+#[derive(Subcommand, Debug, Serialize)]
 pub enum Commands {
     /// debug
     Test {
@@ -48,20 +48,17 @@ pub enum Commands {
     },
 }
 
-
 #[tauri::command]
 pub async fn get_command_line_args(_app_handle: tauri::AppHandle) -> Result<Args, String> {
     let args = Args::parse();
     Ok(args)
 }
 
-
-
 pub fn get_args() -> Args {
     Args::parse()
 }
 
-pub fn handle_cli(){
+pub fn handle_cli() {
     let cli = Args::parse();
 
     if cli.dev_mode {
