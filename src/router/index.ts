@@ -10,6 +10,7 @@ import TestRW from "@/pages/test/TestRW.vue";
 import TestDialogPage from "@/pages/test/TestDialogPage.vue";
 import TestSelectFile from "@/pages/test/TestSelectFile.vue";
 import TestSettingBar from "@/pages/test/TestSettingBar.vue";
+import TestGround from "@/pages/test/TestGround.vue";
 
 export const routes = [
   {
@@ -31,6 +32,11 @@ export const routes = [
     path: "/tutorial",
     name: "Tutorial",
     component: TutorialPage,
+  },
+  {
+    path: "/test-ground",
+    name: "TestGround",
+    component: TestGround,
   },
   {
     path: "/test-rw",

@@ -43,6 +43,20 @@ document.addEventListener('contextmenu', (e) => {
     e.preventDefault();
 });
 
+//-======== 禁用 webview 默认拖拽
+window.addEventListener('dragover', (e) => {
+    e.preventDefault(); // 阻止默认行为，防止 Webview 打开文件
+}, false);
+
+window.addEventListener('drop', (e) => {
+    e.preventDefault(); // 同样阻止默认行为
+    // 可选：你可以在这里触发你自己的 drop 处理逻辑
+    if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+        console.log('用户拖入了文件:', [...e.dataTransfer.files]);
+        // 这里可以调用你自己的文件处理函数
+    }
+}, false);
+
 //-======= 接收 wakeUp 事件 =======-//
 // 这里的事件是从 rust 端发过来的
 listen('wake-up', (event) => {

@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import { join } from '@tauri-apps/api/path';
 
 export async function readFile(path: string, ifCreate: boolean = false): Promise<string> {
     try {
@@ -221,12 +222,16 @@ export async function downloadFileToBinary(url: string, timeoutMs?: number): Pro
 
 // 拼接路径，处理 .. 为返回父目录
 export async function joinPath(basePath: string, relativePath: string): Promise<string> {
-    try {
-        return await invoke<string>('join_path', { basePathStr: basePath, relativePathStr: relativePath });
-    } catch (error) {
-        console.error('Error joining paths:', error);
-        return '';
-    }
+    // try {
+    //     return await invoke<string>('join_path', { basePathStr: basePath, relativePathStr: relativePath });
+    // } catch (error) {
+    //     console.error('Error joining paths:', error);
+    //     return '';
+    // }
+    // 这里重复实现了，实际上可以直接使用 @tauri-apps/api/path 提供的 join 和 normalize 方法
+    // error
+    console.warn('joinPath is using @tauri-apps/api/path.join instead of invoke',new Error());
+    return join(basePath, relativePath)
 }
 
 // 判断路径是否有父目录

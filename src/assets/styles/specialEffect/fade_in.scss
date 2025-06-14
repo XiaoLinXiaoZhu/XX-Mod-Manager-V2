@@ -16,13 +16,13 @@
   0% {
     margin-top: 10%;
     opacity: 0;
-    color: var(--s-color-primary);
+    color: var(--s-color-on-primary);
     background-color: var(--s-color-primary);
   }
   40% {
     margin-top: 0;
     opacity: 1;
-    color: var(--s-color-primary);
+    color: var(--s-color-on-primary);
     background-color: var(--s-color-primary);
   }
   50% {
@@ -40,7 +40,42 @@
   100% {
     margin-top: 0;
     opacity: 1;
-    color: var(--s-color-primary);
+    color: var(--s-color-on-primary);
     background-color: var(--s-color-primary);
   }
+}
+
+// 只是闪烁
+@keyframes flashOnce {
+  0% {
+    opacity: 0;
+    color: var(--s-color-on-primary);
+    background-color: var(--s-color-primary);
+  }
+  40% {
+    opacity: 1;
+    color: var(--s-color-on-primary);
+    background-color: var(--s-color-primary);
+  }
+  50% {
+    opacity: 0.3;
+  }
+  60% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.3;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    color: var(--s-color-on-primary);
+    background-color: var(--s-color-primary);
+  }
+}
+
+.flashOnce {
+  animation: flashOnce 0.3s ease-in-out;
 }

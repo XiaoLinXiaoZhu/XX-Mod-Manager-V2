@@ -181,5 +181,22 @@
   "versionBuildTime": "构建时间：",
   "dialogs": {
     "addNewRepo": "添加新的仓库"
+  },
+  "editRepo": {
+    "selectCover": "选择新的封面",
+    "noFileSelected": "没有选择文件",
+    "coverUpdated": "封面更新：",
+    "title": "仓库名称",
+    "uid": "UID",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "description": "仓库描述",
+    "location": "配置文件位置",
+    "cover": "封面文件名称",
+    "locationTip": "双击以打开配置文件位置",
+    "youJustPasted": "您刚刚粘贴了一张图片",
+    "ifUsePastedImage": "是否将图片作为仓库封面？",
+    "noFileDrop": "没有获得到拖拽的文件",
+    "notImageFile": "文件不为图片"
   }
 }

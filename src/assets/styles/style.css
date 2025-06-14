@@ -434,7 +434,7 @@ p {
   --text-field-border-color: var(--s-color-outline-variant);
   right: 5px;
   height: calc(100% - 10px);
-  min-height: 0px;
+  min-height: 40px;
   min-width: 155px;
   width: calc(30% + 5px);
   max-width: 305px;

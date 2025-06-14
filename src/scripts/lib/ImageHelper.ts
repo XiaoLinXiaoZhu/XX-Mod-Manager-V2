@@ -73,23 +73,36 @@ export async function loadImage(filePath: PathOrUrl, ifCreate: boolean = false):
     }
 }
 
-export async function writeImage(filePath: PathOrUrl, data: ImageBase64, ifCreate: boolean = false): Promise<void> {
-    try {
-        await invoke('write_image_file', { pathStr: filePath, data, ifCreate });
-    } catch (error) {
-        console.error('Error writing image file:', error);
-        // don't throw error, just return
-        // throw error;
-        return;
-    }
-}
-
+// export async function writeImage(filePath: PathOrUrl, data: ImageBase64, ifCreate: boolean = false): Promise<void> {
+//     try {
+//         await invoke('write_image_file', { pathStr: filePath, data, ifCreate });
+//     } catch (error) {
+//         console.error('Error writing image file:', error);
+//         // don't throw error, just return
+//         // throw error;
+//         return;
+//     }
+// }
+type UrlType = "blob" | "http" | "base64" | "pathOrUnknown";
 export async function writeImageFromUrl(filePath: PathOrUrl, url: PathOrUrl, ifCreate: boolean = false): Promise<void> {
+    if (!url || url == "") {
+        console.error("Url can't be null")
+    }
+    let type : UrlType = "pathOrUnknown"
+    if (url.startsWith('blob:')) {
+        type = "blob";
+    } else if (url.startsWith('http')) {
+        type = "http";
+    } 
+    else if (url.startsWith('data:image/')) {
+        type = "base64";
+    }
+
     try {
         // 从 url 加载 图片 转为 uint8array
         // url 可能是 blob url 或者 http url
         // 先尝试 blob url
-        if (url.startsWith('blob:')) {
+        if (type === "blob") {
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -103,7 +116,7 @@ export async function writeImageFromUrl(filePath: PathOrUrl, url: PathOrUrl, ifC
         // 直接下载
         // 这里需要考虑跨域问题，可能需要设置请求头
         // 这里使用 fetch 下载图片
-        else if (url.startsWith('http')) {
+        if (type === "http") {
 
             // use axios to download image
             const response = await axios.get(url, {
@@ -120,11 +133,10 @@ export async function writeImageFromUrl(filePath: PathOrUrl, url: PathOrUrl, ifC
             return;
         }
         // 如果不是 blob url 也不是 http url，则认为是本地文件
-        // 直接读取文件
-        const data = await getImage(url);
-        await invoke('write_binary_file', { pathStr: filePath, data, ifCreate });
+        // 直接 copy 文件
+        await invoke('copy_file', { oldPathStr: url, newPathStr: filePath });
     } catch (error) {
-        console.error('Error writing image file from url:', error);
+        console.error(`Error writing image file from url[${type},${url}]:`, error);
         // don't throw error, just return
         // throw error;
         return;
