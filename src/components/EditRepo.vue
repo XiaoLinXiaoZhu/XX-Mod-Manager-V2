@@ -65,13 +65,13 @@
 
 <script setup lang="ts">
 
-import { ref, onMounted, watch, watchEffect } from 'vue';
+import { ref, onMounted } from 'vue';
 import { type repo } from '@/scripts/lib/Repo';
 import { EmptyImage, getImage, releaseImage, writeImageFromBase64, writeImageFromUrl, type ImageBase64 } from '@/scripts/lib/ImageHelper';
 import { FileDialogOption, openFileDialog } from '@/scripts/lib/FileDialogHelper';
 import { $t } from '@/locals';
 import { $t_snack, snack } from '@/scripts/lib/SnackHelper';
-import { basename, dirname, isAbsolute, join } from '@tauri-apps/api/path';
+import { basename, isAbsolute, join } from '@tauri-apps/api/path';
 import { showDirectoryInExplorer } from '@/scripts/lib/FileHelper';
 import DialogTemplate from '@/dialogs/dialogTemplate.vue';
 

@@ -44,10 +44,6 @@ const props = defineProps<{
     selectDirectory?: boolean
 }>()
 
-const emit = defineEmits<{
-    (e: 'select', files: string[]): void
-}>()
-
 const selectedFiles = ref<string[]>([])
 </script>
 

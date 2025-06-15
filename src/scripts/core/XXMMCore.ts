@@ -1,12 +1,11 @@
 import { checkForUpdates } from '@/scripts/core/UpdateChecker.ts';
 import { GlobalConfigLoader, useGlobalConfig } from '@/scripts/core/GlobalConfigLoader';
-import { ConfigLoader,useConfig } from './ConfigLoader';
+import { ConfigLoader } from './ConfigLoader';
 import { getArgv } from '../lib/Argv';
 import { isDirectoryExists } from '../lib/FileHelper';
 import { invoke } from '@tauri-apps/api/core';
 import { setI18nLocale, I18nLocale } from '@/locals';
 import { snack } from '../lib/SnackHelper';
-import { ModLoader } from '@/scripts/lib/ModLoader';
 import { useRouter } from 'vue-router';
 import { EventSystem, EventType } from './EventSystem';
 

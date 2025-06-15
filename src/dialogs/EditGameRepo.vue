@@ -27,8 +27,7 @@
 import { defineModel, onMounted, ref ,type Ref} from 'vue';
 import dialogTemplate from '@/dialogs/dialogTemplate.vue';
 import editRepo from '@/components/EditRepo.vue';
-import { type repo,repos,getRepos } from '@/scripts/lib/Repo';
-import { EventSystem, EventType } from '@/scripts/core/EventSystem';
+import { type repo,repos } from '@/scripts/lib/Repo';
 const showEditRepoDialog = defineModel<boolean>("visible", {
     type: Boolean,
     default: false,

@@ -1,7 +1,7 @@
 // 加载 Mod 并导出几个公共的变量
 import { ModInfo } from './ModInfo';
 import { isDirectoryExists,getDirectoryList } from "./FileHelper";
-import { join } from "@tauri-apps/api/path";
+// import { join } from "@tauri-apps/api/path";
 import { useGlobalConfig } from '../core/GlobalConfigLoader';
 
 export class ModLoader {

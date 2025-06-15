@@ -21,18 +21,16 @@ npm version patch && git push --follow-tags
 
 for minor changes
 ```
-npm version minor
-git push --follow-tags
+npm version minor && git push --follow-tags
 ```
 
 for major changes
 ```
-npm version major
-git push --follow-tags
+npm version major && git push --follow-tags
 ```
 
 
-creata a fix version
+create a fix version
 ```
 npm version 1.3.9-fix3 --allow-same-version --no-git-tag-version
 git add package.json

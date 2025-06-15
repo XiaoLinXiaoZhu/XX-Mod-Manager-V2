@@ -13,10 +13,10 @@
         <SectionSlider :currentSection="currentIndex" class="section-slider">
           <GameRepoSection ref="gameRepoSectionRef" />
           <div>
-            <p>{{ $t('element.helpContent') }}</p>
+            <p>{{ 'element.helpContent'}}</p>
           </div>
           <div>
-            <p>{{ $t('element.settingsContent') }}</p>
+            <p>{{'element.settingsContent' }}</p>
           </div>
         </SectionSlider>
 
@@ -38,18 +38,13 @@ import BackButton from '@/components/BackButton.vue';
 import SectionSelector from '@/components/base/SectionSelector.vue';
 import SectionSlider from '@/components/base/SectionSlider.vue';
 
-import { computed, onMounted, ref, watch, type Ref } from 'vue';
+import { ref, watch, type Ref } from 'vue';
 
-import { useGlobalConfig } from '@/scripts/core/GlobalConfigLoader';
-import DialogTemplate from '@/dialogs/dialogTemplate.vue';
 
 import { $t, currentLanguageRef } from '@/locals';
-import { EventSystem, EventType } from '@/scripts/core/EventSystem';
 import UpdateButtonWithInfo from '@/components/updateButtonWithInfo.vue';
 import GameRepoSection from '@/section/GameRepoSection.vue';
 
-const showDialog = ref(false);
-const showDialog2 = ref(false);
 
 const currentSection = ref('Section 1');
 const sections = ref([$t('element.section.games'), $t('element.section.help'), $t('element.section.settings')]);

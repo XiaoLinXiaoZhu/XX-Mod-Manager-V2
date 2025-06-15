@@ -118,7 +118,8 @@
     "checkUpdate": "检查更新",
     "addNewRepo": "+",
     "create": "创建",
-    "editRepo": "编辑仓库"
+    "editRepo": "编辑仓库",
+    "useRepo": "使用仓库"
   },
   "firstLoad": {
     "huan-ying-shi-yong-xxmodmanagerxxmm": "欢迎使用 XX-mod-manager(XXMM)",

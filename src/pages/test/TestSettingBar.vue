@@ -7,7 +7,7 @@
 
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import settingBar from '@/components/setting/settingBar.vue';
 import { type SettingBarData } from '@/components/setting/settingBarConfig';
 

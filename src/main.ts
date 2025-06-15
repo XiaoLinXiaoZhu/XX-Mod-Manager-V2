@@ -7,8 +7,7 @@ import { EventSystem, EventType } from './scripts/core/EventSystem.ts';
 
 //-================ 检查更新 =================
 
-import { emit, listen } from '@tauri-apps/api/event';
-import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 
 
 //-================ 初始化 =================

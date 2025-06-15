@@ -1,9 +1,4 @@
 <template>
-  <!-- <p style="position: absolute; top: 10px; left: 10px;">当前卡片索引: {{ currentCardIndex }}</p>
-  <s-button style="position: absolute; top: 10px; left: 190px; width: 100px;"
-    @click="console.log(repos?.getRef().value)" class="OO-button font-hongmeng OO-color-gradient">
-    {{ $t('buttons.printRepos') }}
-  </s-button> -->
   <div
     style="display: flex; flex-direction: column; height: 100%; width: 100%;flex: 0 0 auto;align-content: center;justify-content: center;align-items: center;">
     <HorizontalCardList style="width: 100%; overflow: visible;" v-model:focused-index="currentCardIndex">
@@ -54,7 +49,6 @@ import { type repo, repos, getRepos } from '@/scripts/lib/Repo';
 import HorizontalCardList from '@/components/base/HorizontalCardList.vue';
 import { type Ref, ref, watch, onMounted } from 'vue';
 import { $t } from '@/locals/index';
-import { useGlobalConfig } from '@/scripts/core/GlobalConfigLoader';
 import { EventSystem, EventType } from '@/scripts/core/EventSystem';
 import CreateGameRepo from '@/dialogs/CreateGameRepo.vue';
 import EditGameRepo from '@/dialogs/EditGameRepo.vue';

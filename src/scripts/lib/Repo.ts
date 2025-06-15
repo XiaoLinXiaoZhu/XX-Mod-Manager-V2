@@ -6,8 +6,7 @@
 import { isAbsolute, join,appDataDir } from "@tauri-apps/api/path";
 import { useGlobalConfig } from "../core/GlobalConfigLoader";
 import type { StorageValue } from "./Storge";
-import { Ref,ref } from "vue";
-import { createDirectory, getAppdataDir, isDirectoryExists } from "./FileHelper";
+import { createDirectory, isDirectoryExists } from "./FileHelper";
 
 export type repo = {
     /**

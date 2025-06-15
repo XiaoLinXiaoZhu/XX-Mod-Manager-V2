@@ -100,9 +100,9 @@ const DRAG_THRESHOLD = computed(() => {
     return 50; // 如果没有卡片，使用默认值
 });
 const isDragging = new MouseEventBinder(false)
-    .bindMouseDown((event, ref) => {ref.value = true; })
-    .bindMouseUp((event, ref) => { ref.value = false; })
-    .bindMouseLeave((event, ref) => { ref.value = false; });
+    .bindMouseDown((_event, ref) => {ref.value = true; })
+    .bindMouseUp((_event, ref) => { ref.value = false; })
+    .bindMouseLeave((_event, ref) => { ref.value = false; });
 scrollPartBinder.add(isDragging);
 
 const dragDirection = new MouseEventBinder(0) // 0: 未拖动, 1: 向右拖动, -1: 向左拖动
@@ -153,7 +153,7 @@ const deltaX = new MouseEventBinder(0)
         updateFocused(focusedIndex.value); // 确保松开鼠标后更新焦点
 
     })
-    .bindMouseLeave((event, ref) => {
+    .bindMouseLeave((_event, ref) => {
         if (!isDragging.value) return;
         ref.value = 0; // 重置拖动距离
 
@@ -179,14 +179,14 @@ const styleBinder = new MouseEventBinder<number>(0)
             scrollPart.value.classList.add('dragging'); // 添加拖动状态
         }
     })
-    .bindMouseUp((event, ref) => {
+    .bindMouseUp((_event, ref) => {
         if (!scrollPart.value) return;
 
         ref.value = 0; // 重置样式
         scrollPart.value.style.cursor = 'default'; // 恢复默认光标
         scrollPart.value.classList.remove('dragging'); // 移除拖动状态
     })
-    .bindMouseLeave((event, ref) => {
+    .bindMouseLeave((_event, ref) => {
         if (!scrollPart.value) return;
 
         ref.value = 0; // 重置样式
@@ -196,10 +196,10 @@ const styleBinder = new MouseEventBinder<number>(0)
 scrollPartBinder.add(styleBinder);
 
 const otherMouseEvent = new MouseEventBinder(0)
-    .bindMouseUp((event, ref) => {
+    .bindMouseUp((_event, _ref) => {
         updateFocused(focusedIndex.value); // 确保松开鼠标后更新焦点
     })
-    .bindMouseLeave((event, ref) => {
+    .bindMouseLeave((_event, _ref) => {
         updateFocused(focusedIndex.value); // 确保鼠标离开时更新焦点
     });
 scrollPartBinder.add(otherMouseEvent);

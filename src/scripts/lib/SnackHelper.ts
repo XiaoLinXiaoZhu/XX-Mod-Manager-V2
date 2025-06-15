@@ -18,7 +18,7 @@ export async function snack(message: string, type: SnackType = 'info') {
     // ipcRenderer.send('snack', message, type);
     // snackType是type的首字母大写版本
     const snackType = type.charAt(0).toUpperCase() + type.slice(1);
-    invoke('snack', { message, snackType, duration: 3000, align: 'Top' }).then((res) => {
+    invoke('snack', { message, snackType, duration: 3000, align: 'Top' }).then((_res) => {
     }).catch((err) => {
         console.error('snack error', err);
     });

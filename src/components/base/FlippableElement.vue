@@ -1,7 +1,7 @@
 <template>
 <div 
     class="flippable-element"
-    ref="elementRef" @click="handleClick">
+    ref="elementRef" @click="handleClick" :clicked="clicked">
     <slot></slot>
 </div>
 </template>
@@ -10,27 +10,32 @@
 import { ref } from 'vue';
 const elementRef = ref<HTMLElement | null>(null);
 
+const clicked = defineModel("clicked", {
+    type: Boolean,
+    default: false
+});
 
 type T = HTMLElement & {
     clicked?: boolean;
     inWindow?: boolean;
 };
 function handleClick(event: MouseEvent) {
-    const element = elementRef.value;
-    if (!element) return;
+    const element = elementRef.value as T;
 
     // 获取元素的边界矩形
     const rect = element.getBoundingClientRect();
     
     // Toggle clicked state
-    const isClicked = !!(element as T).clicked;
-    (element as T).clicked = !isClicked;
-    
-    // if (isClicked) {
-    //     playClickedAnim(element as T, event, rect);
-    // } else {
-    playClickAnim(element as T, event, rect);
-    // }
+    clicked.value = !clicked.value;
+    element.clicked = clicked.value;
+
+    if (clicked.value) {
+        // If clicked, play clicked animation
+        playClickedAnim(element, event, rect);
+    } else {
+        // If not clicked, play click animation
+        playClickAnim(element, event, rect);
+    }
 }
 
 function playClickAnim(element: HTMLElement, event: MouseEvent, rect: DOMRect) {

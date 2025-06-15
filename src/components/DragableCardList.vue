@@ -68,7 +68,8 @@ const games = ref<Game[]>([
 const CARD_WIDTH = 200;
 const CARD_HEIGHT = 300;
 const CARD_MARGIN = 20;
-const CARD_SCALE_WHEN_DRAGGING = 1.05;
+// const CARD_SCALE_WHEN_DRAGGING = 1.05;
+// 上面这个属性移动到 css 里面了，使用 class 驱动
 
 // 动画参数配置
 const DRAG_EASING = 0.25; // 拖拽时的缓动系数

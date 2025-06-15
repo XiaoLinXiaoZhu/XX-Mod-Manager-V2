@@ -4,7 +4,7 @@
     </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 
 const currentSection = defineModel<number>('currentSection', {
     default: 0,
@@ -13,9 +13,9 @@ const currentSection = defineModel<number>('currentSection', {
 
 
 const sectionSlider = ref<HTMLElement | null>(null);
-const sectionCount = computed(() => {
-    return sectionSlider.value ? sectionSlider.value.children.length : 0;
-});
+// const sectionCount = computed(() => {
+//     return sectionSlider.value ? sectionSlider.value.children.length : 0;
+// });
 const sectionStyle = computed(() => {
     return {
         transform: `translateX(calc(${currentSection.value} * -100%))`,
