@@ -1,8 +1,9 @@
 <template>
-  <p style="position: absolute; top: 10px; left: 10px;">当前卡片索引: {{ currentCardIndex }}</p>
-      <s-button  style="position: absolute; top: 10px; left: 190px; width: 100px;" @click="console.log(repos?.getRef().value)" class="OO-button font-hongmeng OO-color-gradient">
-      {{ $t('buttons.printRepos') }}
-    </s-button>
+  <!-- <p style="position: absolute; top: 10px; left: 10px;">当前卡片索引: {{ currentCardIndex }}</p>
+  <s-button style="position: absolute; top: 10px; left: 190px; width: 100px;"
+    @click="console.log(repos?.getRef().value)" class="OO-button font-hongmeng OO-color-gradient">
+    {{ $t('buttons.printRepos') }}
+  </s-button> -->
   <div
     style="display: flex; flex-direction: column; height: 100%; width: 100%;flex: 0 0 auto;align-content: center;justify-content: center;align-items: center;">
     <HorizontalCardList style="width: 100%; overflow: visible;" v-model:focused-index="currentCardIndex">
@@ -12,7 +13,8 @@
           {{ $t('buttons.addNewRepo') }}
         </s-button>
       </div>
-      <div v-for="(repo, index) in repos?.getRef().value" :key="index" class="card horizontal-card-list-item" :id="repo.uid" :style="getImage(repo)">
+      <div v-for="(repo, index) in repos?.getRef().value" :key="index" class="card horizontal-card-list-item"
+        :id="repo.uid" :style="getImage(repo)">
         <h3 class="font-hongmeng">{{ repo.name }}</h3>
         <s-button class="card-hover OO-button" @click="showEditRepoDialog = true">
           {{ $t('buttons.editRepo') }}
@@ -119,6 +121,14 @@ onMounted(() => {
     console.warn('Repos not initialized yet.');
   }
 });
+
+// export { currentCardIndex, showAddRepoDialog, showEditRepoDialog, currentFocusedRepo };
+defineExpose({
+  currentCardIndex,
+  showAddRepoDialog,
+  showEditRepoDialog,
+  currentFocusedRepo,
+});
 </script>
 
 <style scoped lang="scss">
@@ -151,6 +161,7 @@ onMounted(() => {
 
     transition: opacity 0.2s ease;
   }
+
   & h3:hover {
     opacity: 1;
   }
@@ -167,10 +178,12 @@ onMounted(() => {
 
     & h3 {
       opacity: 0.7;
+
       &:hover {
         opacity: 1;
       }
     }
+
     & .card-hover {
       position: absolute;
       top: calc(100% + 20px);

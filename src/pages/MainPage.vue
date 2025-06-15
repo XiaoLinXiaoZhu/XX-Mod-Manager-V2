@@ -11,7 +11,7 @@
       <div class="main-content" style="height: 100%; width: 100%;overflow: hidden;">
         <!-- 主页面有三个主要功能: 查看所有的子配置项，新建新的仓库，打开设置面板 -->
         <SectionSlider :currentSection="currentIndex" class="section-slider">
-          <GameRepoSection/>
+          <GameRepoSection ref="gameRepoSectionRef" />
           <div>
             <p>{{ $t('element.helpContent') }}</p>
           </div>
@@ -26,6 +26,7 @@
     <template #footer>
       <!-- <p>&copy; 2023 Your Company</p> -->
       <UpdateButtonWithInfo />
+      <s-button class="OO-button OO-color-gradient font-hongmeng start-button" @click="handleStartClicked">{{ $t('buttons.useRepo') }}</s-button>
     </template>
   </BergerFrame>
 </template>
@@ -59,11 +60,26 @@ watch(currentLanguageRef, () => {
   // 当语言变化时，重新设置 sections
   sections.value = [$t('element.section.games'), $t('element.section.help'), $t('element.section.settings')];
 });
+
+const gameRepoSectionRef: Ref<InstanceType<typeof GameRepoSection> | null> = ref(null);
+const handleStartClicked = () => {
+  if (gameRepoSectionRef.value) {
+    const currentRepo = gameRepoSectionRef.value.currentFocusedRepo;
+    if (currentRepo) {
+      console.log('Starting game with repo:', currentRepo);
+    } else {
+      console.warn('No game repository selected.');
+    }
+  }
+}
 </script>
 
 <style scoped lang="scss">
 
-
+.start-button{
+  position: absolute;
+  right: 10px;
+}
 
 
 
