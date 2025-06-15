@@ -6,13 +6,14 @@
   <div
     style="display: flex; flex-direction: column; height: 100%; width: 100%;flex: 0 0 auto;align-content: center;justify-content: center;align-items: center;">
     <HorizontalCardList style="width: 100%; overflow: visible;" v-model:focused-index="currentCardIndex">
-      <div class="card">AddNewRepo
+      <div class="card">
+        <h3 class="font-hongmeng">{{ $t('editRepo.addNewRepo') }}</h3>
         <s-button class="card-hover OO-button" @click="showAddRepoDialog = true">
           {{ $t('buttons.addNewRepo') }}
         </s-button>
       </div>
-      <div v-for="(repo, index) in repos?.getRef().value" :key="index" class="card horizontal-card-list-item">
-        {{ repo.name }}
+      <div v-for="(repo, index) in repos?.getRef().value" :key="index" class="card horizontal-card-list-item" :id="repo.uid" :style="getImage(repo)">
+        <h3 class="font-hongmeng">{{ repo.name }}</h3>
         <s-button class="card-hover OO-button" @click="showEditRepoDialog = true">
           {{ $t('buttons.editRepo') }}
         </s-button>
@@ -55,6 +56,8 @@ import { useGlobalConfig } from '@/scripts/core/GlobalConfigLoader';
 import { EventSystem, EventType } from '@/scripts/core/EventSystem';
 import CreateGameRepo from '@/dialogs/CreateGameRepo.vue';
 import EditGameRepo from '@/dialogs/EditGameRepo.vue';
+import { loadImage } from '@/scripts/lib/ImageHelper';
+import { join } from '@tauri-apps/api/path';
 
 const currentCardIndex = ref(1);
 
@@ -70,6 +73,29 @@ watch(currentCardIndex, (newIndex) => {
 
 });
 
+const getImage = (repo: repo) => {
+  if (!repo.cover) {
+    return {};
+  }
+
+  join(repo.location, repo.cover).then(async (path) => {
+    // 找到 id = repo.uid 的元素
+    const imageUrl = await loadImage(path);
+    const element = document.getElementById(repo.uid);
+    if (element) {
+      // 设置元素的背景图片
+      element.style.backgroundImage = `url(${imageUrl})`;
+    } else {
+      console.warn(`Element with id ${repo.uid} not found.`);
+    }
+  });
+
+  return {
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+  };
+};
 
 //-============ 添加repo ==============
 const showAddRepoDialog = ref(false);
@@ -105,8 +131,8 @@ onMounted(() => {
 
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  // align-items: center;
+  // justify-content: center;
 
   background-color: var(--s-color-surface);
   border-radius: 8px;
@@ -115,6 +141,19 @@ onMounted(() => {
   // cursor: pointer;
 
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  & h3 {
+    font-size: 30px;
+    padding-left: 20px;
+    backdrop-filter: blur(3px);
+    background-color: var(--s-color-surface);
+    opacity: 0.5;
+
+    transition: opacity 0.2s ease;
+  }
+  & h3:hover {
+    opacity: 1;
+  }
 
   & .card-hover {
     display: none;
@@ -126,6 +165,12 @@ onMounted(() => {
     transform: scale(1.05);
     animation: gradientBorderAnimation 3s infinite alternate;
 
+    & h3 {
+      opacity: 0.7;
+      &:hover {
+        opacity: 1;
+      }
+    }
     & .card-hover {
       position: absolute;
       top: calc(100% + 20px);

@@ -200,6 +200,7 @@
     "youJustPasted": "您刚刚粘贴了一张图片",
     "ifUsePastedImage": "是否将图片作为仓库封面？",
     "noFileDrop": "没有获得到拖拽的文件",
-    "notImageFile": "文件不为图片"
+    "notImageFile": "文件不为图片",
+    "addNewRepo": "添加新仓库"
   }
 }

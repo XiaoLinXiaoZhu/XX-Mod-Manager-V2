@@ -47,7 +47,15 @@ const handleCancel = () => {
 };
 
 const handleSave = () => {
-    repoToEdit.value = tempRepo.value;
+    repoToEdit.value = JSON.parse(JSON.stringify(tempRepo.value));
+    // 上面这个方法好像保存不了，因为 repoToEdit.value 是一个引用类型，直接赋值可能不会触发更新
+    // 直接操作repos
+    if (!repos) {
+        console.warn('Repos not initialized yet.');
+        return;
+    }
+    repos.value = repos.value.map(r => r.uid === repoToEdit.value?.uid ? tempRepo.value : r);
+    console.log('Repo updated:', tempRepo.value);
     showEditRepoDialog.value = false;
 }
 

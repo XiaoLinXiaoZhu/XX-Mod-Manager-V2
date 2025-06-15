@@ -199,7 +199,8 @@
     "title": "Repo Name",
     "selectCover": "Select new cover",
     "uid": "UID",
-    "updatedAt": "Update@",
-    "youJustPasted": "You just pasted an image"
+    "updatedAt": "UpdateAt",
+    "youJustPasted": "You just pasted an image",
+    "addNewRepo": "Add New Repo"
   }
 }
