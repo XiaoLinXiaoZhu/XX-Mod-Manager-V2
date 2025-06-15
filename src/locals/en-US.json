@@ -10,7 +10,10 @@
     "updateAvailable": "A new version is available.",
     "updateAvailableInfo": "Would you like to proceed to download?",
     "updateError": "Check for updates failed. Please check your network connection.",
-    "updateNotAvailable": "The latest version was not obtained."
+    "updateNotAvailable": "The latest version was not obtained.",
+    "error": {
+      "repoLocationRequired": "Repository location is required."
+    }
   },
   "element": {
     "section": {
@@ -112,7 +115,10 @@
     "all": "All",
     "selected": "Selected",
     "back": "Back",
-    "checkUpdate": "Check Update"
+    "checkUpdate": "Check Update",
+    "addNewRepo": "+",
+    "create": "Create",
+    "editRepo": "Edit Repo"
   },
   "author": "author",
   "caimogu": "Caimogu",
@@ -174,5 +180,26 @@
     "confirm": "Confirm Password:"
   },
   "currentVersion": "Current Version: ",
-  "versionBuildTime": "Build time: "
+  "versionBuildTime": "Build time: ",
+  "dialogs": {
+    "addNewRepo": "Add new Repo",
+    "editRepo": "Edit Repo"
+  },
+  "editRepo": {
+    "cover": "Cover file name",
+    "coverUpdated": "Cover updated: ",
+    "createdAt": "Create at",
+    "description": "Description",
+    "location": "Location",
+    "ifUsePastedImage": "If use pasted image as repo cover",
+    "locationTip": "Double click to open location",
+    "noFileDrop": "Didn't get droped file",
+    "notImageFile": "Not an image",
+    "noFileSelected": "No selected file",
+    "title": "Repo Name",
+    "selectCover": "Select new cover",
+    "uid": "UID",
+    "updatedAt": "Update@",
+    "youJustPasted": "You just pasted an image"
+  }
 }
