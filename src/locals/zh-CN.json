@@ -116,7 +116,9 @@
     "all": "全部",
     "selected": "已选择",
     "checkUpdate": "检查更新",
-    "addNewRepo": "+"
+    "addNewRepo": "+",
+    "create": "创建",
+    "editRepo": "编辑仓库"
   },
   "firstLoad": {
     "huan-ying-shi-yong-xxmodmanagerxxmm": "欢迎使用 XX-mod-manager(XXMM)",
@@ -180,7 +182,8 @@
   "currentVersion": "当前版本：",
   "versionBuildTime": "构建时间：",
   "dialogs": {
-    "addNewRepo": "添加新的仓库"
+    "addNewRepo": "添加新的仓库",
+    "editRepo": "编辑仓库"
   },
   "editRepo": {
     "selectCover": "选择新的封面",

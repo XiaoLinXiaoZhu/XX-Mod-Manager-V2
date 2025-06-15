@@ -192,6 +192,13 @@ function handleMaskClick() {
             }
         }
 
+        .dialog-body{
+            width: calc(100vw - 200px);
+            min-width: 700px;
+            max-width: 1200px;
+            max-height: calc(100vh - 200px);
+        }
+
         .dialog-footer {
             position: absolute;
             bottom: -20px;

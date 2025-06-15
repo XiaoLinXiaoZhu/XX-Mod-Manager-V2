@@ -136,7 +136,7 @@ const handleUpdateCoverButtonClick = async () => {
 };
 
 // paste
-const ifUsePastedImageDialog = ref(true);
+const ifUsePastedImageDialog = ref(false);
 const pasteImg = ref("");
 const handlePaste = (event: ClipboardEvent) => {
     const items = event.clipboardData?.items;

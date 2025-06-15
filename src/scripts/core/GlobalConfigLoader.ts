@@ -8,6 +8,8 @@ class GlobalConfigLoaderClass extends Storage {
     async loadDefaultConfig(): Promise<void> {
         const appPath = await getAppdataDir();
         const defaultConfigPath = await join(appPath, 'config.json');
+        // debug
+        console.log(`加载全局配置文件: ${defaultConfigPath}`);
         await this.loadFrom(defaultConfigPath);
     }
 }

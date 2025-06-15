@@ -38,7 +38,7 @@ export class Storage {
                 const rawData = await readFile(filePath, true);
                 // debug
                 // const copyData = JSON.parse(JSON.stringify(this._data));
-                // console.log(`从 ${filePath} 读取配置`, rawData, copyData);
+                // console.log(`从 ${filePath} 读取配置`, rawData,JSON.parse(rawData));
                 await this.mergeData(JSON.parse(rawData));
             } else {
                 // 如果文件不存在，则创建一个空的配置文件
@@ -57,14 +57,19 @@ export class Storage {
         // 如果直接加载配置，会导致 _data 中的值被覆盖
         // 所以这里需要先合并数据
         let needSave = false;
+        const newData = JSON.parse(JSON.stringify(data));
+        const oldData = JSON.parse(JSON.stringify(this._data));
+        const ifRefExistThenSave = (key:string,value:any) =>{
+            if (this._refCache[key]) {
+                this._refCache[key].value = value;
+            }
+        }
         // 如果 _data 中没有值，则无需合并
         if (Object.keys(this._data).length === 0) {
             this._data = data;
             // 如果 refCache 中有值，则更新 refCache 中的值
             for (const key in data) {
-                if (this._refCache[key]) {
-                    this._refCache[key].value = data[key];
-                }
+                ifRefExistThenSave(key,data[key])
             }
             return;
         }
@@ -76,32 +81,41 @@ export class Storage {
             // 覆盖模式，新旧数据优先保留新数据
             for (const key in data) {
                 this._data[key] = data[key];
-                // 如果 refCache 中有值，则更新 refCache 中的值
-                if (this._refCache[key] && this._refCache[key].value !== data[key]) {
-                    this._refCache[key].value = data[key];
-                    needSave = true;
-                }
+                ifRefExistThenSave(key,data[key])
             }
-            // debug
-            console.log('覆盖模式，合并后的数据', this._data);
         } else {
-            // 非覆盖模式，新旧数据优先保留旧数据
-            // 1. 如果 _data 中有值，则不论是否传入了值，都使用 _data 中的值
-            // 2. 如果 _data 中没有值，则使用传入的值
+            // debug
+            console.log("no force");
+            // 非覆盖模式：
+            // 如果不是两个都有值，那么哪个有值选哪个
             for (const key in data) {
-                if (this._data[key] === undefined || this._data[key] === null || this._data[key] === '') {
-                    // 如果两个值相同，则不更新
-                    if (this._data[key] !== data[key]) {
-                        this._data[key] = data[key];
-                        needSave = true;
-                        // 如果 refCache 中有值，则更新 refCache 中的值
-                        if (this._refCache[key]) {
-                            this._refCache[key].value = data[key];
-                        }
+                if (Array.isArray(this._data[key]) || Array.isArray(data[key])) {
+                    if (this._data[key].length < 0 || data[key].length < 0) {
+                        // 直接合并
+                        this._data[key] = Array.from(new Set([...(Array.isArray(this._data[key]) ? this._data[key] : []), ...(Array.isArray(data[key]) ? data[key] : [])]));
+                        ifRefExistThenSave(key,this._data[key])
+                    } else {
+                        // 合并后去重
+                        this._data[key] = Array.from(new Set([...(Array.isArray(this._data[key]) ? this._data[key] : []), ...(Array.isArray(data[key]) ? data[key] : [])]));
+                        ifRefExistThenSave(key, this._data[key]);
                     }
+                    continue;
                 }
+                // 常规值处理
+                if (this._data[key] === undefined || this._data[key] === null || this._data[key] === ''){
+                    // 使用data
+                    this._data[key] = data[key];
+                    ifRefExistThenSave(key,data[key]);
+                    continue;
+                }
+                if (data[key] === undefined || data[key] === null || data[key] === ""){
+                    // 不发生变化，忽略传入的值
+                    continue;
+                }
+                // 两个都有值，认为本地的值更新
             }
         }
+        console.log('合并数据', newData, oldData, "->", this._data);
 
         if (needSave) {
             await this.save();

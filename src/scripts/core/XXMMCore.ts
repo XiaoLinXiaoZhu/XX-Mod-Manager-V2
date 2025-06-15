@@ -16,6 +16,10 @@ export async function init() {
     const argv = await getArgv() as any;
     // 加载全局配置
     await GlobalConfigLoader.loadDefaultConfig();
+    // 页面卸载时，保存全局配置
+    window.addEventListener('beforeunload', () => {
+        GlobalConfigLoader.save();
+    });
     
     // 如果有 useCustomConfig 参数，则加载自定义配置
     if (argv.useCustomConfig && await isDirectoryExists(argv.useCustomConfig)) {
