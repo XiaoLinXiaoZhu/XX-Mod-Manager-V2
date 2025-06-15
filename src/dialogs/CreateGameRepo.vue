@@ -19,22 +19,6 @@
                 <p>{{ $t('buttons.save') }}</p>
             </s-button>
         </template>
-
-    </dialogTemplate>
-
-
-        <dialogTemplate id="save-change-dialog" v-model:visible="saveChangeDialogVisible" :data-allow-mismatch="false">
-        <template v-slot:content>
-            <h2 style="padding: 0;margin: 0;">{{ $t('editDialog.changeNotSave') }}</h2>
-            <h3 style="z-index:1">{{ $t('editDialog.ifSaveChange') }}</h3>
-        </template>
-        <template v-slot:action>
-            <s-button slot="action" type="text" id="save-change-ignore" @click="handleCancel"
-                style="margin-left: 20px;margin-left: 20px;" class="OO-button">{{ $t('editDialog.ignore') }}</s-button>
-            <s-button slot="action" type="text" id="save-change-confirm" @click="handleSave"
-                style="margin-left: 20px;margin-left: 20px;color: var(--s-color-on-surface);" class="OO-button">{{
-                    $t('editDialog.save') }}</s-button>
-        </template>
     </dialogTemplate>
 </template>
 

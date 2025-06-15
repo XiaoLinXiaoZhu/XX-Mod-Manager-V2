@@ -290,7 +290,7 @@ onMounted(() => {
 }
 
 .bottom-details {
-    opacity: 0;
+    opacity: 0.3;
     // 设置过渡效果
     transition: opacity 0.3s ease-in-out;
 
@@ -301,13 +301,14 @@ onMounted(() => {
     }
 
     position: absolute;
-    bottom: 7px;
+    bottom: 10px;
     // 水平排布
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     justify-content: flex-start;
-    width: calc(100% - 20px);
+    width: calc(100% - 30px);
+    padding: 0px 5px;
     border-radius: 8px;
 
     color: var(--s-color-on-surface-variant);
