@@ -40,7 +40,7 @@ import SectionSlider from '@/components/base/SectionSlider.vue';
 import { ref, watch, onMounted } from 'vue';
 
 
-import { $t, currentLanguageRef } from '@/locals';
+import { $t, currentLanguageRef } from '../../src-tauri/resources/locals';
 import UpdateButtonWithInfo from '@/components/updateButtonWithInfo.vue';
 import { ConfigLoader } from '@/scripts/core/ConfigLoader';
 import { getArgv,type Argv } from '@/scripts/lib/Argv';

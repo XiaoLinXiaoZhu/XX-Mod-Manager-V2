@@ -1,15 +1,8 @@
 //-===================== 插件 =====================
-const { ipcRenderer } = require('electron');
-
-import { EventType, EventSystem } from "./EventSystem";
-// import { snack, SnackType, t_snack } from "@/SnackHelper";
 import { snack } from "@/scripts/lib/SnackHelper";
-import { $t,getTranslatedText } from "@/locals/index";
-const pathOsName = 'path'
-const path = require(pathOsName);
-const fs = require('fs');
+import { $t, getTranslatedText } from "../../../src-tauri/resources/locals/index";
 
-import {ToolsCanUsedInPlugin} from './ToolsCanUsedInPlugin';
+import { ToolsCanUsedInPlugin } from './ToolsCanUsedInPlugin';
 import { appDataDir } from "@tauri-apps/api/path";
 import { useConfig } from "./ConfigLoader";
 import { useGlobalConfig } from "./GlobalConfigLoader";
@@ -17,6 +10,9 @@ import { ref, Ref } from "vue";
 
 // 从类型定义文件导入类型
 import type { IPlugin, IPluginData, ToolsConUsedInPluginType } from './PluginTypes';
+import { join } from "@tauri-apps/api/path";
+import { createDirectory, getDirectoryList, getFullPath, isDirectoryExists, isFileExists, readFile } from "../lib/FileHelper";
+import { EventSystem, EventType } from "./EventSystem";
 
 
 // 导出自 PluginTypes.ts 的类型
@@ -32,12 +28,25 @@ export class IPluginLoader {
     // environment 是一个工具类，提供了一些工具函数给插件使用
     public static enviroment: ToolsConUsedInPluginType = ToolsCanUsedInPlugin;
 
-    public static pluginLoadFolders: (() => string)[] = [
-        () => path.resolve('./plugins'), // 内置插件
+    public static pluginLoadFolders: Array<() => Promise<string>> = [
         async () => {
-            const userDataPath = await appDataDir();
-            return path.join(userDataPath, 'plugins'); // 用户插件
-        }   // 全局插件
+            // 本地插件
+            if (!await isDirectoryExists('plugins')) {
+                await createDirectory('plugins');
+            }
+            const localPluginPath = await getFullPath('plugins');
+            console.log(`Local plugin path: ${localPluginPath}`);
+            return localPluginPath;
+        },
+        async () => {
+            // 全局插件
+            const globalPluginPath = await join(await appDataDir(), 'plugins');
+            if (!await isDirectoryExists(globalPluginPath)) {
+                await createDirectory(globalPluginPath);
+            }
+            console.log(`User data path: ${globalPluginPath}`);
+            return globalPluginPath;
+        }
     ];
 
     //-============= 自身初始化 =============-//
@@ -114,16 +123,16 @@ export class IPluginLoader {
     static async RegisterPlugin(plugin: IPlugin, enviroment: ToolsConUsedInPluginType): Promise<boolean> {
         IPluginLoader.plugins[plugin.name] = plugin;
 
-        const t_pluginName = plugin.t_displayName? getTranslatedText(plugin.t_displayName) : plugin.name;
+        const t_pluginName = plugin.t_displayName ? getTranslatedText(plugin.t_displayName) : plugin.name;
 
         if (IPluginLoader.globalDisabledPluginNamesRef.value.includes(plugin.name)) {
             console.log($t("plugin.error.disabledInGlobal", { pluginName: t_pluginName }));
-            snack($t("plugin.error.disabledInGlobal", { pluginName: t_pluginName }),"info");
+            snack($t("plugin.error.disabledInGlobal", { pluginName: t_pluginName }), "info");
             return false;
         }
         if (IPluginLoader.localDisabledPluginNamesRef.value.includes(plugin.name)) {
             console.log($t("plugin.error.disabledInLocal", { pluginName: t_pluginName }));
-            snack($t("plugin.error.disabledInLocal", { pluginName: t_pluginName }),"info");
+            snack($t("plugin.error.disabledInLocal", { pluginName: t_pluginName }), "info");
             return false;
         }
 
@@ -156,7 +165,7 @@ export class IPluginLoader {
      */
     static getPluginExternalConfig(plugin: IPlugin): Record<string, any> {
         // 因为实际存储的时候只会储存 data，所以这里从 IPlugin 中获取 定义范围
-        if (plugin.scope === 'local'){
+        if (plugin.scope === 'local') {
             return useConfig(`plugin-${plugin.name}`, {} as Record<string, any>).value;
         }
         if (plugin.scope === 'global') {
@@ -225,9 +234,9 @@ export class IPluginLoader {
      * @returns {Promise<void>}
      */
     static async LoadPluginsFromFolder(enviroment: any, folder: string) {        // 检查插件文件夹是否存在
-        if (!fs.existsSync(folder)) {
+        if (!await isDirectoryExists(folder)) {
             // 不存在就创建
-            fs.mkdirSync(folder, { recursive: true });
+            await createDirectory(folder);
             // ❗️插件文件夹不存在，已创建：{folder}
             // ❗️Plugin folder does not exist, created: {folder}
             const tt = $t('plugin.error.folderNotExist', { folder });
@@ -235,16 +244,18 @@ export class IPluginLoader {
             snack(tt, "error");
             return;
         }
-        const files = fs.readdirSync(folder);
+        const files = await getDirectoryList(folder);
+        //debug
+        console.log(`Loading plugins from folder: ${folder}`, files);
         files.forEach(async (file: string) => {
             if (file.endsWith('.js')) {
                 try {
-                    const plugin: IPlugin = require(path.join(folder, file)) as unknown as IPlugin;
+                    const fullPath = await join(folder, file);
+                    const plugin: IPlugin = require(fullPath) as unknown as IPlugin;
                     await IPluginLoader.RegisterPlugin(plugin, enviroment);
                 }
                 catch (e) {
                     // 在 本应该 应该有 插件的位置 创建一个 lookAtMe 文件，以便我定位问题
-                    fs.writeFileSync(`./plugins/lookAtMe`, 'lookAtMe');                    
                     const tt = $t('plugin.error.loadFailed', { file });
                     console.error(tt);
                     snack(tt, "error");
@@ -265,15 +276,17 @@ export class IPluginLoader {
         await Promise.all(
             IPluginLoader.pluginLoadFolders.map(async (folder) => {
                 // debug
-                console.log(`Load plugins from ${folder()}`);
-                await IPluginLoader.LoadPluginsFromFolder(enviroment, folder());
+                console.log(`Load plugins from ${await folder()}`);
+                await IPluginLoader.LoadPluginsFromFolder(enviroment, await folder());
             }
             ));
 
-        const endTime = new Date().getTime();        
-        
+        const endTime = new Date().getTime();
+
         const tt = $t('plugin.info.loaded', { time: endTime - startTime });
-        console.log(tt, `${Object.keys(IPluginLoader.plugins).length} plugins loaded, ${IPluginLoader.localDisabledPluginNamesRef.value.length + IPluginLoader.globalDisabledPluginNamesRef.value.length} disabled`);
+        const localDisabledCount = IPluginLoader.localDisabledPluginNamesRef?.value?.length ?? 0;
+        const globalDisabledCount = IPluginLoader.globalDisabledPluginNamesRef?.value?.length ?? 0;
+        console.log(tt, `${Object.keys(IPluginLoader.plugins)?.length} plugins loaded, ${localDisabledCount + globalDisabledCount} disabled`);
         snack(tt, "info");
     }
 

@@ -28,7 +28,7 @@
 //     }
 // }
 import { SettingBarData } from "@/components/setting/settingBarConfig";
-import { currentLanguageRef } from "@/locals";
+import { currentLanguageRef } from "../../src-tauri/resources/locals/index";
 
 
 //- ========================== 常规设置 ========================== -//

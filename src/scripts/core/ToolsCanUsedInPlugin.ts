@@ -2,7 +2,5 @@
 // import XXX
 
 export const ToolsCanUsedInPlugin = {
-    fs: require('fs'),
-    path: require('path'),
     // 其他工具
 };

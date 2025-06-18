@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { $t,currentLanguage,TranslatedText } from "@/locals/index";
+import { $t,currentLanguage,TranslatedText } from "../../../src-tauri/resources/locals/index";
 
 
 

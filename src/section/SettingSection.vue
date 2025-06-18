@@ -184,12 +184,12 @@ const {
 } = getData();
 
 import { useI18n } from 'vue-i18n'
-import Markdown from '../components/markdown.vue';
+import markdown from '@/components/base/markdown.vue';
 const { t, locale } = useI18n()
 
-import { IPluginLoader } from '../../helper/PluginLoader.ts';
-import { EventSystem, EventType } from '../../helper/EventSystem.ts';
-import { SnackType, t_snack } from '../../helper/SnackHelper.ts';
+import IPluginLoader from '@/scripts/core/PluginLoader.ts';
+import { EventSystem, EventType } from '@/scripts/core/EventSystem.ts';
+import { t_snack } from '@/scripts/lib/SnackHelper.ts';
 
 const tabs = ref(['normal', 'advanced', 'switch-config', 'about', 'plugin']);
 const translatedTabs = computed(() => {

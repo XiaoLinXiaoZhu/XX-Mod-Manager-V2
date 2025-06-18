@@ -1,10 +1,12 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router/index.ts';
-import { i18nInstance, setI18nLocale } from '@/locals/index.ts';
+import { i18nInstance, setI18nLocale } from '../src-tauri/resources/locals/index.ts';
 import 'sober'
 import { EventSystem, EventType } from './scripts/core/EventSystem.ts';
-
+import { resourceDir } from '@tauri-apps/api/path';
+const resourceDirPath = await resourceDir();
+console.log('Resource Directory:', resourceDirPath);
 //-================ 检查更新 =================
 
 import { listen } from '@tauri-apps/api/event';

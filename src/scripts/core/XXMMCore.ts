@@ -4,10 +4,11 @@ import { ConfigLoader } from './ConfigLoader';
 import { getArgv } from '../lib/Argv';
 import { isDirectoryExists } from '../lib/FileHelper';
 import { invoke } from '@tauri-apps/api/core';
-import { setI18nLocale, I18nLocale } from '@/locals';
+import { setI18nLocale, I18nLocale } from '../../../src-tauri/resources/locals/index';
 import { snack } from '../lib/SnackHelper';
 import { useRouter } from 'vue-router';
 import { EventSystem, EventType } from './EventSystem';
+import IPluginLoader from './PluginLoader';
 
 //-================ 主进程入口 =================
 export async function init() {
@@ -46,6 +47,13 @@ export async function init() {
     // }).catch((err) => {
     //     console.error('ModLoader: addModSourceFolder error', err);
     // });
+
+    //--- 加载插件 ---
+    IPluginLoader.Init().then(() => {
+        console.log('插件加载完成');
+    }).catch((err) => {
+        console.error('插件加载失败', err);
+    });
 
     snack('欢迎使用 XXMM', "info");
 

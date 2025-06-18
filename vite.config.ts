@@ -29,10 +29,10 @@ export default defineConfig(async () => {
     ],
     resolve: {
       alias: {
+        '@/locals': path.resolve(__dirname, "./src-tauri/resource/locals"),
         '@/components': path.resolve(__dirname, "./src/components"),
         "@": path.resolve(__dirname, "./src"),
         "@assets": path.resolve(__dirname, "./src/assets"),
-        "@locals": path.resolve(__dirname, "./src/locals"),
       },
     },
 
