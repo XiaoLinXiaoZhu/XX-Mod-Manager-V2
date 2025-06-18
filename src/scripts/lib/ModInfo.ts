@@ -31,15 +31,11 @@ export class ModInfo extends Storage {
         return hash.toString(16);
     }
 
-    // public id: StorageValue<string> = this.useStorage("id", "");
-    // public name: StorageValue<string> = this.useStorage("name", "");
-    // public location: StorageValue<string> = this.useStorage("location", "");
-    ///@ts-ignore
-    public id: StorageValue<string>;
-    ///@ts-ignore
-    public name: StorageValue<string>;
-    ///@ts-ignore
-    public location: StorageValue<string>;
+    public id: StorageValue<string> | undefined;
+    public name: StorageValue<string> | undefined;
+    public location: StorageValue<string> | undefined;
+    public url: StorageValue<string> | undefined; // 模块的下载地址
+    public addDate: StorageValue<string> | undefined;
 
     public newMod = false; // 是否是新的模块
 
@@ -57,8 +53,10 @@ export class ModInfo extends Storage {
             return;
         }
         join(location, 'mod.json').then(async (path) => {
+            this.addDate = this.useStorage("addDate", new Date().toISOString()); // 用于存储添加日期
             if (!await isFileExists(path)) {
                 this.newMod = true;
+                this.addDate.set(new Date().toISOString()); // 如果是新 mod，则设置添加日期为当前时间
             }
             await this.loadFrom(path);
             this.location = this.useStorage("location", location);
@@ -67,15 +65,13 @@ export class ModInfo extends Storage {
             this.storageName = modFolderName;
             this.name = this.useStorage("name", modFolderName);
             this.id = this.useStorage("id", ModInfo.createID(location));
+            this.url = this.useStorage("url", ""); // 模块的下载地址，默认为空
 
             // 如果开启了保持 mod 名称和文件夹名称一致
             // 则需要将 mod 名称和文件夹名称一致
             if (ModInfo.ifKeepModNameAsModFolderName && this.name.value !== modFolderName) {
                 this.name.set(modFolderName);
             }
-            // 如果没有设置 mod 名称，则使用文件夹名称
-            // 因为使用了 useStorage，所以这里不需要使用 set
-            // await this.reloadPreview();
         });
     }
     static async createMod(location: string) {

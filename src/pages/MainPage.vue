@@ -47,6 +47,7 @@ import GameRepoSection from '@/section/GameRepoSection.vue';
 import { ConfigLoader } from '@/scripts/core/ConfigLoader';
 import { join } from '@tauri-apps/api/path';
 import router from '@/router';
+import { useGlobalConfig } from '@/scripts/core/GlobalConfigLoader';
 
 
 const currentSection = ref('Section 1');
@@ -66,9 +67,13 @@ const handleStartClicked = async () => {
     if (currentRepo) {
       console.log('Starting game with repo:', currentRepo);
       await ConfigLoader.loadFrom(await join(currentRepo.configLocation, 'config.json'));
+      useGlobalConfig("lastUsedGameRepo", currentRepo.configLocation).set(currentRepo.configLocation);
       // route to ModListPage
       router.push({
         name: 'ModList',
+        params: {
+          repoConfigLocation: currentRepo.configLocation,
+        }
       });
     } else {
       console.warn('No game repository selected.');

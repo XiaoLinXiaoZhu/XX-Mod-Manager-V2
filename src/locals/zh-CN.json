@@ -203,5 +203,23 @@
     "noFileDrop": "没有获得到拖拽的文件",
     "notImageFile": "文件不为图片",
     "addNewRepo": "添加新仓库"
+  },
+  "plugin": {
+    "error": {
+      "canNotEnablePluginDisabledInGlobal": "不能启用在全局禁用了的插件",
+      "disabledInGlobal": "⛔插件 {pluginName} 已在全局禁用",
+      "disabledInLocal": "⛔插件 {pluginName} 已禁用",
+      "initializationFailed": "❌插件 {pluginName} 初始化失败: {errorMessage}",
+      "loadFailed": "❌插件 {file} 加载失败",
+      "folderNotExist": "❗️插件文件夹不存在，已创建：{folder}",
+      "notFound": "❗️插件 {pluginName} 未找到，无法保存配置"
+    },
+    "info": {
+      "initialized": "🚀插件 {pluginName} 初始化完成",
+      "loadedWithLocalData": "🔧插件 {pluginName} 使用本地数据启动",
+      "loaded": "🚀插件加载完成，耗时 {time}ms",
+      "configSaved": "🔧插件 {pluginName} 配置已保存",
+      "configRegistered": "👻插件 {pluginName} 配置已注册"
+    }
   }
 }

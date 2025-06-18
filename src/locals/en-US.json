@@ -202,5 +202,22 @@
     "updatedAt": "UpdateAt",
     "youJustPasted": "You just pasted an image",
     "addNewRepo": "Add New Repo"
+  },
+  "plugin": {
+    "error": {
+      "disabledInGlobal": "⛔plugin ${pluginName} disabled in global",
+      "disabledInLocal": "⛔plugin {pluginName} disabled",
+      "initializationFailed": "❌plugin {pluginName} initialization failed: {errorMessage}",
+      "loadFailed": "❌plugin {file} load failed",
+      "folderNotExist": "❗️Plugin folder does not exist, created: {folder}",
+      "notFound": "❗️Plugin {pluginName} not found, unable to save configuration"
+    },
+    "info": {
+      "initialized": "🚀plugin {pluginName} initialized",
+      "loadedWithLocalData": "🔧plugin {pluginName} loaded with local data",
+      "loaded": "🚀plugin loaded in {time}ms",
+      "configSaved": "🔧plugin {pluginName} config saved",
+      "configRegistered": "👻plugin {pluginName} config registered"
+    }
   }
 }

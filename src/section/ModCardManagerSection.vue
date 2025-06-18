@@ -3,12 +3,27 @@
         <LeftIndex class="left-bar OO-box" :structure="IndexStructure" v-model:selected-path="selectedPath" />
         <div class="mod-card-container OO-box">
             <p>Selected Path: {{ selectedPath }}</p>
+            <s-scroll-view style="width: 100%;height: auto;">
+                <div v-for="(mod, index) in mods" :key="index" class="mod-item">
+                    <h2>{{ mod.name?.value || 'Unknown Mod' }}</h2>
+                    <p>{{ mod.location?.value || 'Unknown Location' }}</p>
+                    <p>Version: {{ mod.id?.value || 'Unknown Version' }}</p>
+                    <!-- preview -->
+                    <div class="preview" v-if="mod.previewUrlRef">
+                        <img :src="mod.previewUrlRef.value" alt="Preview" v-if="mod.previewUrlRef" style="width: 50%;" />
+                        <p v-if="mod.previewUrlRef">Preview URL: {{ mod.previewUrlRef.value }}</p>
+                        <div v-else>Loading preview...</div>
+                    </div>
+                </div>
+            </s-scroll-view>
         </div>
     </div>
 
 </template>
 <script setup lang="ts">
 import LeftIndex from '@/components/leftIndex.vue';
+import {ModLoader } from '@/scripts/lib/ModLoader';
+import { ModInfo } from '@/scripts/lib/ModInfo';
 import { ref } from 'vue';
 
 const IndexStructure = {
@@ -33,6 +48,15 @@ const IndexStructure = {
     },
 }
 const selectedPath = ref<string>('');
+
+let mods: ModInfo[] = ModLoader.mods;
+
+// 监听 ModLoader 的 mods 变化
+ModLoader.onAfterLoad(() => {
+    mods = ModLoader.mods;
+    console.log('Mods loaded successfully:', mods);
+});
+
 </script>
 
 <style scoped lang="scss">

@@ -15,9 +15,7 @@
           <div>
             <p>{{ 'element.helpContent'}}</p>
           </div>
-          <div>
-            <p>{{'element.settingsContent' }}</p>
-          </div>
+          <SettingSection />
         </SectionSlider>
 
       </div>
@@ -39,15 +37,19 @@ import ModCardManagerSection from '@/section/ModCardManagerSection.vue';
 import SectionSelector from '@/components/base/SectionSelector.vue';
 import SectionSlider from '@/components/base/SectionSlider.vue';
 
-import { ref, watch, type Ref } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 
 
 import { $t, currentLanguageRef } from '@/locals';
 import UpdateButtonWithInfo from '@/components/updateButtonWithInfo.vue';
-import GameRepoSection from '@/section/GameRepoSection.vue';
 import { ConfigLoader } from '@/scripts/core/ConfigLoader';
+import { getArgv,type Argv } from '@/scripts/lib/Argv';
+
+
+import { useGlobalConfig } from '@/scripts/core/GlobalConfigLoader';
+import { EventSystem, EventType } from '@/scripts/core/EventSystem';
 import { join } from '@tauri-apps/api/path';
-import router from '@/router';
+import SettingSection from '@/section/SettingSection.vue';
 
 
 const currentSection = ref('');
@@ -60,22 +62,29 @@ watch(currentLanguageRef, () => {
   sections.value = [$t('element.section.mod'), $t('element.section.help'), $t('element.section.settings')];
 });
 
-const gameRepoSectionRef: Ref<InstanceType<typeof GameRepoSection> | null> = ref(null);
-const handleStartClicked = async () => {
-  if (gameRepoSectionRef.value) {
-    const currentRepo = gameRepoSectionRef.value.currentFocusedRepo;
-    if (currentRepo) {
-      console.log('Starting game with repo:', currentRepo);
-      await ConfigLoader.loadFrom(await join(currentRepo.configLocation, 'config.json'));
-      // route to ModListPage
-      router.push({
-        name: 'ModList',
-      });
-    } else {
-      console.warn('No game repository selected.');
-    }
+EventSystem.on(EventType.initDone, async () => {
+  // 程序现在在 ModListPage.vue 页面，但是我们需要先确认一下状态：
+  // 1. 通过 命令行参数直接进入该页面的，那么应该有 argv 的 repoConfigPath 参数
+  const argv = await getArgv() as Argv;
+  console.log('通过命令行参数进入，repoConfigPath:', argv);
+
+  // 2. 通过 GamePage 进入的，那么应该有 globalConfig 的 lastUsedGameRepo
+  // 3. 莫名其妙进入的，不管如何，那么应该是直接 lastUsedGameRepo 的值
+  const lastUsedGameRepo = useGlobalConfig("lastUsedGameRepo", "");
+  console.log('lastUsedGameRepo:', lastUsedGameRepo.value);
+
+  if (argv && argv.repoConfigPath) {
+    // 如果有 repoConfigPath 参数，那么直接使用这个参数
+    await ConfigLoader.loadFrom(argv.repoConfigPath);
+  } else if (lastUsedGameRepo.value) {
+    // 如果没有 repoConfigPath 参数，但是有 lastUsedGameRepo，那么使用这个
+    await ConfigLoader.loadFrom(await join(lastUsedGameRepo.value, 'config.json'));
+  } else {
+    // 如果都没有，那么就不加载任何配置
+    console.warn('No repo config path provided, not loading any configuration.');
   }
-}
+
+});
 </script>
 
 <style scoped lang="scss">
@@ -84,8 +93,5 @@ const handleStartClicked = async () => {
   position: absolute;
   right: 10px;
 }
-
-
-
 
 </style>

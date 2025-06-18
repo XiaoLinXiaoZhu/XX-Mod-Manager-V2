@@ -15,7 +15,7 @@
 * -->
 
 <template>
-    <div class="left-index OO-box">
+    <div class="left-index OO-box" ref="rootEl">
         <div class="OO-button-box" id="up-button">
             <slot name="up-button">
                 <s-icon type="arrow_drop_up"></s-icon>
@@ -41,8 +41,8 @@
                     <!-- 子项 -->
                     <div v-if="typeof item === 'object' && expandedFolders.has(key)" class="sub-items">
                         <div v-for="(subItem, subKey) in item" :key="subKey" class="menu-item"
-                            :class="{ active: isPathActive(`${key}/${subKey}`), childrenActive: isPathChildrenActive(`${key}/${subKey}`) }" :style="{ paddingLeft: '12px' }"
-                            :data-path="`${key}/${subKey}`">
+                            :class="{ active: isPathActive(`${key}/${subKey}`), childrenActive: isPathChildrenActive(`${key}/${subKey}`) }"
+                            :style="{ paddingLeft: '12px' }" :data-path="`${key}/${subKey}`">
                             <div class="item-content" @click="handleItemClick(`${key}/${subKey}`, subItem)">
                                 <span v-if="typeof subItem === 'object' && Object.keys(subItem).length > 0"
                                     class="toggle-icon" @click.stop="toggleFolder(`${key}/${subKey}`)">
@@ -76,7 +76,7 @@
                     </div>
                 </div>
             </div>
-            <div class="slider" :style="sliderStyle" v-if="activeElement"></div>
+            <div class="slider" :style="sliderStyle"></div>
         </div>
 
         <div class="placeholder"></div>
@@ -105,15 +105,17 @@ const selectedPath = defineModel<string>('selectedPath', {
     default: ''
 });
 
+// 组件根元素引用
+const rootEl = ref<HTMLElement | null>(null);
+
 // 记录展开的文件夹状态
 const expandedFolders = ref<Set<string>>(new Set<string>());
 
 // 用于管理当前活动元素和滑块位置
 const activeElement = ref<Element | null>(null);
 const sliderStyle = reactive({
-    top: '0px',
     height: '0px',
-    // width: '0px',
+    top: '0px',
     left: '0px',
     right: '0px',
     borderRadius: '10px',
@@ -143,11 +145,13 @@ const handleItemClick = (path: string, item: any): void => {
 
 // 更新滑块位置
 const updateSlider = (): void => {
-    if (!selectedPath.value) return;
+    if (!selectedPath.value || !rootEl.value) {
+        return;
+    }
 
     setTimeout(() => {
-        // 先查找选中路径对应的元素
-        let el = document.querySelector(`[data-path="${selectedPath.value}"]`);
+        // 先查找选中路径对应的元素，限制在当前组件内部
+        let el = rootEl.value?.querySelector(`[data-path="${selectedPath.value}"]`);
 
         // 如果找不到元素（可能已被折叠），查找其父路径的元素
         if (!el) {
@@ -155,13 +159,11 @@ const updateSlider = (): void => {
             while (pathParts.length > 1 && !el) {
                 pathParts.pop(); // 移除最后一个部分
                 const parentPath = pathParts.join('/');
-                el = document.querySelector(`[data-path="${parentPath}"]`);
+                el = rootEl.value?.querySelector(`[data-path="${parentPath}"]`);
             }
-        }
-
-        if (el) {
+        }        if (el && rootEl.value) {
             activeElement.value = el;
-            const container = document.querySelector('.index-content');
+            const container = rootEl.value.querySelector('.index-content');
             if (container) {
                 const containerRect = container.getBoundingClientRect();
                 const contentEl = el.querySelector('.item-content');
@@ -323,7 +325,7 @@ onMounted(() => {
     box-sizing: border-box;
 }
 
-.menu-item.childrenActive > .item-content::after {
+.menu-item.childrenActive>.item-content::after {
     content: '';
     position: absolute;
     left: 0;
@@ -334,6 +336,7 @@ onMounted(() => {
     border-bottom: 2px solid var(--s-color-primary);
     border-radius: 10px;
     z-index: 1;
+    animation: gradientBorderAnimation 4s infinite linear;
 }
 
 
@@ -342,6 +345,7 @@ onMounted(() => {
     transition: all 0.3s ease-in-out;
     will-change: height, top, width, background-color, border;
     z-index: 0;
+    animation: gradientAnimation 4s infinite linear;
 }
 
 s-ripple {
@@ -372,10 +376,4 @@ s-ripple {
     left: -7px;
     bottom: -7px;
 }
-
-// 滚动条 变细且右移动
-.index-content::-webkit-scrollbar {
-
-}
-
 </style>

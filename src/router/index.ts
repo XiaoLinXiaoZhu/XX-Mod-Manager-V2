@@ -22,6 +22,7 @@ export const routes = [
     path: "/mod-list",
     name: "ModList",
     component: ModListPage,
+    props: true
   },
   {
     path: "/switch-config",

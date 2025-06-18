@@ -32,8 +32,12 @@ export const setI18nLocale = (locale: I18nLocale) => {
 };
 
 // 暴露它的翻译函数
-export const $t = (key: string) => {
-    return i18nInstance.global.t(key);
+export const $t = (key: string,namedValue?: Record<string, any>) => {
+    // 如果没有传入命名值，则使用空对象
+    if (namedValue === undefined || namedValue === null) {
+        return i18nInstance.global.t(key);
+    }
+    return i18nInstance.global.t(key,namedValue);
 };
 
 
@@ -44,18 +48,6 @@ export type TranslatedText = Record<I18nLocale, string>;
  * @param {TranslatedText} text
  * @returns {string} 返回当前语言的翻译文本，如果当前语言没有对应的文本，则返回英文文本
  */
-// export function getTranslatedText(text: TranslatedText): string {
-//     if (text === undefined || text === null) {
-//         console.error('getTranslatedText error: text is undefined or null');
-//         return '';
-//     }
-//     // 如果当前语言没有对应的文本，返回 英文文本
-//     if (!text[currentLanguage] || text[currentLanguage] === '') {
-//         console.error('getTranslatedText error: text is empty for current language', currentLanguage);
-//         return text['en-US'] || '';
-//     }
-//     return text[currentLanguage];
-// }
 
 // 之前的 getTranslatedText 函数 有点问题，因为当语言发生变化时，它不会自动更新，所以我们需要一个响应式的版本
 import { computed } from "vue";
