@@ -61,7 +61,7 @@ const handleSave = () => {
         // 重置 newRepo
         newRepo.value = {
             uid: `repo-${repos.value.length + 1}`,
-            location: '',
+            configLocation: '',
             name: '',
             description: '',
             cover: '',

@@ -1,33 +1,91 @@
 <template>
-  <s-scroll-view style="width: 100%;height: auto;">
-    <div v-for="(mod, index) in mods" :key="index" class="mod-item">
-      <h2>{{ mod.name.value }}</h2>
-      <p>{{ mod.location.value }}</p>
-      <p>Version: {{ mod.id.value }}</p>
-      <!-- preview -->
-      <div class="preview" v-if="mod.previewUrlRef">
-        <img :src="mod.previewUrlRef" alt="Preview" v-if="mod.previewUrlRef" style="width: 50%;"/>
-        <p v-if="mod.previewUrlRef">Preview URL: {{ mod.previewUrlRef }}</p>
-        <div v-else>Loading preview...</div>
+  <BergerFrame>
+    <template #header>
+      <BackButton />
+      <h1 draggable>Mod List</h1>
+      <SectionSelector :sections="sections" v-model:currentSection="currentSection" v-model:index="currentIndex"
+        style="position: absolute; width: 500px; right: 10px;" />
+    </template>
+
+    <template #content>
+      <div class="main-content" style="height: 100%; width: 100%;overflow: hidden;">
+        <!-- 主页面有三个主要功能: 查看所有的子配置项，新建新的仓库，打开设置面板 -->
+        <SectionSlider :currentSection="currentIndex" class="section-slider">
+          <ModCardManagerSection ref="gameRepoSectionRef" />
+          <div>
+            <p>{{ 'element.helpContent'}}</p>
+          </div>
+          <div>
+            <p>{{'element.settingsContent' }}</p>
+          </div>
+        </SectionSlider>
+
       </div>
-    </div>
-  </s-scroll-view>
+    </template>
+
+    <template #footer>
+      <!-- <p>&copy; 2023 Your Company</p> -->
+      <UpdateButtonWithInfo />
+      <s-button v-if="currentIndex === 0" class="OO-button OO-color-gradient font-hongmeng start-button" @click="handleStartClicked">{{ $t('buttons.useRepo') }}</s-button>
+    </template>
+  </BergerFrame>
 </template>
 
 <script setup lang="ts">
-import { ModInfo } from '@/scripts/lib/ModInfo';
-import { ref, onMounted} from 'vue';
-import { ModLoader } from '@/scripts/lib/ModLoader';
+import BergerFrame from '@/components/base/BergerFrame.vue';
+import BackButton from '@/components/BackButton.vue';
+import ModCardManagerSection from '@/section/ModCardManagerSection.vue';
 
-const mods = ref<ModInfo[]>([]);
+import SectionSelector from '@/components/base/SectionSelector.vue';
+import SectionSlider from '@/components/base/SectionSlider.vue';
 
-onMounted(() => {
-  // Load mods from the ModInfo class
-  // debug
-  console.log('Loading mods...');
-  setTimeout(() => {
-    mods.value = ModLoader.mods;
-  }, 2000);
+import { ref, watch, type Ref } from 'vue';
+
+
+import { $t, currentLanguageRef } from '@/locals';
+import UpdateButtonWithInfo from '@/components/updateButtonWithInfo.vue';
+import GameRepoSection from '@/section/GameRepoSection.vue';
+import { ConfigLoader } from '@/scripts/core/ConfigLoader';
+import { join } from '@tauri-apps/api/path';
+import router from '@/router';
+
+
+const currentSection = ref('');
+const sections = ref([$t('element.section.mod'), $t('element.section.help'), $t('element.section.settings')]);
+const currentIndex = ref(0);
+
+
+watch(currentLanguageRef, () => {
+  // 当语言变化时，重新设置 sections
+  sections.value = [$t('element.section.mod'), $t('element.section.help'), $t('element.section.settings')];
 });
 
+const gameRepoSectionRef: Ref<InstanceType<typeof GameRepoSection> | null> = ref(null);
+const handleStartClicked = async () => {
+  if (gameRepoSectionRef.value) {
+    const currentRepo = gameRepoSectionRef.value.currentFocusedRepo;
+    if (currentRepo) {
+      console.log('Starting game with repo:', currentRepo);
+      await ConfigLoader.loadFrom(await join(currentRepo.configLocation, 'config.json'));
+      // route to ModListPage
+      router.push({
+        name: 'ModList',
+      });
+    } else {
+      console.warn('No game repository selected.');
+    }
+  }
+}
 </script>
+
+<style scoped lang="scss">
+
+.start-button{
+  position: absolute;
+  right: 10px;
+}
+
+
+
+
+</style>

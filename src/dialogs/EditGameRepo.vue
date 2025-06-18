@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineModel, onMounted, ref ,type Ref} from 'vue';
+import { defineModel, onMounted, ref ,watch,type Ref} from 'vue';
 import dialogTemplate from '@/dialogs/dialogTemplate.vue';
 import editRepo from '@/components/EditRepo.vue';
 import { type repo,repos } from '@/scripts/lib/Repo';
@@ -37,6 +37,10 @@ const repoToEdit: Ref<repo | null> = defineModel<repo | null>("repo", {
     type: Object as () => repo | null,
     required: true
 });
+
+// watch(repoToEdit, (newRepo) => {
+//  init();
+// });
 
 const tempRepo : Ref<repo> = ref(JSON.parse(JSON.stringify(repoToEdit.value)))
 

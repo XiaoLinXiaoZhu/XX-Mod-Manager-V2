@@ -26,7 +26,7 @@
     <template #footer>
       <!-- <p>&copy; 2023 Your Company</p> -->
       <UpdateButtonWithInfo />
-      <s-button class="OO-button OO-color-gradient font-hongmeng start-button" @click="handleStartClicked">{{ $t('buttons.useRepo') }}</s-button>
+      <s-button v-if="currentIndex === 0" class="OO-button OO-color-gradient font-hongmeng start-button" @click="handleStartClicked">{{ $t('buttons.useRepo') }}</s-button>
     </template>
   </BergerFrame>
 </template>
@@ -44,6 +44,9 @@ import { ref, watch, type Ref } from 'vue';
 import { $t, currentLanguageRef } from '@/locals';
 import UpdateButtonWithInfo from '@/components/updateButtonWithInfo.vue';
 import GameRepoSection from '@/section/GameRepoSection.vue';
+import { ConfigLoader } from '@/scripts/core/ConfigLoader';
+import { join } from '@tauri-apps/api/path';
+import router from '@/router';
 
 
 const currentSection = ref('Section 1');
@@ -57,11 +60,16 @@ watch(currentLanguageRef, () => {
 });
 
 const gameRepoSectionRef: Ref<InstanceType<typeof GameRepoSection> | null> = ref(null);
-const handleStartClicked = () => {
+const handleStartClicked = async () => {
   if (gameRepoSectionRef.value) {
     const currentRepo = gameRepoSectionRef.value.currentFocusedRepo;
     if (currentRepo) {
       console.log('Starting game with repo:', currentRepo);
+      await ConfigLoader.loadFrom(await join(currentRepo.configLocation, 'config.json'));
+      // route to ModListPage
+      router.push({
+        name: 'ModList',
+      });
     } else {
       console.warn('No game repository selected.');
     }

@@ -1,29 +1,31 @@
 <template>
-    <transition name="fade">
-        <div v-show="visible" class="dialog-overlay" @click.self="handleMaskClick"
-            :class="{ 'close-on-click-mask': props.closeOnClickMask, 'show': visible }" :style="{ zIndex: zIndex }">
-            <div class="dialog-content">
-                <div class="dialog-header font-hongmeng">
-                    <slot name="header">
-                        <h3>默认标题</h3>
-                    </slot>
-                </div>
-                <div class="dialog-body">
-                    <slot />
-                </div>
-                <div class="dialog-footer">
-                    <slot name="footer">
-                        <s-button class="OO-button font-hongmeng" @click="close">取消</s-button>
-                        <s-button class="OO-button OO-color-gradient font-hongmeng" @click="confirm">确认</s-button>
-                    </slot>
+    <Teleport to="#app">
+        <transition name="fade">
+            <div v-show="visible" class="dialog-overlay" @click.self="handleMaskClick"
+                :class="{ 'close-on-click-mask': props.closeOnClickMask, 'show': visible }" :style="{ zIndex: zIndex }">
+                <div class="dialog-content">
+                    <div class="dialog-header font-hongmeng">
+                        <slot name="header">
+                            <h3>默认标题</h3>
+                        </slot>
+                    </div>
+                    <div class="dialog-body">
+                        <slot />
+                    </div>
+                    <div class="dialog-footer">
+                        <slot name="footer">
+                            <s-button class="OO-button font-hongmeng" @click="close">取消</s-button>
+                            <s-button class="OO-button OO-color-gradient font-hongmeng" @click="confirm">确认</s-button>
+                        </slot>
+                    </div>
                 </div>
             </div>
-        </div>
-    </transition>
+        </transition>
+    </Teleport>
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, defineModel, watch } from 'vue'
+import { defineProps, defineEmits, defineModel, watch, Teleport } from 'vue'
 import { getIndex,releaseIndex } from '@/assets/styles/CSSVariableManager';
 import { ref } from 'vue';
 

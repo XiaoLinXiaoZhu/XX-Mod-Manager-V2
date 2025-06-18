@@ -16,9 +16,9 @@
                 <p @dblclick="console.log('repo', Repo)">{{ $t('editRepo.uid') }}: <span> {{ Repo.uid }} </span></p>
                 <p>{{ $t('editRepo.createdAt') }}: <span> {{ Repo.createdAt || "unknown" }} </span></p>
                 <p>{{ $t('editRepo.updatedAt') }}: <span> {{ Repo.updatedAt || "unknown" }} </span></p>
-                <p @dblclick="showDirectoryInExplorer(repo.location)">{{ $t('editRepo.location') }}: <span> <s-tooltip
+                <p @dblclick="showDirectoryInExplorer(repo.configLocation)">{{ $t('editRepo.location') }}: <span> <s-tooltip
                             style="width: calc(25% + 10px);">
-                            <span slot="trigger">{{ Repo.location }}</span>
+                            <span slot="trigger">{{ Repo.configLocation }}</span>
                             <span>{{ $t('editRepo.locationTip') }}</span>
                         </s-tooltip></span></p>
             </div>
@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 
-import { ref, onMounted } from 'vue';
+import { ref, onMounted,watch } from 'vue';
 import { type repo } from '@/scripts/lib/Repo';
 import { EmptyImage, getImage, releaseImage, writeImageFromBase64, writeImageFromUrl, type ImageBase64 } from '@/scripts/lib/ImageHelper';
 import { FileDialogOption, openFileDialog } from '@/scripts/lib/FileDialogHelper';
@@ -90,13 +90,24 @@ const updateCover = async () => {
             return;
         }
         // 拼接一下路径
-        const coverPath = await join(Repo.value.location, Repo.value.cover);
+        const coverPath = await join(Repo.value.configLocation, Repo.value.cover);
         const imgBase64: ImageBase64 = await getImage(coverPath);
         imgSrc.value = imgBase64;
     } else {
         imgSrc.value = EmptyImage;
     }
 };
+
+// 监听仓库的封面变化
+watch(() => Repo.value.cover, (newCover) => {
+    if (newCover) {
+        // 如果仓库的封面有变化，则更新图片
+        updateCover();
+    } else {
+        // 如果没有封面，则使用默认图片
+        imgSrc.value = EmptyImage;
+    }
+});
 
 const buttonFlash = ref(false);
 const handleUpdateCoverButtonClick = async () => {
@@ -119,12 +130,12 @@ const handleUpdateCoverButtonClick = async () => {
     // debug
     console.log('Selected file:', filePath, 'File name:', fileName);
     // 将新的文件写到仓库位置下，并更新仓库的封面路径
-    const newCoverPath = await join(Repo.value.location, fileName);
+    const newCoverPath = await join(Repo.value.configLocation, fileName);
     await writeImageFromUrl(newCoverPath, filePath);
 
     // 显式的释放旧的图片资源
     if (Repo.value.cover) {
-        releaseImage(await join(Repo.value.location, Repo.value.cover));
+        releaseImage(await join(Repo.value.configLocation, Repo.value.cover));
     }
     imgSrc.value = await getImage(newCoverPath, true);
 
@@ -177,7 +188,7 @@ const handleDrop = async (event: DragEvent) => {
     console.log('get drop file:', file)
     // 生成文件名
     const fileName = file.name;
-    const newCoverPath = await join(Repo.value.location, fileName);
+    const newCoverPath = await join(Repo.value.configLocation, fileName);
 
     // 读取图片为base64
     const reader = new FileReader();
@@ -187,7 +198,7 @@ const handleDrop = async (event: DragEvent) => {
 
         // 释放旧图片
         if (Repo.value.cover) {
-            releaseImage(await join(Repo.value.location, Repo.value.cover));
+            releaseImage(await join(Repo.value.configLocation, Repo.value.cover));
         }
         imgSrc.value = await getImage(newCoverPath, true);
 

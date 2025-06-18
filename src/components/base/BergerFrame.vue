@@ -17,7 +17,6 @@
 
 
 <style scoped lang="scss">
-
 .berger-frame {
     width: 100%;
     height: 100%;
@@ -31,7 +30,7 @@
 
 
     .berger-header {
-        position:fixed;
+        position: fixed;
         top: 0;
         height: 60px;
         width: 100%;
@@ -40,12 +39,16 @@
         display: flex;
         align-items: center;
 
-        border-bottom: 1px solid #eee;
+
         -webkit-app-region: drag; // 允许拖动窗口
 
         // 但是它的子元素设置为非拖动
-        & > *:not([draggable]) {
+        &>*:not([draggable]) {
             -webkit-app-region: no-drag; // 禁止子元素拖动
+        }
+
+        &:hover {
+            border-bottom: 1px solid #eee;
         }
     }
 
@@ -67,12 +70,16 @@
         display: flex;
         align-items: center;
 
-        border-top: 1px solid #eee;
+        &:hover {
+            border-top: 1px solid #eee;
+
+        }
     }
 }
 
 s-page:not([dark]) .berger-frame {
     background-image: none;
+
     &::before {
         content: '';
         position: absolute;

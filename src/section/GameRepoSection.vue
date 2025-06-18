@@ -74,7 +74,7 @@ const getImage = (repo: repo) => {
     return {};
   }
 
-  join(repo.location, repo.cover).then(async (path) => {
+  join(repo.configLocation, repo.cover).then(async (path) => {
     // 找到 id = repo.uid 的元素
     const imageUrl = await loadImage(path);
     const element = document.getElementById(repo.uid);

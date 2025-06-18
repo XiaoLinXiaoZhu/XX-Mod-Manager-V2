@@ -3,9 +3,10 @@ import { ModInfo } from './ModInfo';
 import { isDirectoryExists,getDirectoryList } from "./FileHelper";
 // import { join } from "@tauri-apps/api/path";
 import { useGlobalConfig } from '../core/GlobalConfigLoader';
+import { Ref ,ref} from 'vue';
 
 export class ModLoader {
-    public static modSourceFolders = useGlobalConfig('modSourceFolders', [] as string[]).getRef();
+    public static modSourceFoldersRef :Ref<string[]> = ref([]);
     static async addModSourceFolder(folder: string) {
         // check一下是否存在
         if (folder === undefined || folder === null || folder === '') {
@@ -15,16 +16,16 @@ export class ModLoader {
         if (!await isDirectoryExists(folder)) {
             throw new Error(`ModLoader.addModSourceFolder: folder does not exist: ${folder}`);
         }
-        if (!this.modSourceFolders.value.includes(folder))
-            this.modSourceFolders.value.push(folder);
+        if (!this.modSourceFoldersRef.value.includes(folder))
+            this.modSourceFoldersRef.value.push(folder);
     }
     static removeModSourceFolder(folder: string) {
-        this.modSourceFolders.value = this.modSourceFolders.value.filter(f => f !== folder);
+        this.modSourceFoldersRef.value = this.modSourceFoldersRef.value.filter(f => f !== folder);
     }
-
 
     // 加载 Mod
     static mods: ModInfo[] = [];
+    
     private static afterLoadCallbacks: ((mods: ModInfo[]) => void)[] = [];
 
     static onAfterLoad(callback: (mods: ModInfo[]) => void) {
@@ -46,20 +47,19 @@ export class ModLoader {
 
     static async loadMods() {
         // 检查一下调用堆栈
-        console.trace('ModLoader.loadMods: called from', new Error(),'load from',this.modSourceFolders.value);
+        console.trace('ModLoader.loadMods: called from', new Error(),'load from',this.modSourceFoldersRef.value);
         let startTime = Date.now();
 
         this.mods = [];
-        this.mods = [];
 
-        if (this.modSourceFolders.value.length === 0) {
+        if (this.modSourceFoldersRef.value.length === 0) {
             // throw new Error('ModLoader.loadMods: no mod source folder');
             console.warn('ModLoader.loadMods: no mod source folder');
             return [];
         }
 
         // 读取所有的 mod 文件夹
-        await Promise.all(this.modSourceFolders.value.map(async folder => {
+        await Promise.all(this.modSourceFoldersRef.value.map(async folder => {
             let mods = await getDirectoryList(folder);
             // 过滤掉非目录的文件
             await Promise.all(mods.map(async mod => {

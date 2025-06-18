@@ -62,6 +62,7 @@ export class ModInfo extends Storage {
             }
             await this.loadFrom(path);
             this.location = this.useStorage("location", location);
+            this.location.set(location); // 确保 location 被设置
             const modFolderName = await basename(location);
             this.storageName = modFolderName;
             this.name = this.useStorage("name", modFolderName);

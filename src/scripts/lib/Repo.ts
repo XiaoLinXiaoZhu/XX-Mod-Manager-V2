@@ -19,7 +19,7 @@ export type repo = {
      * @example '/path/to/repo'
      * @note 这个位置是一个绝对路径，指向仓库的根目录
      */
-    location: string; 
+    configLocation: string; 
     name?: string;
     description?: string;
     cover?: string;
@@ -31,17 +31,17 @@ export let repos: StorageValue<repo[]> | null = null;
 export const getRepos = async (): Promise<repo[]> => {
     // 从 GlobalStorage 中获取仓库列表
     repos = useGlobalConfig("repos",[] as repo[]);
-    // 对于每个repo，确保location不为空，且是一个绝对路径
+    // 对于每个repo，确保configLocation不为空，且是一个绝对路径
     const _repos = await Promise.all(repos.value.map(async (repo) => {
-        if (!repo.location || repo.location.trim() === '' || !isAbsolute(repo.location)) {
-            console.warn('Repo location is not set or not absolute:', repo);
-            repo.location = await join(await appDataDir(), `repos/${repo.uid}`);
+        if (!repo.configLocation || repo.configLocation.trim() === '' || !isAbsolute(repo.configLocation)) {
+            console.warn('Repo configLocation is not set or not absolute:', repo);
+            repo.configLocation = await join(await appDataDir(), `repos/${repo.uid}`);
         }
-        if (!await isDirectoryExists(repo.location)) {
-            // 确定location是否存在，如果不存在则尝试创建
-            console.warn('Repo location does not exist, creating:', repo.location);
+        if (!await isDirectoryExists(repo.configLocation)) {
+            // 确定configLocation是否存在，如果不存在则尝试创建
+            console.warn('Repo configLocation does not exist, creating:', repo.configLocation);
             try {
-                await createDirectory(repo.location);
+                await createDirectory(repo.configLocation);
             } catch (error) {
                 console.error('Error creating repo directory:', error);
                 return null; // 如果创建失败，返回null
