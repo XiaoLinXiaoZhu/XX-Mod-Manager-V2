@@ -24,9 +24,9 @@
     </template>
 
     <template #footer>
-      <!-- <p>&copy; 2023 Your Company</p> -->
-      <UpdateButtonWithInfo />
-      <s-button v-if="currentIndex === 0" class="OO-button OO-color-gradient font-hongmeng start-button" @click="handleStartClicked">{{ $t('buttons.useRepo') }}</s-button>
+      <s-button v-if="currentIndex === 0" class="OO-button OO-color-gradient font-hongmeng start-button" style="font-size: large;" @click="handleStartClicked">{{ $t('buttons.useRepo') }}</s-button>
+
+      <UpdateButtonWithInfo v-if="currentIndex === 2"/>
     </template>
   </BergerFrame>
 </template>
