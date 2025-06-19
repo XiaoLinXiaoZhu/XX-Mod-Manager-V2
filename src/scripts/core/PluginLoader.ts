@@ -13,6 +13,7 @@ import type { IPlugin, IPluginData, ToolsConUsedInPluginType } from './PluginTyp
 import { join } from "@tauri-apps/api/path";
 import { createDirectory, getDirectoryList, getFullPath, isDirectoryExists, isFileExists, readFile } from "../lib/FileHelper";
 import { EventSystem, EventType } from "./EventSystem";
+import { loadExternScript } from "./LoadExternScript";
 
 
 // 导出自 PluginTypes.ts 的类型
@@ -68,8 +69,8 @@ export class IPluginLoader {
 
     static async LoadDisabledPlugins() {
         // 这里要组合起来：从 局部配置 和 全局配置 中获取禁用的插件
-        this.localDisabledPluginNamesRef = useConfig("disabledPlugins", []).getRef();
-        this.globalDisabledPluginNamesRef = useGlobalConfig("disabledPlugins", []).getRef();
+        this.localDisabledPluginNamesRef = useConfig("disabledPlugins",[] as string[],false).getRef();
+        this.globalDisabledPluginNamesRef = useGlobalConfig("disabledPlugins", [] as string[]).getRef();
         // debug
         console.log('disabledPluginNames:', IPluginLoader.localDisabledPluginNamesRef.value, IPluginLoader.globalDisabledPluginNamesRef.value);
     }
@@ -124,6 +125,7 @@ export class IPluginLoader {
         IPluginLoader.plugins[plugin.name] = plugin;
 
         const t_pluginName = plugin.t_displayName ? getTranslatedText(plugin.t_displayName) : plugin.name;
+        console.log('Checking if plugin can be enabled:', IPluginLoader.globalDisabledPluginNamesRef.value);
 
         if (IPluginLoader.globalDisabledPluginNamesRef.value.includes(plugin.name)) {
             console.log($t("plugin.error.disabledInGlobal", { pluginName: t_pluginName }));
@@ -146,6 +148,9 @@ export class IPluginLoader {
         // 检测是否有本地配置
         const externalPluginConfig = this.getPluginExternalConfig(plugin);
         if (externalPluginConfig) {
+            if (IPluginLoader.pluginConfig[plugin.name] === undefined) {
+                IPluginLoader.pluginConfig[plugin.name] = [];
+            }
             IPluginLoader.pluginConfig[plugin.name].forEach((data) => {
                 if (data.name && externalPluginConfig[data.name] !== undefined) {
                     data.dataRef.value = externalPluginConfig[data.name];
@@ -250,14 +255,16 @@ export class IPluginLoader {
         files.forEach(async (file: string) => {
             if (file.endsWith('.js')) {
                 try {
-                    const fullPath = await join(folder, file);
-                    const plugin: IPlugin = require(fullPath) as unknown as IPlugin;
+                    // const plugin: IPlugin = require(fullPath) as unknown as IPlugin;
+                    const plugin : IPlugin = await loadExternScript(file) as IPlugin;
+                    // debug
+                    console.log(`Loaded plugin from file: ${file}`, plugin);
                     await IPluginLoader.RegisterPlugin(plugin, enviroment);
                 }
                 catch (e) {
                     // 在 本应该 应该有 插件的位置 创建一个 lookAtMe 文件，以便我定位问题
                     const tt = $t('plugin.error.loadFailed', { file });
-                    console.error(tt);
+                    console.error(tt,e);
                     snack(tt, "error");
                 }
             }

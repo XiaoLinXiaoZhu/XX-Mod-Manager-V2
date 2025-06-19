@@ -6,7 +6,8 @@
 	],
 	"settings": {
 		"i18n-ally.localesPaths": [
-			"E:/1myProgramFile/electron Files/XX-Mod-Manager-Tauri/src/locals"
+			"E:/1myProgramFile/electron Files/XX-Mod-Manager-Tauri/src/locals",
+			"E:/1myProgramFile/electron Files/XX-Mod-Manager-Tauri/src-tauri/resources/locals"
 		],
 		"i18n-ally.keystyle": "nested",
 		"i18n-ally.sourceLanguage": "zh-cn"
