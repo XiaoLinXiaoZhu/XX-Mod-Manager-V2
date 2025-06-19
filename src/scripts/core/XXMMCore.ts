@@ -9,6 +9,7 @@ import { snack } from '../lib/SnackHelper';
 import router from '@/router';
 import { EventSystem, EventType } from './EventSystem';
 import IPluginLoader from './PluginLoader';
+import { currentPage } from './XXMMState';
 
 //-================ 主进程入口 =================
 export async function init() {
@@ -24,6 +25,7 @@ export async function init() {
     if (argv.useCustomConfig && await isDirectoryExists(argv.useCustomConfig)) {
         await ConfigLoader.loadFrom(argv.useCustomConfig);
         // 页面直接跳转到 modList 页面
+        currentPage.value = 'modListPage';
         router.push({ name: 'modList' });
     } else {
         // 如果没有 useCustomConfig 参数，则不加载配置
@@ -55,11 +57,6 @@ export async function init() {
     });
 
     snack('欢迎使用 XXMM', "info");
-
-
-
-
-
 
 
 

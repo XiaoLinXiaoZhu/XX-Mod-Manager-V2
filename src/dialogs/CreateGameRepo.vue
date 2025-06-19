@@ -28,6 +28,7 @@ import { defineModel, onMounted, ref ,type Ref} from 'vue';
 import dialogTemplate from '@/dialogs/dialogTemplate.vue';
 import editRepo from '@/components/EditRepo.vue';
 import { type repo,repos,getRepos } from '@/scripts/lib/Repo';
+import { EventSystem, EventType } from '@/scripts/core/EventSystem';
 const showAddRepoDialog = defineModel<boolean>("visible", {
     type: Boolean,
     default: false,
@@ -85,10 +86,7 @@ const init = async () => {
     newRepo.value.uid = repos.value.length > 0 ? `repo-${repos.value.length + 1}` : 'repo-1';
 }
 
-// EventSystem.on(EventType.initDone,async () => {
-//     await init();
-// })
-onMounted(async () => {
+EventSystem.on(EventType.initDone,async () => {
     await init();
-});
+})
 </script>

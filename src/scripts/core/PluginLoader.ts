@@ -14,6 +14,7 @@ import { join } from "@tauri-apps/api/path";
 import { createDirectory, getDirectoryList, getFullPath, isDirectoryExists, isFileExists, readFile } from "../lib/FileHelper";
 import { EventSystem, EventType } from "./EventSystem";
 import { loadExternScript } from "./LoadExternScript";
+import { currentPage } from "./XXMMState";
 
 
 // 导出自 PluginTypes.ts 的类型
@@ -69,8 +70,14 @@ export class IPluginLoader {
 
     static async LoadDisabledPlugins() {
         // 这里要组合起来：从 局部配置 和 全局配置 中获取禁用的插件
-        this.localDisabledPluginNamesRef = useConfig("disabledPlugins",[] as string[],false).getRef();
-        this.globalDisabledPluginNamesRef = useGlobalConfig("disabledPlugins", [] as string[]).getRef();
+        if (currentPage.value === 'modListPage') {
+            IPluginLoader.localDisabledPluginNamesRef = useConfig("disabledPlugins", [] as string[], false).getRef();
+            IPluginLoader.globalDisabledPluginNamesRef = useGlobalConfig("disabledPlugins", [] as string[]).getRef();
+        }
+        if (currentPage.value === 'gamePage') {
+            // 只加载全局禁用的插件
+            IPluginLoader.globalDisabledPluginNamesRef.value = useGlobalConfig('disabledPlugins', []).value;
+        }
         // debug
         console.log('disabledPluginNames:', IPluginLoader.localDisabledPluginNamesRef.value, IPluginLoader.globalDisabledPluginNamesRef.value);
     }
@@ -114,6 +121,83 @@ export class IPluginLoader {
 
     //-============= 插件注册 =============-//
 
+    static async CheckIfPluginCanBeEnabled(plugin: IPlugin): Promise<boolean> {
+        // 当插件的 scope 为 'all' 时，根据当前页面决定根据是否全局禁用或本地禁用插件
+        // 当插件的 scope 为 'local' ， 只有当当前页面是 modList 时，且 全局和本地都没有禁用该插件时，才会启用插件
+        // 当插件的 scope 为 'global' ， 只有当当前页面是 gamePage 时，且 全局没有禁用该插件时，才会启用插件
+        const t_pluginName = plugin.t_displayName ? getTranslatedText(plugin.t_displayName) : plugin.name;
+        console.log('Checking if plugin can be enabled:', t_pluginName, plugin.scope);
+        const ifContainInGlobalDisabled = IPluginLoader.globalDisabledPluginNamesRef.value.includes(plugin.name);
+        const ifContainInLocalDisabled = IPluginLoader.localDisabledPluginNamesRef.value.includes(plugin.name);
+
+        console.log('ifContainInGlobalDisabled:', ifContainInGlobalDisabled, 'ifContainInLocalDisabled:', ifContainInLocalDisabled, "\ncurrentPage",currentPage.value, "plugin.scope", plugin.scope);
+
+        if (plugin.scope === undefined) {
+            return false;
+        }
+        if (plugin.scope === 'all') {
+            // 如果是 all 的插件
+            // 如果现在是 modList 页面，则需要根据全局和本地禁用列表来决定是否启用插件
+            if (currentPage.value === 'modListPage') {
+                if (ifContainInGlobalDisabled) {
+                    console.log($t("plugin.error.disabledInGlobal", { pluginName: t_pluginName }));
+                    snack($t("plugin.error.disabledInGlobal", { pluginName: t_pluginName }), "info");
+                    return false; // 如果全局禁用，则不启用
+                }
+                if (ifContainInLocalDisabled) {
+                    console.log($t("plugin.error.disabledInLocal", { pluginName: t_pluginName }));
+                    snack($t("plugin.error.disabledInLocal", { pluginName: t_pluginName }), "info");
+                    return false; // 如果本地禁用，则不启用
+                }
+                return true; // 否则启用
+            }
+            if (currentPage.value === 'gamePage') {
+                // 如果现在是 gamePage 页面，则只需要根据全局禁用列表来决定是否启用插件
+                if (ifContainInGlobalDisabled) {
+                    console.log($t("plugin.error.disabledInGlobal", { pluginName: t_pluginName }));
+                    snack($t("plugin.error.disabledInGlobal", { pluginName: t_pluginName }), "info");
+                    return false; // 如果全局禁用，则不启用
+                }
+                return true; // 否则启用
+            }
+            return false; // 如果不是 modList 或 gamePage 页面，则不启用插件
+        }
+        if (plugin.scope === 'local') {
+            // 如果是 local 的插件
+            // 只有当当前页面是 modList 时，且 全局和本地都没有禁用该插件时，才会启用插件
+            if (currentPage.value === 'modListPage') {
+                if (ifContainInGlobalDisabled) {
+                    console.log($t("plugin.error.disabledInGlobal", { pluginName: t_pluginName }));
+                    snack($t("plugin.error.disabledInGlobal", { pluginName: t_pluginName }), "info");
+                    return false; // 如果全局或本地禁用，则不启用
+                }
+                if (ifContainInLocalDisabled) {
+                    console.log($t("plugin.error.disabledInLocal", { pluginName: t_pluginName }));
+                    snack($t("plugin.error.disabledInLocal", { pluginName: t_pluginName }), "info");
+                    return false; // 如果本地禁用，则不启用
+                }
+                return true; // 否则启用
+            }
+            // debug
+            return false; // 如果不是 modList 页面，则不启用插件
+        }
+        if (plugin.scope === 'global') {
+            // 如果是 global 的插件
+            // 只有当当前页面是 gamePage 时，且 全局没有禁用该插件时，才会启用插件
+            if (currentPage.value === 'gamePage') {
+                if (ifContainInGlobalDisabled) {
+                    console.log($t("plugin.error.disabledInGlobal", { pluginName: t_pluginName }));
+                    snack($t("plugin.error.disabledInGlobal", { pluginName: t_pluginName }), "info");
+                    return false; // 如果全局禁用，则不启用
+                }
+                return true; // 否则启用
+            }
+            return false; // 如果不是 gamePage 页面，则不启用插件
+        }
+
+        return false; // 如果插件的作用域不是 all、local 或 global，则不启用插件
+    }
+
     /** @function
      * @desc 注册一个插件
      * @param {IPlugin} plugin - 插件
@@ -125,16 +209,9 @@ export class IPluginLoader {
         IPluginLoader.plugins[plugin.name] = plugin;
 
         const t_pluginName = plugin.t_displayName ? getTranslatedText(plugin.t_displayName) : plugin.name;
-        console.log('Checking if plugin can be enabled:', IPluginLoader.globalDisabledPluginNamesRef.value);
 
-        if (IPluginLoader.globalDisabledPluginNamesRef.value.includes(plugin.name)) {
-            console.log($t("plugin.error.disabledInGlobal", { pluginName: t_pluginName }));
-            snack($t("plugin.error.disabledInGlobal", { pluginName: t_pluginName }), "info");
-            return false;
-        }
-        if (IPluginLoader.localDisabledPluginNamesRef.value.includes(plugin.name)) {
-            console.log($t("plugin.error.disabledInLocal", { pluginName: t_pluginName }));
-            snack($t("plugin.error.disabledInLocal", { pluginName: t_pluginName }), "info");
+        if (!await IPluginLoader.CheckIfPluginCanBeEnabled(plugin)) {
+            // ❗️插件 {pluginName} 已被禁用，无法注册
             return false;
         }
 
@@ -256,7 +333,7 @@ export class IPluginLoader {
             if (file.endsWith('.js')) {
                 try {
                     // const plugin: IPlugin = require(fullPath) as unknown as IPlugin;
-                    const plugin : IPlugin = await loadExternScript(file) as IPlugin;
+                    const plugin: IPlugin = await loadExternScript(file) as IPlugin;
                     // debug
                     console.log(`Loaded plugin from file: ${file}`, plugin);
                     await IPluginLoader.RegisterPlugin(plugin, enviroment);
@@ -264,7 +341,7 @@ export class IPluginLoader {
                 catch (e) {
                     // 在 本应该 应该有 插件的位置 创建一个 lookAtMe 文件，以便我定位问题
                     const tt = $t('plugin.error.loadFailed', { file });
-                    console.error(tt,e);
+                    console.error(tt, e);
                     snack(tt, "error");
                 }
             }

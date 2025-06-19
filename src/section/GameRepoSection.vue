@@ -109,11 +109,11 @@ EventSystem.on(EventType.initDone, async () => {
 
 onMounted(() => {
   // 初始化时获取 repos
-  if (repos) {
-    console.log('Repos initialized:', repos.value);
-  } else {
-    console.warn('Repos not initialized yet.');
-  }
+  // if (repos) {
+  //   console.log('Repos initialized:', repos.value);
+  // } else {
+  //   console.warn('Repos not initialized yet.');
+  // }
 });
 
 // export { currentCardIndex, showAddRepoDialog, showEditRepoDialog, currentFocusedRepo };

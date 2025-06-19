@@ -2,7 +2,7 @@ import { StorageValue,Storage } from '../lib/Storge';
 import { useGlobalConfig } from './GlobalConfigLoader';
 
 class SubConfigLoaderClass extends Storage {
-    public storageName: string = 'subconfig';
+    public storageName: string = 'local config';
 
     // useConfig 方法,当没有获取的值时，先尝试从 GlobalConfigLoader 中获取,如果它也没有，则返回默认值
     useConfig<T>(key: string, defaultValue: T, useGlobal: boolean = true): StorageValue<T> {
