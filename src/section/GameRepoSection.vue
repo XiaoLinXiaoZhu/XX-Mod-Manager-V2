@@ -41,7 +41,7 @@
     </div>
   </div>
   <CreateGameRepo v-model:visible="showAddRepoDialog" />
-  <EditGameRepo v-model:visible="showEditRepoDialog" v-model:repo="currentFocusedRepo" />
+  <EditGameRepo v-model:visible="showEditRepoDialog" v-model:repo="currentFocusedRepo" v-if="currentFocusedRepo" />
 </template>
 
 <script setup lang="ts">

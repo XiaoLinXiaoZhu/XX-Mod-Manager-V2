@@ -35,7 +35,7 @@ const showAddRepoDialog = defineModel<boolean>("visible", {
 
 const newRepo: Ref<repo> = ref({
     uid: '',
-    location: '',
+    configLocation: '',
     name: '',
     description: '',
     cover: '',

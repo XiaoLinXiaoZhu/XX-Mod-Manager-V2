@@ -6,13 +6,12 @@ import { isDirectoryExists } from '../lib/FileHelper';
 import { invoke } from '@tauri-apps/api/core';
 import { setI18nLocale, I18nLocale } from '../../../src-tauri/resources/locals/index';
 import { snack } from '../lib/SnackHelper';
-import { useRouter } from 'vue-router';
+import router from '@/router';
 import { EventSystem, EventType } from './EventSystem';
 import IPluginLoader from './PluginLoader';
 
 //-================ 主进程入口 =================
 export async function init() {
-    const router = useRouter();
     const argv = await getArgv() as any;
     // 加载全局配置
     await GlobalConfigLoader.loadDefaultConfig();

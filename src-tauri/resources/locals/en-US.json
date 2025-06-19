@@ -118,7 +118,8 @@
     "checkUpdate": "Check Update",
     "addNewRepo": "+",
     "create": "Create",
-    "editRepo": "Edit Repo"
+    "editRepo": "Edit Repo",
+    "useRepo": "use repo"
   },
   "author": "author",
   "caimogu": "Caimogu",

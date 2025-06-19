@@ -1,7 +1,7 @@
 <template>
     <Teleport to="#app">
         <transition name="fade">
-            <div v-show="visible" class="dialog-overlay" @click.self="handleMaskClick"
+            <div :id="id"v-show="visible" class="dialog-overlay" @click.self="handleMaskClick"
                 :class="{ 'close-on-click-mask': props.closeOnClickMask, 'show': visible }" :style="{ zIndex: zIndex }">
                 <div class="dialog-content">
                     <div class="dialog-header font-hongmeng">
@@ -42,6 +42,10 @@ const props = defineProps({
     closeOnClickMask: {
         type: Boolean,
         default: true
+    },
+    id: {
+        type: String,
+        default: 'dialog-template'
     }
 })
 
