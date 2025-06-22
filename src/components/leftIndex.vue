@@ -34,7 +34,7 @@
                         <span v-else class="toggle-icon" style="visibility: hidden;">
                             <s-icon :name="'home'"></s-icon>
                         </span>
-                        <span class="item-text">{{ key }}</span>
+                        <span class="item-text">{{ getDisplayText('', key) }}</span>
                         <s-ripple :attached="true"></s-ripple>
                     </div>
 
@@ -51,9 +51,8 @@
                                 </span>
                                 <span v-else class="toggle-icon" style="visibility: hidden;">
                                     <s-icon :name="'menu'"></s-icon>
-                                </span>
-                                <span class="item-text">
-                                    {{ subKey }}
+                                </span> <span class="item-text">
+                                    {{ getDisplayText(String(key), subKey) }}
                                 </span>
                                 <s-ripple :attached="true"></s-ripple>
                             </div>
@@ -64,9 +63,9 @@
                                 <div v-for="(_, grandKey) in subItem" :key="grandKey" class="menu-item"
                                     :class="{ active: isPathActive(`${key}/${subKey}/${grandKey}`), childrenActive: isPathChildrenActive(`${key}/${subKey}/${grandKey}`) }"
                                     :style="{ paddingLeft: '24px' }" :data-path="`${key}/${subKey}/${grandKey}`">
-                                    <div class="item-content" @click="selectPath(`${key}/${subKey}/${grandKey}`)">
-                                        <span class="item-text">
-                                            {{ grandKey }}
+                                    <div class="item-content" @click="selectPath(`${key}/${subKey}/${grandKey}`)"> <span
+                                            class="item-text">
+                                            {{ getDisplayText(`${key}/${subKey}`, grandKey) }}
                                         </span>
                                         <s-ripple :attached="true"></s-ripple>
                                     </div>
@@ -93,11 +92,14 @@
 import { ref, reactive, onMounted, watch } from 'vue';
 
 // 主组件props
-defineProps({
+const props = defineProps({
     structure: {
         type: Object,
         required: true
     },
+    displayStructure: {
+        type: Object,
+    }
 });
 
 const selectedPath = defineModel<string>('selectedPath', {
@@ -133,6 +135,28 @@ const isPathChildrenActive = (path: string): boolean => {
     return !!selectedPath.value && selectedPath.value.startsWith(path + '/');
 };
 
+// 获取显示文本
+const getDisplayText = (path: string, key: any) => {
+    const keyStr = String(key);
+    if (!props.displayStructure) return keyStr;
+
+    // 构造完整路径
+    let fullPath = path ? `${path}/${keyStr}` : keyStr;
+
+    // 查找是否有对应的翻译
+    if (props.displayStructure[fullPath] !== undefined) {
+        return props.displayStructure[fullPath];
+    }
+
+    // 如果没有找到对应路径的翻译，检查是否有直接对应键的翻译
+    if (props.displayStructure[keyStr] !== undefined) {
+        return props.displayStructure[keyStr];
+    }
+
+    // 如果还是没有找到，返回原始键值
+    return keyStr;
+};
+
 // 处理项目点击
 const handleItemClick = (path: string, item: any): void => {
     selectPath(path);
@@ -161,7 +185,7 @@ const updateSlider = (): void => {
                 const parentPath = pathParts.join('/');
                 el = rootEl.value?.querySelector(`[data-path="${parentPath}"]`);
             }
-        }        if (el && rootEl.value) {
+        } if (el && rootEl.value) {
             activeElement.value = el;
             const container = rootEl.value.querySelector('.index-content');
             if (container) {
@@ -204,6 +228,8 @@ const selectPath = (path: string): void => {
 
 // 切换文件夹展开/折叠状态
 const toggleFolder = (path: string): void => {
+    // debug
+    console.log(`Toggling folder: ${path}`);
     const newExpandedFolders = new Set<string>(expandedFolders.value);
     if (newExpandedFolders.has(path)) {
         newExpandedFolders.delete(path);
@@ -248,15 +274,15 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.left-index {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    width: 200px;
-    min-width: 100px;
-    max-width: 200px;
-    height: calc(100% - 20px);
-}
+// .left-index {
+//     display: flex;
+//     flex-direction: column;
+//     position: relative;
+//     width: 200px;
+//     min-width: 100px;
+//     max-width: 200px;
+//     height: calc(100% - 20px);
+// }
 
 .index-content {
     position: relative;

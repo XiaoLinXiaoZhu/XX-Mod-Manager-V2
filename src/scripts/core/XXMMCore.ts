@@ -42,12 +42,6 @@ export async function init() {
     // 设置语言
     setI18nLocale(language.value);
 
-    // ModLoader.addModSourceFolder("D:\\GameResource\\WWMI\\ModSource").then(() => {
-    //     console.log('ModLoader: addModSourceFolder success');
-    //     ModLoader.loadMods();
-    // }).catch((err) => {
-    //     console.error('ModLoader: addModSourceFolder error', err);
-    // });
 
     //--- 加载插件 ---
     IPluginLoader.Init().then(() => {

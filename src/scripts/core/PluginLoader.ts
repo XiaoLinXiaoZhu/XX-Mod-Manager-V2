@@ -66,6 +66,9 @@ export class IPluginLoader {
         await IPluginLoader.LoadPlugins(this.enviroment);
         // debug
         console.log('IPluginLoader init finished');
+
+        // 触发插件加载完成事件
+        await EventSystem.trigger(EventType.pluginLoaded);
     }
 
     static async LoadDisabledPlugins() {
@@ -121,7 +124,7 @@ export class IPluginLoader {
 
     //-============= 插件注册 =============-//
 
-    static async CheckIfPluginCanBeEnabled(plugin: IPlugin): Promise<boolean> {
+    static CheckIfPluginCanBeEnabled(plugin: IPlugin): boolean {
         // 当插件的 scope 为 'all' 时，根据当前页面决定根据是否全局禁用或本地禁用插件
         // 当插件的 scope 为 'local' ， 只有当当前页面是 modList 时，且 全局和本地都没有禁用该插件时，才会启用插件
         // 当插件的 scope 为 'global' ， 只有当当前页面是 gamePage 时，且 全局没有禁用该插件时，才会启用插件
@@ -329,23 +332,21 @@ export class IPluginLoader {
         const files = await getDirectoryList(folder);
         //debug
         console.log(`Loading plugins from folder: ${folder}`, files);
-        files.forEach(async (file: string) => {
+        // 使用 for...of + await，确保插件按顺序加载且 await 生效
+        for (const file of files) {
             if (file.endsWith('.js')) {
-                try {
-                    // const plugin: IPlugin = require(fullPath) as unknown as IPlugin;
-                    const plugin: IPlugin = await loadExternScript(file) as IPlugin;
-                    // debug
-                    console.log(`Loaded plugin from file: ${file}`, plugin);
-                    await IPluginLoader.RegisterPlugin(plugin, enviroment);
-                }
-                catch (e) {
-                    // 在 本应该 应该有 插件的位置 创建一个 lookAtMe 文件，以便我定位问题
-                    const tt = $t('plugin.error.loadFailed', { file });
-                    console.error(tt, e);
-                    snack(tt, "error");
-                }
+            try {
+                const plugin: IPlugin = await loadExternScript(file) as IPlugin;
+                // debug
+                console.log(`Loaded plugin from file: ${file}`, plugin);
+                await IPluginLoader.RegisterPlugin(plugin, enviroment);
+            } catch (e) {
+                const tt = $t('plugin.error.loadFailed', { file });
+                console.error(tt, e);
+                snack(tt, "error");
             }
-        });
+            }
+        }
     }
 
     /** @function

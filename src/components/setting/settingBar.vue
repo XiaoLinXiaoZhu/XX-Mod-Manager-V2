@@ -211,6 +211,11 @@ function onChange(value?: any) {
         // 重新创建一个 Ref 对象
         props.data.dataRef = ref(selectedValue);
     }
+
+    if (props.data.callback) {
+        // 如果有回调函数，调用它
+        props.data.callback(value);
+    }
 };
 
 function refresh() {

@@ -129,6 +129,7 @@ body {
 
 /* -====================== 替换原生元素 ================== */
 s-chip {
+  border-radius: 10px;
   transform: skew(-20deg);
   position: relative;
   height: fit-content;
@@ -617,7 +618,7 @@ p {
   transform: scale(0.83);
 }
 
-.OO-scorll-box>div {
+.OO-scroll-box>div {
   margin-right: -10px;
   padding-right: 10px;
 }

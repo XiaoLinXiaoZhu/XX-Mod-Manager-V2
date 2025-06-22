@@ -37,7 +37,17 @@
     "advanced": "高级设置",
     "switch-config": "切换配置",
     "about": "关于",
-    "plugin": "插件"
+    "plugin": "插件",
+    "general": "常规",
+    "language": "语言",
+    "theme": "主题",
+    "startup": "启动",
+    "modTargetPath": "Mod 目标路径",
+    "modSourcePath": "Mod 源路径",
+    "presetPath": "预设存储路径",
+    "traditionalApply": "传统应用模式",
+    "tools": "工具",
+    "createShortCut": "创建快捷方式"
   },
   "setting": {
     "title": "设置",

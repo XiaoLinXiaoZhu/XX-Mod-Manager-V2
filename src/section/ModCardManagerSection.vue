@@ -1,7 +1,7 @@
 <template>
     <div class="mod-card-manager-section">
-        <LeftIndex class="left-bar OO-box" :structure="IndexStructure" v-model:selected-path="selectedPath" />
-        <div class="mod-card-container OO-box">
+        <LeftIndex class="OO-left-container OO-box" :structure="IndexStructure" v-model:selected-path="selectedPath" />
+        <div class="OO-right-container OO-box">
             <p>Selected Path: {{ selectedPath }}</p>
             <s-scroll-view style="width: 100%;height: auto;">
                 <div v-for="(mod, index) in mods" :key="index" class="mod-item">
@@ -67,35 +67,35 @@ ModLoader.onAfterLoad(() => {
     width: 100%;
     flex: 0 0 auto;
     place-content: center;
+}
+</style>
 
-    .left-bar {
-        width: 20vw;
-        min-width: 150px;
-        max-width: 200px;
-        height: 100%;
-        padding: 10px;
-        margin: 0px 10px;
-
-
-        display: flex;
-        flex-direction: column;
-        box-sizing: border-box;
+<style lang="scss">
+.OO-left-container {
+    width: 20vw;
+    min-width: 150px;
+    max-width: 300px;
+    height: 100%;
+    padding: 10px;
+    margin: 0px 10px;
 
 
-    }
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
 
-    .mod-card-container {
-        flex: 1 1 0;
-        min-width: 0;
-        height: 100%;
-        margin: 0px 10px;
+.OO-right-container {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+    margin: 0px 10px 0 0;
 
-        overflow-y: auto;
-        padding: 10px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        box-sizing: border-box;
-    }
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    box-sizing: border-box;
 }
 </style>

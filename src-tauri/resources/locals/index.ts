@@ -17,6 +17,7 @@ export const i18nInstance = createI18n({
 });
 
 export type I18nLocale = "en-US" | "zh-CN";
+export const I18nLocaleList: I18nLocale[] = ["en-US", "zh-CN"]; // 支持的语言列表
 export let currentLanguage : I18nLocale = "en-US"; // 默认语言
 export const currentLanguageRef = ref<I18nLocale>(currentLanguage); // 当前语言的引用
 
