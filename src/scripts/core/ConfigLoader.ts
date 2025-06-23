@@ -1,5 +1,5 @@
 import { StorageValue,Storage } from '../lib/Storge';
-import { useGlobalConfig } from './GlobalConfigLoader';
+import { GlobalConfigLoader, useGlobalConfig } from './GlobalConfigLoader';
 
 class SubConfigLoaderClass extends Storage {
     public storageName: string = 'local config';
@@ -34,3 +34,38 @@ class SubConfigLoaderClass extends Storage {
 
 export const ConfigLoader = new SubConfigLoaderClass();
 export const useConfig = ConfigLoader.useConfig.bind(ConfigLoader);
+
+
+// 自动管理
+type ConfigScope = 'local' | 'global' | 'auto'; // auto: local > global
+
+export function useScopedConfig<T>(
+  key: string,
+  defaultValue: T,
+  scope: ConfigScope = 'auto',
+  syncToGlobal: boolean = false
+): StorageValue<T> {
+  const isLocalAvailable = ConfigLoader.inited;
+  const shouldUseLocal = scope === 'auto' ? isLocalAvailable : scope === 'local';
+
+  let storageSource: Storage;
+
+  if (shouldUseLocal) {
+    storageSource = ConfigLoader;
+  } else {
+    storageSource = GlobalConfigLoader;
+  }
+
+  const storageValue = storageSource.useStorage(key, defaultValue);
+
+  // 拦截 set 方法，控制是否同步到另一个作用域
+  const originalSet = storageValue.set;
+  storageValue.set = async (newValue: T) => {
+    await originalSet(newValue);
+    if (syncToGlobal && shouldUseLocal) {
+      await GlobalConfigLoader.useStorage(key, defaultValue).set(newValue);
+    }
+  };
+
+  return storageValue;
+}

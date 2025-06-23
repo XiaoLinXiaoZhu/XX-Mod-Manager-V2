@@ -237,7 +237,7 @@ const computeTranslatedIndexStructure = () => {
 watch(currentLanguageRef, () => {
     t_IndexStructure.value = computeTranslatedIndexStructure();
     console.log("当前语言变更，更新左侧菜单结构:", t_IndexStructure.value);
-}, { immediate: true });
+});
 
 const selectedPath = ref<string>('');
 

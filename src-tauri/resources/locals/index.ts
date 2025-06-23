@@ -29,6 +29,9 @@ export const setI18nLocale = (locale: I18nLocale) => {
     currentLanguage = locale;
     currentLanguageRef.value = locale;
 
+    // 保存到本地存储
+    useConfig("language",locale as I18nLocale).set(locale);
+
     EventSystem.trigger(EventType.languageChange, locale);
 };
 
@@ -52,6 +55,7 @@ export type TranslatedText = Record<I18nLocale, string>;
 
 // 之前的 getTranslatedText 函数 有点问题，因为当语言发生变化时，它不会自动更新，所以我们需要一个响应式的版本
 import { computed } from "vue";
+import { useConfig } from "@/scripts/core/ConfigLoader";
 export function getTranslatedText(text: TranslatedText) {
     if (text === undefined || text === null) {
         console.error('getTranslatedText error: text is undefined or null');

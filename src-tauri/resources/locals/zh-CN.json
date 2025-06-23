@@ -106,7 +106,9 @@
     "changeNotSave": "检测到未保存的更改",
     "ifSaveChange": "是否保存更改？",
     "batch-operation": "批量操作",
-    "batch-set-character": "批量设置角色"
+    "batch-set-character": "批量设置角色",
+    "deleteCheck": "双击以删除仓库 {repoName} 配置文件",
+    "deleteSuccess": "成功删除仓库 {repoName} 配置文件"
   },
   "buttons": {
     "back": "返回",

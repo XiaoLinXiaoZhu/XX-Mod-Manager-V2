@@ -1,6 +1,5 @@
 import { useConfig } from "@/scripts/core/ConfigLoader";
 import { StorageValue } from "@/scripts/lib/Storge";
-import { Ref } from "vue";
 
 let currentTheme:StorageValue<'auto' | 'dark' | 'light'> | null = null;
 

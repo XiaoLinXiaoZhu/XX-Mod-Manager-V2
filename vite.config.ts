@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import path from "path";
+import * as pathTauri from "@tauri-apps/api/path";
 import fs from "fs";
 import beforeVite from "./vite.before";
 // @ts-ignore process is a nodejs global
@@ -29,7 +30,7 @@ export default defineConfig(async () => {
     ],
     resolve: {
       alias: {
-        '@/locals': path.resolve(__dirname, "./src-tauri/resource/locals"),
+        '@locals': path.resolve(__dirname, "./src-tauri/resources/locals"),
         '@/components': path.resolve(__dirname, "./src/components"),
         "@": path.resolve(__dirname, "./src"),
         "@assets": path.resolve(__dirname, "./src/assets"),
@@ -81,7 +82,8 @@ export default defineConfig(async () => {
               return 'assets/[name].[ext]'; // 保持文件名不变
             }
             return 'assets/[name]-[hash].[ext]';
-          },        },
+          },
+        },
       },
     },
   };
