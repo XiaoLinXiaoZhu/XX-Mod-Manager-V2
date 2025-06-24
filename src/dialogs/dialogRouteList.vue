@@ -1,5 +1,5 @@
 <template>
-    <DialogTemplate v-model:visible="ifShow">
+    <DialogTemplate v-model:visible="ifShow" :id="'dialog-route-list'" :close-on-click-mask="true">
         <template #header>
             <h3>导航至 -></h3>
         </template>

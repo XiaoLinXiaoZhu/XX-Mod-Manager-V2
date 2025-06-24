@@ -1,5 +1,5 @@
 <template>
-    <dialogTemplate id="dialog-add-game-repo" v-model:visible="showEditRepoDialog" :close-on-click-mask="true"
+    <dialogTemplate id="dialog-edit-repo" v-model:visible="showEditRepoDialog" :close-on-click-mask="true"
         @show="init">
         <template #header>
             <h3>{{ $t('dialogs.editRepo') }}</h3>
@@ -72,8 +72,10 @@ const init = async () => {
         return;
     }
     tempRepo.value = JSON.parse(JSON.stringify(repoToEdit.value));
+}
 
-    // 增加一个删除按钮
+const addDeleteButton = () => {
+        // 增加一个删除按钮
     const deleteButton = document.createElement('s-icon-button');
     deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
   <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"></path>
@@ -84,6 +86,7 @@ const init = async () => {
     deleteButton.style.position = 'relative';
     deleteButton.style.left = '23px';
     deleteButton.classList.add('OO-button');
+    deleteButton.id = 'dialog-delete-repo';
 
     // 单击删除按钮时弹出提示
     deleteButton.addEventListener('click', () => {
@@ -109,9 +112,27 @@ const init = async () => {
             console.warn('Repo not found:', repoToEdit.value?.uid);
         }
     });
+
+    // 将删除按钮添加到对话框的edit-repo-name
+
+    const editGameDialog = document.querySelector('#dialog-edit-repo');
+    if (editGameDialog) {
+        const editRepoName = editGameDialog.querySelector('#edit-repo-name');
+        if (editRepoName) {
+            editRepoName.appendChild(deleteButton);
+            // debug
+            console.log('Delete button added to dialog header.');   
+        } else {
+            console.warn('Header not found in dialog.');
+        }
+    } else {
+        console.warn('Dialog not found: #dialog-add-game-repo');
+    }
 }
 
 onMounted(async () => {
     await init();
+
+    addDeleteButton();
 });
 </script>

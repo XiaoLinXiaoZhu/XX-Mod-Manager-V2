@@ -22,7 +22,7 @@
                             <span>{{ $t('editRepo.locationTip') }}</span>
                         </s-tooltip></span></p>
             </div>
-            <div class="OO-setting-bar">
+            <div class="OO-setting-bar" id="edit-repo-name">
                 <h3>{{ $t('editRepo.title') }}</h3>
                 <s-text-field v-model="Repo.name" />
             </div>
@@ -47,7 +47,7 @@
         </div>
     </div>
 
-    <DialogTemplate v-model:visible="ifUsePastedImageDialog">
+    <DialogTemplate v-model:visible="ifUsePastedImageDialog" id="dialog-if-use-pasted-image">
         <template #header>
             <h3>{{ $t('editRepo.youJustPasted') }}</h3>
         </template>
