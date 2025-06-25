@@ -1,5 +1,5 @@
 import { Snackbar } from "sober";
-import { $t,currentLanguage,TranslatedText } from "./localHelper";
+import { $t,currentLanguageRef,TranslatedText } from "./localHelper";
 
 /** @enum
  * @desc 用于标记 Snack 的类型
@@ -44,11 +44,11 @@ export async function t_snack(message: TranslatedText, type: SnackType = 'info',
         console.error('t_snack error: message is undefined or null');
         return;
     }
-    if (!message[currentLanguage] || message[currentLanguage] === '') {
+    if (!message[currentLanguageRef.value] || message[currentLanguageRef.value] === '') {
         console.error('t_snack error: message is empty');
         return;
     }
-    snack(message[currentLanguage], type, duration, align);
+    snack(message[currentLanguageRef.value], type, duration, align);
 }
 
 export async function $t_snack(message: string, type: SnackType = 'info', duration: number = 3000, align: SnackAlign = 'top') {

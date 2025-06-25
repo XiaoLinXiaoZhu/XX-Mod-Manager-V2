@@ -3,6 +3,7 @@
     <template #header>
       <BackButton />
       <h1 draggable>Main Page</h1>
+      {{ getTranslatedText({"en-US": "Main Page", "zh-CN": "主页面"}) }}
       <SectionSelector :sections="sections" v-model:currentSection="currentSection" v-model:index="currentIndex"
         style="position: absolute; width: 500px; right: 10px;" />
     </template>
@@ -41,7 +42,7 @@ import SectionSlider from '@/components/base/SectionSlider.vue';
 import { ref, watch, type Ref } from 'vue';
 
 
-import { $t, currentLanguageRef } from '../scripts/lib/localHelper';
+import { $t, currentLanguageRef, getTranslatedText } from '../scripts/lib/localHelper';
 import UpdateButtonWithInfo from '@/components/updateButtonWithInfo.vue';
 import GameRepoSection from '@/section/GameRepoSection.vue';
 import { ConfigLoader } from '@/scripts/core/ConfigLoader';
@@ -55,7 +56,9 @@ const sections = ref([$t('element.section.games'), $t('element.section.help'), $
 const currentIndex = ref(0);
 
 
-watch(currentLanguageRef, () => {
+currentLanguageRef.watch((newLocale) => {
+  // debug
+  console.log('语言变化:', newLocale, "重新设置 sections");
   // 当语言变化时，重新设置 sections
   sections.value = [$t('element.section.games'), $t('element.section.help'), $t('element.section.settings')];
 });

@@ -79,10 +79,10 @@ window.addEventListener('beforeunload', () => {
 //-===============================
 //-🔰 vue 和 router 挂载
 //-===============================
-import { createApp } from 'vue'
+import { createApp, watch } from 'vue'
 import App from './App.vue'
 import router from './router/index.ts';
-import { i18nInstance, setI18nLocale } from './scripts/lib/localHelper.ts';
+import { i18nInstance, I18nLocale, setI18nLocale } from './scripts/lib/localHelper.ts';
 
 const vueApp = createApp(App);
 
@@ -122,8 +122,10 @@ if (argv.repo) {
 //-================================
 //-💾 全局配置应用
 //-================================
-
-
+//- 1. rebind 一下语言
+import { currentLanguageRef } from './scripts/lib/localHelper.ts';
+const languageStorage = useGlobalConfig('language', 'zh-CN' as I18nLocale);
+currentLanguageRef.rebind(languageStorage.getRef());
 
 //- 3. updatecheck
 import { checkForUpdates } from './scripts/core/UpdateChecker.ts';
@@ -139,4 +141,4 @@ EventSystem.on(EventType.wakeUp, async () => {
 //-================ 移交给 XXMMCore =================
 import { init } from './scripts/core/XXMMCore.ts';
 import { ConfigLoader } from './scripts/core/ConfigLoader.ts';
-init();
+// init();

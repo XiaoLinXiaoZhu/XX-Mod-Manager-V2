@@ -3,6 +3,7 @@ import en_us from "../../../src-tauri/resources/locals/en-US.json";
 import zh_cn from "../../../src-tauri/resources/locals/zh-CN.json";
 import { EventType,EventSystem } from "@/scripts/core/EventSystem";
 import { ref } from "vue";
+import { RebindableRef } from "./RebindableRef";
 
 import "@/assets/styles/styleController";
 
@@ -18,18 +19,19 @@ export const i18nInstance = createI18n({
 
 export type I18nLocale = "en-US" | "zh-CN";
 export const I18nLocaleList: I18nLocale[] = ["en-US", "zh-CN"]; // 支持的语言列表
-export let currentLanguage : I18nLocale = "en-US"; // 默认语言
-export const currentLanguageRef = ref<I18nLocale>(currentLanguage); // 当前语言的引用
+export let currentLanguageRef: RebindableRef<I18nLocale> = new RebindableRef<I18nLocale>("en-US"); // 当前语言的引用
+
+currentLanguageRef.watch((newLocale) => {
+    // 设置 i18n 的语言
+    i18nInstance.global.locale.value = newLocale;
+    // debug
+    console.log(`当前语言已设置为: ${newLocale}`);
+});
 
 export const setI18nLocale = (locale: I18nLocale) => {
     // debug
     console.log(`设置语言从 ${i18nInstance.global.locale.value} 到 ${locale}`);
-    i18nInstance.global.locale.value = locale;
-    currentLanguage = locale;
     currentLanguageRef.value = locale;
-
-    // 保存到本地存储
-    useConfig("language",locale as I18nLocale).set(locale);
 
     EventSystem.trigger(EventType.languageChange, locale);
 };
@@ -53,14 +55,14 @@ export type TranslatedText = Record<I18nLocale, string>;
  * @note 如果当前语言没有对应的文本，则返回英文文本或空字符串
  */
 import { computed } from "vue";
-import { useConfig } from "@/scripts/core/ConfigLoader";
+
 export function getTranslatedText(text: TranslatedText) {
     if (text === undefined || text === null) {
         console.error('getTranslatedText error: text is undefined or null');
     }
     // 如果当前语言没有对应的文本，报错
-    if (!text[currentLanguage] || text[currentLanguage] === '') {
-        console.error('getTranslatedText error: text is empty for current language', currentLanguage);
+    if (!text[currentLanguageRef.value] || text[currentLanguageRef.value] === '') {
+        console.error('getTranslatedText error: text is empty for current language', currentLanguageRef.value);
     }
     // 返回一个响应式的计算属性
     return computed(() => text[currentLanguageRef.value] || text['en-US'] || '');

@@ -13,7 +13,7 @@ import { getCurrentWebview } from "@tauri-apps/api/webview";
 //-------------------- 语言 ------------------//
 let languageData: SettingBarData = {
     name: 'language',
-    dataRef: currentLanguageRef,
+    dataRef: currentLanguageRef.ref,
     type: 'select',
     displayName: 'Language',
     description: '', t_displayName: {
