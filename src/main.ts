@@ -67,16 +67,11 @@ console.log('XXMM Start With Argv:', argv);
 
 if (argv.custom_config_folder) {
     // 全局配置从这里加载
-    GlobalConfigLoader.loadFrom(await path.resolve(".\\"));
+    await GlobalConfigLoader.loadFrom(await path.resolve(".\\"));
 } else {
     // 全局配置从默认路径加载
-    GlobalConfigLoader.loadDefaultConfig();
+    await GlobalConfigLoader.loadDefaultConfig();
 }
-
-// - 页面卸载时，保存全局配置
-window.addEventListener('beforeunload', () => {
-    GlobalConfigLoader.save();
-});
 
 //-===============================
 //-🔰 vue 和 router 挂载
@@ -98,8 +93,8 @@ vueApp.mount('#app');
 //-===============================
 import { repos, getRepos } from './scripts/lib/Repo.ts';
 // 如果有 repo 参数，则设置为当前仓库
+await getRepos(); // 确保仓库列表已加载
 if (argv.repo) {
-    await getRepos();
     if (repos && repos.value.length > 0) {
         // 找到名称对应的仓库
         const repo = repos.value.find(r => r.name === argv.repo);
@@ -144,6 +139,9 @@ EventSystem.on(EventType.wakeUp, async () => {
 });
 
 //- 初始化完成，各个模块可以开始工作了
+EventSystem.on(EventType.initDone, () => {
+    console.log('XXMM 初始化完成');
+});
 EventSystem.trigger(EventType.initDone);
 
 //-================================

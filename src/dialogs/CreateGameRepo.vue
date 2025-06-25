@@ -29,6 +29,7 @@ import dialogTemplate from '@/dialogs/dialogTemplate.vue';
 import editRepo from '@/components/EditRepo.vue';
 import { type repo,repos,getRepos } from '@/scripts/lib/Repo';
 import { EventSystem, EventType } from '@/scripts/core/EventSystem';
+import { path } from '@tauri-apps/api';
 const showAddRepoDialog = defineModel<boolean>("visible", {
     type: Boolean,
     default: false,
@@ -84,6 +85,7 @@ const init = async () => {
         return;
     }
     newRepo.value.uid = repos.value.length > 0 ? `repo-${repos.value.length + 1}` : 'repo-1';
+    newRepo.value.configLocation = await path.join(await path.appDataDir(),'repos', newRepo.value.uid, 'config.json');
 }
 
 EventSystem.on(EventType.initDone,async () => {

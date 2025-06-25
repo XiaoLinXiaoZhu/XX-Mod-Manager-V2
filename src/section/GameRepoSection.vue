@@ -66,7 +66,6 @@ watch(currentCardIndex, (newIndex) => {
     // debug
     console.log("current repo", currentFocusedRepo)
   }
-
 });
 
 const getImage = (repo: repo) => {
@@ -103,6 +102,8 @@ const currentFocusedRepo: Ref<repo | null> = ref(null);
 
 //-============ 初始化 ==============
 EventSystem.on(EventType.initDone, async () => {
+  // debug
+  console.log('Initialization done, fetching repos...');
   getRepos();
   currentCardIndex.value = 1;
 });
