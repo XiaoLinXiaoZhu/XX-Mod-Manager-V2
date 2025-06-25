@@ -24,8 +24,6 @@ export class RebindableRef<T> {
     }
 
     rebind(newRef: Ref<UnwrapRef<T>>) {
-        // debug
-        console.log(`RebindableRef rebind called, old value: ${this._ref.value}, new value: ${newRef.value}`);
         let needRefresh = true;
         let oldValue = this._ref.value;
         const oldRef = this._ref;
@@ -53,9 +51,7 @@ export class RebindableRef<T> {
 
         // 如果需要刷新，则触发所有的回调
         if (needRefresh) {
-            // debug
-            console.log(`RebindableRef rebind triggered callbacks, old value: ${oldValue}, new value: ${this._ref.value},callbacks count: ${this._callbacks.length}`);
-            this._callbacks.forEach(callback => {
+                this._callbacks.forEach(callback => {
                 if (callback.length === 2) {
                     (callback as (newValue: UnwrapRef<T>, oldValue: UnwrapRef<T>) => void)(this._ref.value, oldValue);
                 } else {

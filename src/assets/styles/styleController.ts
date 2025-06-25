@@ -1,18 +1,14 @@
 import { useConfig } from "@/scripts/core/ConfigLoader";
+import { RebindableRef } from "@/scripts/lib/RebindableRef";
 import { StorageValue } from "@/scripts/lib/Storge";
 
-let currentTheme:StorageValue<'auto' | 'dark' | 'light'> | null = null;
-
+// let currentTheme:StorageValue<Theme> | null = null;
+let currentTheme = new RebindableRef<Theme>('dark' as Theme); // 默认主题为 dark
+currentTheme.watch((newTheme) => {
+    document.querySelector('#app-container')?.setAttribute('theme', newTheme);
+});
 
 export type Theme = 'auto' | 'dark' | 'light';
 export const setTheme = (theme: Theme) => {
-    // debug
-    console.log(`Setting theme to ${theme}`);
-    if (!currentTheme) {
-        currentTheme = useConfig('theme', "dark" as Theme,true);
-    }
-    currentTheme.set(theme);
-    
-    // document
-    document.querySelector('#app-container')?.setAttribute('theme', theme);
+    currentTheme.value = theme;
 };
