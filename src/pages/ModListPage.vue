@@ -22,7 +22,7 @@
     </template>
 
     <template #footer>
-      <s-button v-if="currentIndex === 0" class="OO-button OO-color-gradient font-hongmeng start-button" style="font-size: large;" @click="handleStartClicked">{{ $t('buttons.useRepo') }}</s-button>
+      <s-button v-if="currentIndex === 0" class="OO-button OO-color-gradient font-hongmeng start-button" style="font-size: large;" @click="">{{ $t('buttons.useRepo') }}</s-button>
 
       <UpdateButtonWithInfo v-if="currentIndex === 2"/>
     </template>
@@ -40,10 +40,9 @@ import SectionSlider from '@/components/base/SectionSlider.vue';
 import { ref, watch, onMounted } from 'vue';
 
 
-import { $t, currentLanguageRef } from '../scripts/lib/localHelper';
+import { $t, currentLanguageRef, I18nLocale } from '../scripts/lib/localHelper';
 import UpdateButtonWithInfo from '@/components/updateButtonWithInfo.vue';
-import { ConfigLoader } from '@/scripts/core/ConfigLoader';
-import { getArgv,type Argv } from '@/scripts/lib/Argv';
+import { ConfigLoader, useConfig } from '@/scripts/core/ConfigLoader';
 
 
 import { useGlobalConfig } from '@/scripts/core/GlobalConfigLoader';
@@ -57,36 +56,52 @@ const sections = ref([$t('element.section.mod'), $t('element.section.help'), $t(
 const currentIndex = ref(0);
 
 
-watch(currentLanguageRef, () => {
+currentLanguageRef.watch(() => {
   // 当语言变化时，重新设置 sections
   sections.value = [$t('element.section.mod'), $t('element.section.help'), $t('element.section.settings')];
 });
 
-EventSystem.on(EventType.initDone, async () => {
-  // 程序现在在 ModListPage.vue 页面，但是我们需要先确认一下状态：
-  // 1. 通过 命令行参数直接进入该页面的，那么应该有 argv 的 repoConfigPath 参数
-  const argv = await getArgv() as Argv;
-  console.log('通过命令行参数进入，repoConfigPath:', argv);
 
-  // 2. 通过 GamePage 进入的，那么应该有 globalConfig 的 lastUsedGameRepo
-  // 3. 莫名其妙进入的，不管如何，那么应该是直接 lastUsedGameRepo 的值
+const rebind = async () => {
+  // 重新绑定事件
+  // 不管怎么样都是从 globalConfig 中获取 lastUsedGameRepo
+  //-==================================================
+  //- 💾 加载局部配置
+  //-==================================================
   const lastUsedGameRepo = useGlobalConfig("lastUsedGameRepo", "");
   console.log('lastUsedGameRepo:', lastUsedGameRepo.value);
 
-  if (argv && argv.repoConfigPath) {
-    // 如果有 repoConfigPath 参数，那么直接使用这个参数
-    await ConfigLoader.loadFrom(argv.repoConfigPath);
-  } else if (lastUsedGameRepo.value) {
-    // 如果没有 repoConfigPath 参数，但是有 lastUsedGameRepo，那么使用这个
-    await ConfigLoader.loadFrom(await join(lastUsedGameRepo.value, 'config.json'));
-  } else {
-    // 如果都没有，那么就不加载任何配置
-    console.warn('No repo config path provided, not loading any configuration.');
+  if (!lastUsedGameRepo.value) {
+    throw new Error('No last used game repo found in global config.');
   }
 
+  await ConfigLoader.loadFrom(await path.join(lastUsedGameRepo.value, 'config.json')).then(() => {
+    console.log('Config loaded successfully from:', lastUsedGameRepo.value);
+  }).catch((error) => {
+    console.error('Failed to load config:', error);
+  });
+
+  //- 重新绑定语言
+  currentLanguageRef.rebind(useConfig('language', 'zh-CN' as I18nLocale).getRef());
+  //- 重新绑定主题
+  currentTheme.rebind(useConfig('theme', 'dark' as Theme).getRef());
+};
+
+EventSystem.on(EventType.initDone, async () => {
+  rebind();
+});
+
+EventSystem.on(EventType.routeChanged, async (changeInfo: { to: string, from: string }) => {
+  if (changeInfo.to === 'ModList') {
+    // 重新绑定配置
+    rebind();
+  }
 });
 
 import router from '@/router';
+import { path } from '@tauri-apps/api';
+import { currentTheme } from '@/assets/styles/styleController';
+import { Theme } from '@tauri-apps/api/window';
 const handleBackButtonClick = () => {
   // 使用router
   router.back();

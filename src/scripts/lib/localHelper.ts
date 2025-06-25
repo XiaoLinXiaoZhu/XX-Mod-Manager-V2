@@ -19,7 +19,7 @@ export const i18nInstance = createI18n({
 
 export type I18nLocale = "en-US" | "zh-CN";
 export const I18nLocaleList: I18nLocale[] = ["en-US", "zh-CN"]; // 支持的语言列表
-export let currentLanguageRef: RebindableRef<I18nLocale> = new RebindableRef<I18nLocale>("en-US"); // 当前语言的引用
+export const currentLanguageRef: RebindableRef<I18nLocale> = new RebindableRef<I18nLocale>("en-US"); // 当前语言的引用
 
 currentLanguageRef.watch((newLocale) => {
     // 设置 i18n 的语言

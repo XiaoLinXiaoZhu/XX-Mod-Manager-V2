@@ -11,6 +11,7 @@ import TestDialogPage from "@/pages/test/TestDialogPage.vue";
 import TestSelectFile from "@/pages/test/TestSelectFile.vue";
 import TestSettingBar from "@/pages/test/TestSettingBar.vue";
 import TestGround from "@/pages/test/TestGround.vue";
+import { EventSystem, EventType } from "@/scripts/core/EventSystem";
 
 export const routes = [
   {
@@ -62,8 +63,21 @@ export const routes = [
   }
 ];
 
-
-export default createRouter({
+const router = createRouter({
   history: createWebHistory("/"),
   routes: routes,
 });
+
+
+// 添加导航守卫
+router.afterEach((to, from) => {
+  // debug
+  console.log("Route changed from", from.name, "to", to.name);
+  // EventSystem.trigger(EventType.routeChanged, { to: to.name, from: from.name })
+  setTimeout(() => {
+    EventSystem.trigger(EventType.routeChanged, { to: to.name, from: from.name  });
+    // debug
+  },200);
+})
+
+export default router;

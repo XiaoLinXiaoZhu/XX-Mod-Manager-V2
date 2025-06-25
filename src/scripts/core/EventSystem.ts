@@ -47,6 +47,8 @@ enum EventType {
     windowFocus = 'windowFocus',
     windowSleep = 'windowSleep',
     windowWake = 'windowWake',
+    //----------Router相关----------
+    routeChanged = 'routeChanged',
 }
 
 class EventSystem {

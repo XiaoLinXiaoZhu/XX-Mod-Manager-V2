@@ -1,5 +1,5 @@
 import { SettingBarData } from "@/components/setting/settingBarConfig";
-import { currentLanguageRef, setI18nLocale, I18nLocaleList } from "../scripts/lib/localHelper";
+import { currentLanguageRef, setI18nLocale, I18nLocaleList, I18nLocale } from "../scripts/lib/localHelper";
 import { ref } from 'vue';
 import { ConfigLoader, useConfig } from "@/scripts/core/ConfigLoader";
 import { Theme, setTheme } from "@/assets/styles/styleController";
@@ -13,7 +13,7 @@ const getSettingSectionData = () => {
     //-------------------- 语言 ------------------//
     let languageData: SettingBarData = {
         name: 'language',
-        dataRef: currentLanguageRef.ref,
+        dataRef: useConfig('language', 'zh-CN' as I18nLocale, true).getRef(),
         type: 'select',
         displayName: 'Language',
         description: '', t_displayName: {
@@ -44,7 +44,9 @@ const getSettingSectionData = () => {
             setI18nLocale(value);
             return value; // 返回新的语言代码
         }
-    }    //-------------------- 主题 ------------------//
+    }    
+
+    //-------------------- 主题 ------------------//
     let themeData: SettingBarData = {
         name: 'theme',
         dataRef: useConfig('theme', 'dark' as Theme, true).getRef(),
@@ -83,7 +85,8 @@ const getSettingSectionData = () => {
                 return value; // 返回新的主题
             }
         }
-    }    //-------------------- 是否使用上次使用的预设 ------------------//
+    }
+    //-------------------- 是否使用上次使用的预设 ------------------//
     let ifStartWithLastPresetData: SettingBarData = {
         name: 'ifStartWithLastPreset',
         dataRef: useConfig('ifStartWithLastPreset', false, true).getRef(),

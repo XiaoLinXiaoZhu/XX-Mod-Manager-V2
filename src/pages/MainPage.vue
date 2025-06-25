@@ -75,10 +75,7 @@ const handleStartClicked = async () => {
       useGlobalConfig("lastUsedGameRepo", currentRepo.configLocation).set(currentRepo.configLocation);
       // route to ModListPage
       router.push({
-        name: 'ModList',
-        params: {
-          repoConfigLocation: currentRepo.configLocation,
-        }
+        name: 'ModList'
       });
     } else {
       console.warn('No game repository selected.');
@@ -88,17 +85,35 @@ const handleStartClicked = async () => {
 
 import { type I18nLocale } from '@/scripts/lib/localHelper.ts';
 import { currentTheme, type Theme } from '@/assets/styles/styleController.ts';
-EventSystem.on(EventType.initDone, () => {
+
+
+
+const rebind = () => {
   //-================================
   //-💾 重新绑定回全局配置
   //-================================
   //- 1. rebind 一下语言
-  const languageStorage = useGlobalConfig('language', 'zh-CN' as I18nLocale);
-  currentLanguageRef.rebind(languageStorage.getRef());
+  currentLanguageRef.rebind(useGlobalConfig('language', 'zh-CN' as I18nLocale).getRef());
 
   //- 2. rebind 一下主题
   currentTheme.rebind(useGlobalConfig('theme', 'dark' as Theme).getRef());
+};
+
+EventSystem.on(EventType.initDone, () => {
+  rebind();
 });
+
+EventSystem.on(EventType.routeChanged, (changeInfo: { to: string, from: string }) => {
+  //-================================
+  //-🔄 路由变化时，重新绑定
+  //-================================
+  //debug
+  console.log('Route changed from', changeInfo.from, 'to', changeInfo.to);
+  if (changeInfo.to === 'Main') {
+    rebind();
+  }
+});
+
 </script>
 
 <style scoped lang="scss">

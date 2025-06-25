@@ -50,6 +50,8 @@ export class RebindableRef<T> {
         }
 
         // 如果需要刷新，则触发所有的回调
+        // debug
+        console.log('Rebinding', this._ref.value, 'to', newRef.value, 'needRefresh:', needRefresh);
         if (needRefresh) {
                 this._callbacks.forEach(callback => {
                 if (callback.length === 2) {

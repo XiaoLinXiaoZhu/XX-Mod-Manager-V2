@@ -41,7 +41,7 @@
             <!-- -切换配置 -->
             <!-- -在这里你可以选择开启在开始的时候选择配置文件的功能，并且设置配置文件保存位置 -->
             <div v-if="isPathActive('Tools')">
-                <Markdown :content="$t('firstLoad.switchConfigInfo2')"></Markdown>
+                <markdown :content="$t('firstLoad.switchConfigInfo2')"></markdown>
                 <settingBar :data="configData.createShortOfCurrentConfig"></settingBar>
                 <div class="placeholder" style="flex: 1;min-height: 150px;"></div>
             </div>
@@ -171,9 +171,9 @@ import { IPluginLoader, type IPlugin, type IPluginData } from '@/scripts/core/Pl
 import { EventSystem, EventType } from '@/scripts/core/EventSystem.ts';
 import { ConfigLoader } from '@/scripts/core/ConfigLoader';
 import { getTranslatedText, $t, currentLanguageRef } from '../scripts/lib/localHelper.ts';
+import markdown from '@/components/base/markdown.vue';
 
-
-const configData = getSettingSectionData();
+let configData = getSettingSectionData();
 
 let IndexStructure: {
     General: Record<string, unknown>,
@@ -237,7 +237,7 @@ const computeTranslatedIndexStructure = () => {
     return result;
 }
 
-watch(currentLanguageRef, () => {
+currentLanguageRef.watch(() => {
     t_IndexStructure.value = computeTranslatedIndexStructure();
     console.log("当前语言变更，更新左侧菜单结构:", t_IndexStructure.value);
 });
