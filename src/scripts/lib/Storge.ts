@@ -22,13 +22,6 @@ export class Storage {
             this.storageName = name;
         }
         // console.log(`Storage ${this.storageName} 初始化`);
-
-        // 窗口卸载时，保存配置
-        window.addEventListener('beforeunload', async (event) => {
-            console.log(`窗口卸载时，保存 ${this.storageName} 配置`);
-            await this.saveToFile();
-            event.preventDefault();
-        });
     }
 
     async loadFrom(filePath: string): Promise<void> {
@@ -47,8 +40,7 @@ export class Storage {
             if (fileExists) {
                 const rawData = await readFile(filePath, true);
                 // debug
-                // const copyData = JSON.parse(JSON.stringify(this._data));
-                // console.log(`从 ${filePath} 读取配置`, rawData,JSON.parse(rawData));
+                console.log(`读取到配置文件 ${filePath} 的内容`, rawData);
                 await this.mergeData(JSON.parse(rawData));
             } else {
                 // 如果文件不存在，则创建一个空的配置文件
@@ -56,7 +48,7 @@ export class Storage {
                 console.log(`文件 ${filePath} 不存在，已创建空配置文件`);
             }
         } catch (e) {
-            console.warn('读取配置失败，使用空对象');
+            console.warn('读取配置失败，使用空对象',e);
         }
     }
 
@@ -100,7 +92,11 @@ export class Storage {
             // 如果不是两个都有值，那么哪个有值选哪个
             for (const key in data) {
                 if (Array.isArray(this._data[key]) || Array.isArray(data[key])) {
-                    if (this._data[key].length < 0 || data[key].length < 0) {
+                    // 安全地获取数组长度，如果不是数组则视为长度 0
+                    const currentLength = Array.isArray(this._data[key]) ? this._data[key].length : 0;
+                    const newLength = Array.isArray(data[key]) ? data[key].length : 0;
+                    
+                    if (currentLength <= 0 || newLength <= 0) {
                         // 直接合并
                         this._data[key] = Array.from(new Set([...(Array.isArray(this._data[key]) ? this._data[key] : []), ...(Array.isArray(data[key]) ? data[key] : [])]));
                         ifRefExistThenSave(key,this._data[key])
@@ -128,7 +124,7 @@ export class Storage {
         console.log('合并数据', newData, oldData, "->", this._data);
 
         if (needSave) {
-            // await this.save();
+            await this.saveToFile();
         }
     }
 
@@ -152,6 +148,8 @@ export class Storage {
             JSON.stringify(this._data, null, 2),
             true
         );
+        console.log(`配置已保存到 ${this._filePath}`);
+        return;
     }
         
 
@@ -186,7 +184,7 @@ export class Storage {
                 }
                 valueRef!.value = newValue;
                 storage._data[key] = newValue;
-                // storage.save();
+                storage.saveToFile();
             },
             set: async (newValue: T) => {
                 if (storage._strictMode && !storage._filePath) {
@@ -194,7 +192,7 @@ export class Storage {
                 }
                 valueRef!.value = newValue;
                 this._data[key] = newValue;
-                // await this.save();
+                await this.saveToFile();
             },
             getRef: () => valueRef!,
         };

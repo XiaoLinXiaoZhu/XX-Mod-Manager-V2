@@ -150,11 +150,11 @@ EventSystem.trigger(EventType.initDone);
 //-🧩 插件加载
 //-================================
 import IPluginLoader from './scripts/core/PluginLoader.ts';
-await IPluginLoader.Init().then(() => {
-    console.log('插件加载完成');
-}).catch((err) => {
-    console.error('插件加载失败', err);
-});
+// await IPluginLoader.Init().then(() => {
+//     console.log('插件加载完成');
+// }).catch((err) => {
+//     console.error('插件加载失败', err);
+// });
 
 //-================================
 //-🪟 主窗口准备就绪
