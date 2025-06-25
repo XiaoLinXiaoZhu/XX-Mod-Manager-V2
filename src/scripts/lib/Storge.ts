@@ -24,9 +24,10 @@ export class Storage {
         // console.log(`Storage ${this.storageName} 初始化`);
 
         // 窗口卸载时，保存配置
-        window.addEventListener('beforeunload', async () => {
+        window.addEventListener('beforeunload', async (event) => {
             console.log(`窗口卸载时，保存 ${this.storageName} 配置`);
             await this.saveToFile();
+            event.preventDefault();
         });
     }
 

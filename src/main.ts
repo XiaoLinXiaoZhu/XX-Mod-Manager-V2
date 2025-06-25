@@ -2,6 +2,8 @@
 // 这里会初始化 Vue 应用，设置路由和国际化等
 import 'sober';
 import { GlobalConfigLoader, useGlobalConfig } from './scripts/core/GlobalConfigLoader.ts';
+import { ConfigLoader } from './scripts/core/ConfigLoader.ts';
+
 import { getArgv, type Argv } from '@/scripts/lib/Argv.ts';
 import * as path from '@tauri-apps/api/path';
 import { listen } from '@tauri-apps/api/event';
@@ -127,6 +129,11 @@ import { currentLanguageRef } from './scripts/lib/localHelper.ts';
 const languageStorage = useGlobalConfig('language', 'zh-CN' as I18nLocale);
 currentLanguageRef.rebind(languageStorage.getRef());
 
+//- 2. rebind 一下主题
+import { currentTheme ,type Theme} from './assets/styles/styleController.ts';
+currentTheme.rebind(useGlobalConfig('theme', 'dark' as Theme).getRef());
+
+
 //- 3. updatecheck
 import { checkForUpdates } from './scripts/core/UpdateChecker.ts';
 const ifCheckUpdatesOnStart = useGlobalConfig('checkUpdatesOnStart', false);
@@ -136,9 +143,22 @@ EventSystem.on(EventType.wakeUp, async () => {
     }
 });
 
+//- 初始化完成，各个模块可以开始工作了
+EventSystem.trigger(EventType.initDone);
 
+//-================================
+//-🧩 插件加载
+//-================================
+import IPluginLoader from './scripts/core/PluginLoader.ts';
+await IPluginLoader.Init().then(() => {
+    console.log('插件加载完成');
+}).catch((err) => {
+    console.error('插件加载失败', err);
+});
 
-//-================ 移交给 XXMMCore =================
-import { init } from './scripts/core/XXMMCore.ts';
-import { ConfigLoader } from './scripts/core/ConfigLoader.ts';
-// init();
+//-================================
+//-🪟 主窗口准备就绪
+//-================================
+import { invoke } from '@tauri-apps/api/core';
+
+invoke('main_window_ready');

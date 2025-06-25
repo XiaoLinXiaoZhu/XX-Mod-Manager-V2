@@ -3,7 +3,7 @@ import { RebindableRef } from "@/scripts/lib/RebindableRef";
 import { StorageValue } from "@/scripts/lib/Storge";
 
 // let currentTheme:StorageValue<Theme> | null = null;
-let currentTheme = new RebindableRef<Theme>('dark' as Theme); // 默认主题为 dark
+export const currentTheme = new RebindableRef<Theme>('dark' as Theme); // 默认主题为 dark
 currentTheme.watch((newTheme) => {
     document.querySelector('#app-container')?.setAttribute('theme', newTheme);
 });
