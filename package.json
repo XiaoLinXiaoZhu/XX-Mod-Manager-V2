@@ -6,8 +6,11 @@
   "license": "GPL-3.0-only",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "dev": "bunx --bun vite",
+    "dev:vite-nodejs": "vite",
+    "build": "bunx --bun vite build",
+    "build0": "vue-tsc --noEmit && bunx --bun vite build",
+    "build:vite-nodejs": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
     "updateUpdater": "bun run ./updateUpdater && git add . && git commit -m \"chore: 更新版本号并修改相关配置文件\"",

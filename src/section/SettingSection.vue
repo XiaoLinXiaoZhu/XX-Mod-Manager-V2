@@ -170,7 +170,7 @@ import configData from './settingSectionData';
 import { IPluginLoader, type IPlugin, type IPluginData } from '@/scripts/core/PluginLoader.ts';
 import { EventSystem, EventType } from '@/scripts/core/EventSystem.ts';
 import { ConfigLoader } from '@/scripts/core/ConfigLoader';
-import { getTranslatedText, $t, currentLanguage, currentLanguageRef } from '../../src-tauri/resources/locals/index.ts';
+import { getTranslatedText, $t, currentLanguage, currentLanguageRef } from '../scripts/lib/localHelper.ts';
 
 let IndexStructure: {
     General: Record<string, unknown>,

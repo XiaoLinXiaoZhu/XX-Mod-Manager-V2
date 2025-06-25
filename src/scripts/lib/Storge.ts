@@ -13,12 +13,21 @@ export class Storage {
     protected _data: Record<string, any> = {};
     protected _refCache: Record<string, Ref<any>> = {};
     protected _filePath: string = '';
+    // 严格模式，开启后如果没有配置 _filePath 则无法使用 set，但是仍然可以获得配置的引用以及 get 方法
+    // 主要用于防止在没有加载配置的情况下使用 set 方法
+    public _strictMode: boolean = false;
 
     constructor(name?: string) {
         if (name) {
             this.storageName = name;
         }
         // console.log(`Storage ${this.storageName} 初始化`);
+
+        // 窗口卸载时，保存配置
+        window.addEventListener('beforeunload', async () => {
+            console.log(`窗口卸载时，保存 ${this.storageName} 配置`);
+            await this.saveToFile();
+        });
     }
 
     async loadFrom(filePath: string): Promise<void> {
@@ -118,12 +127,19 @@ export class Storage {
         console.log('合并数据', newData, oldData, "->", this._data);
 
         if (needSave) {
-            await this.save();
+            // await this.save();
         }
     }
 
+    /**
+     * @deprecated 请使用 saveToFile() 代替
+     */
     async save(): Promise<void> {
-        // debug
+        // 已弃用，推荐使用 saveToFile()
+        await this.saveToFile();
+    }
+
+    async saveToFile(): Promise<void> {
         if (!this._filePath) {
             console.warn(`${this.storageName} 没有文件路径，无法保存配置`, new Error());
             return;
@@ -136,6 +152,7 @@ export class Storage {
             true
         );
     }
+        
 
     public async print() {
         console.log("ModInfo", this, "\nData", this._data);
@@ -148,7 +165,7 @@ export class Storage {
                 // 如果没有值，且默认值不为空，则使用默认值
                 if (defaultValue !== undefined && defaultValue !== null && defaultValue !== '') {
                     this._data[key] = defaultValue;
-                    this.save();
+                    // this.save();
                 }
             }
             const storedValue = this._data[key];
@@ -163,14 +180,20 @@ export class Storage {
                 return valueRef!.value;
             },
             set value(newValue: T) {
+                if (storage._strictMode && !storage._filePath) {
+                    throw new Error(`Storage ${storage.storageName} is in strict mode, cannot set value without file path.`);
+                }
                 valueRef!.value = newValue;
                 storage._data[key] = newValue;
-                storage.save();
+                // storage.save();
             },
             set: async (newValue: T) => {
+                if (storage._strictMode && !storage._filePath) {
+                    throw new Error(`Storage ${storage.storageName} is in strict mode, cannot set value without file path.`);
+                }
                 valueRef!.value = newValue;
                 this._data[key] = newValue;
-                await this.save();
+                // await this.save();
             },
             getRef: () => valueRef!,
         };

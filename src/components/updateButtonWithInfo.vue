@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { checkForUpdates } from '@/scripts/core/UpdateChecker';
 import { versionData } from '@/scripts/lib/VersionInfo';
-import { $t } from '../../src-tauri/resources/locals/index';
+import { $t } from '../scripts/lib/localHelper';
 import { $t_snack } from '@/scripts/lib/SnackHelper';
 
 const handleCheckUpdate = async () => {

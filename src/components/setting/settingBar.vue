@@ -114,7 +114,7 @@ import markdown from '@/components/base/markdown.vue';
 import horizontalScrollBar from '@/components/base/horizontalScrollBar.vue';
 
 import { ref, defineProps, defineEmits, onMounted } from 'vue';
-import { getTranslatedText } from '../../../src-tauri/resources/locals';
+import { getTranslatedText } from '../../scripts/lib/localHelper';
 import type { SettingBarData } from './settingBarConfig';
 import { type FileDialogOption, openFileDialog } from '@/scripts/lib/FileDialogHelper';
 

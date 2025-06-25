@@ -41,7 +41,7 @@
     ],
     "resources": {
       "resources/plugins/**/*": "plugins/",
-      "resources/locals/**/*": "locals/"
+      "resources/locals/**/*.json": "locals/"
     }
   },
 }

@@ -41,7 +41,7 @@ import SectionSlider from '@/components/base/SectionSlider.vue';
 import { ref, watch, type Ref } from 'vue';
 
 
-import { $t, currentLanguageRef } from '../../src-tauri/resources/locals';
+import { $t, currentLanguageRef } from '../scripts/lib/localHelper';
 import UpdateButtonWithInfo from '@/components/updateButtonWithInfo.vue';
 import GameRepoSection from '@/section/GameRepoSection.vue';
 import { ConfigLoader } from '@/scripts/core/ConfigLoader';

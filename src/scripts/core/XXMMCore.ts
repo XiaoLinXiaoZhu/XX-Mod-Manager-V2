@@ -4,7 +4,7 @@ import { ConfigLoader } from './ConfigLoader';
 import { getArgv } from '../lib/Argv';
 import { isDirectoryExists } from '../lib/FileHelper';
 import { invoke } from '@tauri-apps/api/core';
-import { setI18nLocale, I18nLocale } from '../../../src-tauri/resources/locals/index';
+import { setI18nLocale, I18nLocale } from '../lib/localHelper';
 import { snack } from '../lib/SnackHelper';
 import router from '@/router';
 import { EventSystem, EventType } from './EventSystem';
@@ -13,29 +13,15 @@ import { currentPage } from './XXMMState';
 
 //-================ 主进程入口 =================
 export async function init() {
-    const argv = await getArgv() as any;
+    const argv = await getArgv();
     // 加载全局配置
     await GlobalConfigLoader.loadDefaultConfig();
     // 页面卸载时，保存全局配置
-    window.addEventListener('beforeunload', () => {
-        GlobalConfigLoader.save();
-    });
-    
-    // 如果有 useCustomConfig 参数，则加载自定义配置
-    if (argv.useCustomConfig && await isDirectoryExists(argv.useCustomConfig)) {
-        await ConfigLoader.loadFrom(argv.useCustomConfig);
-        // 页面直接跳转到 modList 页面
-        currentPage.value = 'modListPage';
-        router.push({ name: 'modList' });
-    } else {
-        // 如果没有 useCustomConfig 参数，则不加载配置
-    }
 
+
+    
     //--- 检查更新 ---
-    const ifCheckUpdatesOnStart = useGlobalConfig('checkUpdatesOnStart', false);
-    if (ifCheckUpdatesOnStart.value) {
-        checkForUpdates();
-    }
+
 
     //--- 加载默认配置 ---
     const language = useGlobalConfig('language', 'zh-CN' as I18nLocale);

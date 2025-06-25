@@ -5,6 +5,7 @@ use serde::Serialize;
 #[derive(Parser, Debug, Serialize)]
 #[command(version, about, long_about = None)]
 // devMode: devMode, // 用于控制特殊信息的输出
+// repo: repo, // 用于控制是否使用repo（提供repoName）
 // page: "main" || "firstpage" ||  “switchConfig”. // 用于控制直接跳转到指定页面
 // devTools: devTools, // 控制是否自动打开开发者工具
 // customConfigFolder: customConfigFolder // 控制是否使用外部配置作为配置文件夹
@@ -20,6 +21,10 @@ pub struct Args {
     /// 是否使用外部配置作为配置文件夹
     #[arg(long, default_value_t = false)]
     pub custom_config_folder: bool,
+
+    /// 是否使用repo（提供repoName）
+    #[arg(long, default_value_t = String::from(""))]
+    pub repo: String,
 
     /// 直接跳转到指定页面
     #[arg(long, default_value_t = String::from(""))]
@@ -69,6 +74,9 @@ pub fn handle_cli() {
     }
     if cli.custom_config_folder {
         println!("custom_config_folder: {}", cli.custom_config_folder);
+    }
+    if !cli.repo.is_empty() {
+        println!("repo: {}", cli.repo);
     }
     match cli.page.as_str() {
         "main" => println!("main"),

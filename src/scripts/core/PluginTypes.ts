@@ -1,4 +1,4 @@
-import { TranslatedText } from "../../../src-tauri/resources/locals/index";
+import { TranslatedText } from "../lib/localHelper";
 import { type SettingBarData } from "@/components/setting/settingBarConfig";
 import { Ref } from "vue";
 import { ToolsCanUsedInPlugin } from './ToolsCanUsedInPlugin';

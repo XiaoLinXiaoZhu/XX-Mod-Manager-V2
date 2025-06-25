@@ -1,6 +1,6 @@
 import { createI18n } from "vue-i18n";
-import en_us from "./en-US.json";
-import zh_cn from "./zh-CN.json";
+import en_us from "../../../src-tauri/resources/locals/en-US.json";
+import zh_cn from "../../../src-tauri/resources/locals/zh-CN.json";
 import { EventType,EventSystem } from "@/scripts/core/EventSystem";
 import { ref } from "vue";
 
@@ -20,7 +20,6 @@ export type I18nLocale = "en-US" | "zh-CN";
 export const I18nLocaleList: I18nLocale[] = ["en-US", "zh-CN"]; // 支持的语言列表
 export let currentLanguage : I18nLocale = "en-US"; // 默认语言
 export const currentLanguageRef = ref<I18nLocale>(currentLanguage); // 当前语言的引用
-
 
 export const setI18nLocale = (locale: I18nLocale) => {
     // debug
@@ -48,12 +47,11 @@ export const $t = (key: string,namedValue?: Record<string, any>) => {
 //-==== 一个简单的翻译
 export type TranslatedText = Record<I18nLocale, string>;
 /** @function
- * @desc 获取当前语言的翻译文本
+ * @desc 获取当前语言的翻译文本，响应式
  * @param {TranslatedText} text
- * @returns {string} 返回当前语言的翻译文本，如果当前语言没有对应的文本，则返回英文文本
+ * @returns {ComputedRef<string>}
+ * @note 如果当前语言没有对应的文本，则返回英文文本或空字符串
  */
-
-// 之前的 getTranslatedText 函数 有点问题，因为当语言发生变化时，它不会自动更新，所以我们需要一个响应式的版本
 import { computed } from "vue";
 import { useConfig } from "@/scripts/core/ConfigLoader";
 export function getTranslatedText(text: TranslatedText) {

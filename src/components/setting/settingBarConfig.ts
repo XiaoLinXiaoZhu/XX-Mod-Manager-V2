@@ -1,5 +1,5 @@
 // 定义 settingBar 的配置项 (data)
-import { TranslatedText } from "../../../src-tauri/resources/locals/index";
+import { TranslatedText } from "../../scripts/lib/localHelper";
 import { Ref } from "vue";
 export type SettingBarType = "markdown" | "hidden" | "string" | "number" | "dir" | "file:any" | "file:ini" | "file:exe";
 export type SettingBarDataBase = {

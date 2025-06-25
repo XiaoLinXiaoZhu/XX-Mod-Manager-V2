@@ -48,7 +48,7 @@
 import { type repo, repos, getRepos } from '@/scripts/lib/Repo';
 import HorizontalCardList from '@/components/base/HorizontalCardList.vue';
 import { type Ref, ref, watch, onMounted } from 'vue';
-import { $t } from '../../src-tauri/resources/locals/index';
+import { $t } from '../scripts/lib/localHelper';
 import { EventSystem, EventType } from '@/scripts/core/EventSystem';
 import CreateGameRepo from '@/dialogs/CreateGameRepo.vue';
 import EditGameRepo from '@/dialogs/EditGameRepo.vue';

@@ -30,11 +30,8 @@ import dialogTemplate from '@/dialogs/dialogTemplate.vue';
 import editRepo from '@/components/EditRepo.vue';
 import { type repo, repos } from '@/scripts/lib/Repo';
 import { snack } from '@/scripts/lib/SnackHelper';
-import pathToLocal from '@locals/index?url';
-// debug this
-console.log('EditGameRepo.vue loaded', pathToLocal);
 
-import { $t } from '@locals/index';
+import { $t } from '@/scripts/lib/localHelper';
 const showEditRepoDialog = defineModel<boolean>("visible", {
     type: Boolean,
     default: false,

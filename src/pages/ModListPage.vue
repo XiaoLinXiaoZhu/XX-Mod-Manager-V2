@@ -1,7 +1,7 @@
 <template>
   <BergerFrame>
     <template #header>
-      <BackButton />
+      <BackButton @click="handleBackButtonClick"/>
       <h1 draggable>Mod List</h1>
       <SectionSelector :sections="sections" v-model:currentSection="currentSection" v-model:index="currentIndex"
         style="position: absolute; width: 500px; right: 10px;" />
@@ -40,7 +40,7 @@ import SectionSlider from '@/components/base/SectionSlider.vue';
 import { ref, watch, onMounted } from 'vue';
 
 
-import { $t, currentLanguageRef } from '../../src-tauri/resources/locals';
+import { $t, currentLanguageRef } from '../scripts/lib/localHelper';
 import UpdateButtonWithInfo from '@/components/updateButtonWithInfo.vue';
 import { ConfigLoader } from '@/scripts/core/ConfigLoader';
 import { getArgv,type Argv } from '@/scripts/lib/Argv';
@@ -85,6 +85,12 @@ EventSystem.on(EventType.initDone, async () => {
   }
 
 });
+
+import router from '@/router';
+const handleBackButtonClick = () => {
+  // 使用router
+  router.back();
+};
 </script>
 
 <style scoped lang="scss">

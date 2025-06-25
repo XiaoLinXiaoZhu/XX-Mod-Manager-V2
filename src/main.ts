@@ -1,50 +1,31 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router/index.ts';
-import { i18nInstance, setI18nLocale } from '../src-tauri/resources/locals/index.ts';
-import 'sober'
-import { EventSystem, EventType } from './scripts/core/EventSystem.ts';
-import { resourceDir } from '@tauri-apps/api/path';
-const resourceDirPath = await resourceDir();
-console.log('Resource Directory:', resourceDirPath);
-//-================ 检查更新 =================
-
+// 这是 Tauri 应用的入口文件
+// 这里会初始化 Vue 应用，设置路由和国际化等
+import 'sober';
+import { GlobalConfigLoader, useGlobalConfig } from './scripts/core/GlobalConfigLoader.ts';
+import { getArgv, type Argv } from '@/scripts/lib/Argv.ts';
+import * as path from '@tauri-apps/api/path';
 import { listen } from '@tauri-apps/api/event';
+import { $t_snack } from './scripts/lib/SnackHelper.ts';
 
 
-//-================ 初始化 =================
-const vueApp = createApp(App);
+//-===============================
+//-🔧 添加事件钩子
+//-===============================
+import { EventSystem, EventType } from './scripts/core/EventSystem.ts';
 
-vueApp.use(router);
-vueApp.use(i18nInstance);
-
-//-================ 挂载 =================
-vueApp.mount('#app');
-
-setI18nLocale("en-US");
-
-//------------ 初次打开时展示教程页面 ------------
-EventSystem.on(EventType.wakeUp, () => {
-    //debug
-    console.log('wakeUp event triggered');
-});
-
-// 测试 唤醒事件触发
-// EventSystem.trigger(EventType.wakeUp);
-
-//-=======禁用 tab 切换焦点=======-//
+//- 禁用 tab 切换焦点
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
         e.preventDefault();
     }
 });
 
-//-=======禁用右键菜单=======-//
+//- 禁用右键菜单
 document.addEventListener('contextmenu', (e) => {
     e.preventDefault();
 });
 
-//-======== 禁用 webview 默认拖拽
+//- 禁用 webview 默认拖拽
 window.addEventListener('dragover', (e) => {
     e.preventDefault(); // 阻止默认行为，防止 Webview 打开文件
 }, false);
@@ -58,42 +39,104 @@ window.addEventListener('drop', (e) => {
     }
 }, false);
 
-//-======= 接收 wakeUp 事件 =======-//
-// 这里的事件是从 rust 端发过来的
+
+//--------- wakeUp 事件监听器 ---------
+//-初次打开时展示教程页面
+EventSystem.on(EventType.wakeUp, () => {
+    //debug
+    console.log('wakeUp event triggered');
+});
+EventSystem.on(EventType.wakeUp, async () => {
+    $t_snack("message.hello", "success");
+});
+
+
 listen('wake-up', (event) => {
     // debug
     console.log('wakeUp event received', event);
     EventSystem.trigger(EventType.wakeUp);
 });
 
-//-======= 接收 snack 事件 =======-//
-import { Snackbar } from 'sober';
-listen('snack', (event) => {
-    // debug
-    console.log('snack event received', event);
-    const payload = event.payload as any;
-    let message = payload[0];
-    let snackType = payload[1];
-    let duration = payload[2];
-    let align = payload[3];
-    // 确保 snackType 和 align 是全部小写
-    snackType = snackType.toLowerCase() as "error" | "none" | "info" | "success" | "warning";
-    align = align.toLowerCase() as "auto" | "top" | "bottom";
-    // debug
-    console.log('snack ' + message + ' ' + snackType + ' ' + duration + ' ' + align);
-    Snackbar.builder({
-        text: message,
-        type: snackType,
-        duration,
-        align,
-    }).show();
+//-===============================
+//-🔢 argv 解析,加载全局配置
+//-===============================
+const argv: Argv = await getArgv();
+console.log('XXMM Start With Argv:', argv);
+
+if (argv.custom_config_folder) {
+    // 全局配置从这里加载
+    GlobalConfigLoader.loadFrom(await path.resolve(".\\"));
+} else {
+    // 全局配置从默认路径加载
+    GlobalConfigLoader.loadDefaultConfig();
+}
+
+// - 页面卸载时，保存全局配置
+window.addEventListener('beforeunload', () => {
+    GlobalConfigLoader.save();
 });
 
+//-===============================
+//-🔰 vue 和 router 挂载
+//-===============================
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router/index.ts';
+import { i18nInstance, setI18nLocale } from './scripts/lib/localHelper.ts';
 
+const vueApp = createApp(App);
+
+vueApp.use(router);
+vueApp.use(i18nInstance);
+
+vueApp.mount('#app');
+
+//-===============================
+//-🧐 响应Argv参数
+//-===============================
+import { repos, getRepos } from './scripts/lib/Repo.ts';
+// 如果有 repo 参数，则设置为当前仓库
+if (argv.repo) {
+    await getRepos();
+    if (repos && repos.value.length > 0) {
+        // 找到名称对应的仓库
+        const repo = repos.value.find(r => r.name === argv.repo);
+        if (repo) {
+            const lastUsedGameRepo = useGlobalConfig('lastUsedGameRepo', '');
+            lastUsedGameRepo.value = repo.configLocation;
+
+            // 加载仓库配置
+            ConfigLoader.loadFrom(repo.configLocation).then(() => {
+                // 跳转到 modList 页面
+                router.push({ name: 'modList' });
+            }).catch((err) => {
+                console.error('加载仓库配置失败:', err);
+                $t_snack('message.loadRepoConfigFailed', 'error');
+            });
+        } else {
+            console.warn('未找到指定的仓库:', argv.repo);
+        }
+    }
+}
+
+//-================================
+//-💾 全局配置应用
+//-================================
+
+
+
+//- 3. updatecheck
+import { checkForUpdates } from './scripts/core/UpdateChecker.ts';
+const ifCheckUpdatesOnStart = useGlobalConfig('checkUpdatesOnStart', false);
 EventSystem.on(EventType.wakeUp, async () => {
-    $t_snack("message.hello", "success");
+    if (ifCheckUpdatesOnStart.value) {
+        checkForUpdates();
+    }
 });
 
+
+
+//-================ 移交给 XXMMCore =================
 import { init } from './scripts/core/XXMMCore.ts';
-import { $t_snack } from './scripts/lib/SnackHelper.ts';
+import { ConfigLoader } from './scripts/core/ConfigLoader.ts';
 init();

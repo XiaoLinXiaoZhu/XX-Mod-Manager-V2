@@ -31,28 +31,61 @@ export let repos: StorageValue<repo[]> | null = null;
 export const getRepos = async (): Promise<repo[]> => {
     // 从 GlobalStorage 中获取仓库列表
     repos = useGlobalConfig("repos",[] as repo[]);
-    // 对于每个repo，确保configLocation不为空，且是一个绝对路径
-    const _repos = await Promise.all(repos.value.map(async (repo) => {
-        if (!repo.configLocation || repo.configLocation.trim() === '' || !isAbsolute(repo.configLocation)) {
-            console.warn('Repo configLocation is not set or not absolute:', repo);
-            repo.configLocation = await join(await appDataDir(), `repos/${repo.uid}`);
+
+    // 使用checkRepo函数检查每个仓库的配置
+    const validRepos: repo[] = [];
+    for (const repoItem of repos.value) {
+        const isValid = await checkRepo(repoItem);
+        if (isValid) {
+            validRepos.push(repoItem);
+        } else {
+            console.warn('Invalid repo configuration, skipping:', repoItem);
         }
-        if (!await isDirectoryExists(repo.configLocation)) {
-            // 确定configLocation是否存在，如果不存在则尝试创建
-            console.warn('Repo configLocation does not exist, creating:', repo.configLocation);
-            try {
-                await createDirectory(repo.configLocation);
-            } catch (error) {
-                console.error('Error creating repo directory:', error);
-                return null; // 如果创建失败，返回null
-            }
-        }
-        return repo;
-    }));
-    const filteredRepos = _repos.filter(repo => repo !== null) as repo[];
-    repos.set(filteredRepos);
+    }
+
+    // 过滤掉无效的仓库
+    repos.value = validRepos;
+
     // debug
-    console.log('获取到的仓库列表:', filteredRepos);
-    return repos.getRef().value;
+    console.log('获取到的仓库列表:', repos.value);
+    return repos.value;
+};
+
+const checkRepo = async (repo: repo): Promise<boolean> => {
+    let flag = true;
+    // 对于每个repo，确保configLocation不为空，且是一个绝对路径
+    if (!repo.configLocation || repo.configLocation.trim() === '') {
+        console.warn('Repo configLocation is not set:', repo);
+        flag = false;
+    }
+    if (!isAbsolute(repo.configLocation)) {
+        console.warn('Repo configLocation is not absolute:', repo);
+        flag = false;
+    }
+    if (!await isDirectoryExists(repo.configLocation)) {
+        // 确保configLocation存在，如果不存在则尝试创建
+        console.warn('Repo configLocation does not exist, creating:', repo.configLocation);
+        try {
+            await createDirectory(repo.configLocation);
+        } catch (error) {
+            console.error('Error creating repo directory:', error);
+            flag = false; // 如果创建失败，设置标志为false
+        }
+    }
+
+    // 确保每个repo的uid是唯一的
+    if (!repo.uid || repo.uid.trim() === '') {
+        console.warn('Repo uid is not set:', repo);
+        flag = false;
+    }
+    if (repos) {
+        const existingRepo = repos.value.find(r => r.uid === repo.uid);
+        if (existingRepo && existingRepo !== repo) {
+            console.warn(`Duplicate repo uid found, skipping: ${repo.uid}`);
+            flag = false; // 如果uid重复，则设置标志为false
+        }
+    }
+
+    return flag;
 };
 
