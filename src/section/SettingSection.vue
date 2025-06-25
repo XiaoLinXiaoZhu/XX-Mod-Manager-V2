@@ -166,11 +166,14 @@ import LeftIndex from '@/components/leftIndex.vue';
 import settingBar from '@/components/setting/settingBar.vue';
 import { computed, onMounted, ref, watch } from 'vue';
 import { openUrlWithDefaultBrowser } from '@/scripts/lib/FileHelper.ts';
-import configData from './settingSectionData';
+import getSettingSectionData from './settingSectionData';
 import { IPluginLoader, type IPlugin, type IPluginData } from '@/scripts/core/PluginLoader.ts';
 import { EventSystem, EventType } from '@/scripts/core/EventSystem.ts';
 import { ConfigLoader } from '@/scripts/core/ConfigLoader';
-import { getTranslatedText, $t, currentLanguage, currentLanguageRef } from '../scripts/lib/localHelper.ts';
+import { getTranslatedText, $t, currentLanguageRef } from '../scripts/lib/localHelper.ts';
+
+
+const configData = getSettingSectionData();
 
 let IndexStructure: {
     General: Record<string, unknown>,
