@@ -2,8 +2,8 @@
   <BergerFrame>
     <template #header>
       <BackButton />
-      <h1 draggable>{{ getTranslatedText({"en-US": "Main Page", "zh-CN": "主页面"}) }}</h1>
-      
+      <h1 draggable>{{ getTranslatedText({ "en-US": "Main Page", "zh-CN": "主页面" }) }}</h1>
+
       <SectionSelector :sections="sections" v-model:currentSection="currentSection" v-model:index="currentIndex"
         style="position: absolute; width: 500px; right: 10px;" />
     </template>
@@ -14,10 +14,10 @@
         <SectionSlider :currentSection="currentIndex" class="section-slider">
           <GameRepoSection ref="gameRepoSectionRef" />
           <div>
-            <p>{{ 'element.helpContent'}}</p>
+            <p>{{ 'element.helpContent' }}</p>
           </div>
           <div>
-            <p>{{'element.settingsContent' }}</p>
+            <p>{{ 'element.settingsContent' }}</p>
           </div>
         </SectionSlider>
 
@@ -27,7 +27,8 @@
     <template #footer>
       <!-- <p>&copy; 2023 Your Company</p> -->
       <UpdateButtonWithInfo />
-      <s-button v-if="currentIndex === 0" class="OO-button OO-color-gradient font-hongmeng start-button" @click="handleStartClicked">{{ $t('buttons.useRepo') }}</s-button>
+      <s-button v-if="currentIndex === 0" class="OO-button OO-color-gradient font-hongmeng start-button"
+        @click="handleStartClicked">{{ $t('buttons.useRepo') }}</s-button>
     </template>
   </BergerFrame>
 </template>
@@ -49,6 +50,7 @@ import { ConfigLoader } from '@/scripts/core/ConfigLoader';
 import { join } from '@tauri-apps/api/path';
 import router from '@/router';
 import { useGlobalConfig } from '@/scripts/core/GlobalConfigLoader';
+import { EventSystem, EventType } from '@/scripts/core/EventSystem';
 
 
 const currentSection = ref('Section 1');
@@ -83,16 +85,25 @@ const handleStartClicked = async () => {
     }
   }
 }
+
+import { type I18nLocale } from '@/scripts/lib/localHelper.ts';
+import { currentTheme, type Theme } from '@/assets/styles/styleController.ts';
+EventSystem.on(EventType.initDone, () => {
+  //-================================
+  //-💾 重新绑定回全局配置
+  //-================================
+  //- 1. rebind 一下语言
+  const languageStorage = useGlobalConfig('language', 'zh-CN' as I18nLocale);
+  currentLanguageRef.rebind(languageStorage.getRef());
+
+  //- 2. rebind 一下主题
+  currentTheme.rebind(useGlobalConfig('theme', 'dark' as Theme).getRef());
+});
 </script>
 
 <style scoped lang="scss">
-
-.start-button{
+.start-button {
   position: absolute;
   right: 10px;
 }
-
-
-
-
 </style>

@@ -85,7 +85,7 @@ const init = async () => {
         return;
     }
     newRepo.value.uid = repos.value.length > 0 ? `repo-${repos.value.length + 1}` : 'repo-1';
-    newRepo.value.configLocation = await path.join(await path.appDataDir(),'repos', newRepo.value.uid, 'config.json');
+    newRepo.value.configLocation = await path.join(await path.appDataDir(),'repos', newRepo.value.uid);
 }
 
 EventSystem.on(EventType.initDone,async () => {

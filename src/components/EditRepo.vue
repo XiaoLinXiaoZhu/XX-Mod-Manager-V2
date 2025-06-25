@@ -284,12 +284,16 @@ onMounted(() => {
         justify-content: center;
         overflow: hidden;
         border-radius: 8px;
+        position: relative;
+        z-index: 1; // 确保图片容器在网点效果之上
 
         img {
             width: 100%;
             height: 100%;
             object-fit: cover; // 或 cover，根据需求选择
             image-rendering: auto; // 让浏览器自动优化渲染
+            position: relative;
+            z-index: 2; // 确保图片在最上层
         }
     }
 

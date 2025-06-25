@@ -116,33 +116,22 @@ if (argv.repo) {
     }
 }
 
-//-================================
-//-💾 全局配置应用
-//-================================
-//- 1. rebind 一下语言
-import { currentLanguageRef } from './scripts/lib/localHelper.ts';
-const languageStorage = useGlobalConfig('language', 'zh-CN' as I18nLocale);
-currentLanguageRef.rebind(languageStorage.getRef());
-
-//- 2. rebind 一下主题
-import { currentTheme ,type Theme} from './assets/styles/styleController.ts';
-currentTheme.rebind(useGlobalConfig('theme', 'dark' as Theme).getRef());
-
-
-//- 3. updatecheck
-import { checkForUpdates } from './scripts/core/UpdateChecker.ts';
-const ifCheckUpdatesOnStart = useGlobalConfig('checkUpdatesOnStart', false);
-EventSystem.on(EventType.wakeUp, async () => {
-    if (ifCheckUpdatesOnStart.value) {
-        checkForUpdates();
-    }
-});
-
 //- 初始化完成，各个模块可以开始工作了
 EventSystem.on(EventType.initDone, () => {
     console.log('XXMM 初始化完成');
 });
 EventSystem.trigger(EventType.initDone);
+
+//- updatecheck
+import { checkForUpdates } from '@/scripts/core/UpdateChecker.ts';
+const ifCheckUpdatesOnStart = useGlobalConfig('checkUpdatesOnStart', false);
+EventSystem.on(EventType.wakeUp, async () => {
+// debug
+console.log('MainPage: 监听到唤醒事件，检查更新');
+if (ifCheckUpdatesOnStart.value) {
+    checkForUpdates();
+}
+});
 
 //-================================
 //-🧩 插件加载

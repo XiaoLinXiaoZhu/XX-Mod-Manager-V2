@@ -57,6 +57,7 @@ const handleSave = () => {
         console.warn('Repos not initialized yet.');
         return;
     }
+    tempRepo.value.updatedAt = new Date().toISOString();
     repos.value = repos.value.map(r => r.uid === repoToEdit.value?.uid ? tempRepo.value : r);
     console.log('Repo updated:', tempRepo.value);
     showEditRepoDialog.value = false;

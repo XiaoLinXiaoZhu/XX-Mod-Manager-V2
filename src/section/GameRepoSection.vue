@@ -11,7 +11,7 @@
       <div v-for="(repo, index) in repos?.getRef().value" :key="index" class="card horizontal-card-list-item"
         :id="repo.uid" :style="getImage(repo)">
         <h3 class="font-hongmeng">{{ repo.name }}</h3>
-        <s-button class="card-hover OO-button" @click="showEditRepoDialog = true">
+        <s-button class="card-hover OO-button" @click="currentFocusedRepo = repo; showEditRepoDialog = true">
           {{ $t('buttons.editRepo') }}
         </s-button>
       </div>
