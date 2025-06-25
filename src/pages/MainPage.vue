@@ -2,8 +2,8 @@
   <BergerFrame>
     <template #header>
       <BackButton />
-      <h1 draggable>Main Page</h1>
-      {{ getTranslatedText({"en-US": "Main Page", "zh-CN": "主页面"}) }}
+      <h1 draggable>{{ getTranslatedText({"en-US": "Main Page", "zh-CN": "主页面"}) }}</h1>
+      
       <SectionSelector :sections="sections" v-model:currentSection="currentSection" v-model:index="currentIndex"
         style="position: absolute; width: 500px; right: 10px;" />
     </template>
