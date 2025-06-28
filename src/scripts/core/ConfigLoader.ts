@@ -12,7 +12,8 @@ class SubConfigLoaderClass extends Storage {
 
     // useConfig 方法,当没有获取的值时，先尝试从 GlobalConfigLoader 中获取,如果它也没有，则返回默认值
     useConfig<T>(key: string, defaultValue: T, useGlobal: boolean = false): StorageValue<T> {
-        return useGlobal ? this.useStorage(key, useGlobalConfig(key, "" as any).value || defaultValue) : this.useStorage(key, defaultValue);
+        const result = useGlobal ? this.useStorage(key, useGlobalConfig(key, "" as any).value || defaultValue) : this.useStorage(key, defaultValue);
+        return result;
     }
 
     loadFrom(filePath: string): Promise<void> {

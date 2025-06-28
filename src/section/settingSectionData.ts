@@ -1,4 +1,4 @@
-import { SettingBarData } from "@/components/setting/settingBarConfig";
+import { SettingBarData, SettingBarDataMulitiDir } from "@/components/setting/settingBarConfig";
 import { currentLanguageRef, setI18nLocale, I18nLocaleList, I18nLocale } from "../scripts/lib/localHelper";
 import { ref } from 'vue';
 import { ConfigLoader, useConfig } from "@/scripts/core/ConfigLoader";
@@ -121,10 +121,11 @@ const getSettingSectionData = () => {
             modTargetPathData.dataRef.value = value; // 更新 dataRef 的值
         }
     }    //-------------------- 模组源文件夹 ------------------//
-    let modSourcePathData: SettingBarData = {
+    let modSourcePathData: SettingBarDataMulitiDir = {
         name: 'modSourcePath',
-        dataRef: useConfig('modSourcePath', '', true).getRef(),
-        type: 'dir',
+        dataRef: useConfig('modSourcePath', [], true).getRef(),
+        type: 'dir:multi', // 现在支持多选文件夹了
+        // type: 'dir',
         displayName: 'Mod Source Path',
         description: 'The path of the mod source', t_displayName: {
             "zh-CN": 'mod来源文件夹',
@@ -135,7 +136,7 @@ const getSettingSectionData = () => {
             "en-US": 'Mod Source directory is the location where the program stores mod. When the mod is enabled, a link will be created from here to the mod target directory.'
         },
         onChange: (value) => {
-            modSourcePathData.dataRef.value = value; // 更新 dataRef 的值
+            useConfig('modSourcePath', [] as string[], true).set(value)
         }
     }    //-------------------- 预设文件夹 ------------------//
     let presetPathData: SettingBarData = {
