@@ -233,5 +233,8 @@
       "configSaved": "🔧插件 {pluginName} 配置已保存",
       "configRegistered": "👻插件 {pluginName} 配置已注册"
     }
+  },
+  "modLoader": {
+    "noModSourceFolder": "未能加载Mod：未指定Mod来源文件夹"
   }
 }

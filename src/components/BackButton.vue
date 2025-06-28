@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import FlashingButton from './base/FlashingButton.vue';
+import FlashingButton from '@/components/base/FlashingButton.vue';
 </script>
 <style lang="scss" scoped>
 .back-button {

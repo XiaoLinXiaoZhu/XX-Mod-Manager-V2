@@ -4,6 +4,7 @@ import { isFileExists, renameDirectory, getDirectoryList, copyFile } from "./Fil
 import { Storage, type StorageValue } from "./Storge";
 import { EmptyImage, getImage, releaseImage, writeImageFromBase64 } from "./ImageHelper";
 import { ref, type Ref } from "vue";
+import { useConfig } from "../core/ConfigLoader";
 
 function simpleHash(str: string): number {
     let hash = 0;
@@ -22,7 +23,9 @@ function generateModId(modPath: string): string {
 console.log(generateModId("C:/mods/skyrim_mods/cool_armor_mod/"));
 
 export class ModInfo extends Storage {
-    public static ifKeepModNameAsModFolderName: boolean = false; // 是否保持 mod 名称和文件夹名称一致
+    public static get ifKeepModNameAsModFolderName(): boolean {
+        return useConfig("keepModNameAsModFolderName", false).value;
+    }
     static createID(path: string): string {
         // 生成一个随机的 id
         // id 由 mod文件夹路径 + timestamp 组成
@@ -31,11 +34,11 @@ export class ModInfo extends Storage {
         return hash.toString(16);
     }
 
-    public id: StorageValue<string> | undefined;
-    public name: StorageValue<string> | undefined;
-    public location: StorageValue<string> | undefined;
-    public url: StorageValue<string> | undefined; // 模块的下载地址
-    public addDate: StorageValue<string> | undefined;
+    public id: StorageValue<string>;
+    public name: StorageValue<string>;
+    public location: StorageValue<string>;
+    public url: StorageValue<string>;
+    public addDate: StorageValue<string>;
 
     public newMod = false; // 是否是新的模块
 
@@ -43,6 +46,15 @@ export class ModInfo extends Storage {
 
     constructor(location: string, canEmpty: boolean = false) {
         super("ModInfo" + ++ModInfo.totalCount);
+        // 严格模式，开启后如果没有配置 _filePath 则无法使用 set，但是仍然可以获得配置的引用以及 get 方法
+        // 这样可以保证本地数据不被“污染”，
+        this._strictMode = true; 
+        // 初始化模块信息,但是全部保持为空
+        this.location = this.useStorage("location", ""); // 模块的文件夹路径，默认为空
+        this.id = this.useStorage("id", ""); // 模块的唯一标识符，默认为空
+        this.name = this.useStorage("name", ""); // 模块的名称，默认为空
+        this.url = this.useStorage("url", ""); // 模块的下载地址，默认为空
+        this.addDate = this.useStorage("addDate", ""); // 用于存储添加日期
 
         // location 是mod的文件夹路径
         if (!location) {
@@ -118,19 +130,22 @@ export class ModInfo extends Storage {
 
         if (ModInfo.ifKeepModNameAsModFolderName && metaData['name'] !== this.name.value) {
             // 更改文件夹名称
-            await this.changeFolderName(metaData['name']);
+            if (await this.changeFolderName(metaData['name'])) {
+                this.name.set(metaData['name']);
+            }
         }
 
         this.mergeData(metaData, true);
     }
 
-    private async changeFolderName(newName: string) {
+    private async changeFolderName(newName: string) : Promise<boolean> {
         const newModFolderPath = await join(await dirname(this.location.value), newName);
         if (await isFileExists(newModFolderPath)) {
             console.error(`模块名称重复：${newName} 已存在`);
-            return;
+            return false;
         }
         await this.changeLocation(newModFolderPath);
+        return true;
     }
     private async changeLocation(newLocation: string) {
         await renameDirectory(this.location.value, newLocation);

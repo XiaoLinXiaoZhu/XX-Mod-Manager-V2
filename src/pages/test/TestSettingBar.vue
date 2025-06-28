@@ -3,6 +3,9 @@
 {{ selectFolder.dataRef }}
 <settingBar :data="selectSection" />
 {{ selectSection.dataRef }}
+
+<settingBar :data="selectMultiDir" />
+{{ selectMultiDir.dataRef }}
 </template>
 
 
@@ -48,6 +51,24 @@ const selectSection : SettingBarData = {
     ],
     onChange: (value: string[]) => {
         console.log('Selected section:', value);
+    },
+}
+
+const selectMultiDir : SettingBarData = {
+    type: "dir:multi",
+    dataRef: ref<string[]>([]),
+    displayName: '选择多个文件夹',
+    t_displayName: {
+        "en-US": "Select Multiple Folders",
+        "zh-CN": "选择多个文件夹",
+    },
+    description: '请选择多个文件夹',
+    t_description: {
+        "en-US": "Please select multiple folders",
+        "zh-CN": "请选择多个文件夹",
+    },
+    onChange: (value: string[]) => {
+        console.log('Selected multiple folders:', value);
     },
 }
 

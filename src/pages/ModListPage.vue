@@ -85,6 +85,14 @@ const rebind = async () => {
   currentLanguageRef.rebind(useConfig('language', 'zh-CN' as I18nLocale).getRef());
   //- 重新绑定主题
   currentTheme.rebind(useConfig('theme', 'dark' as Theme).getRef());
+
+  //- 重新加载mod
+  ModLoader.modSourceFoldersRef.rebind(useConfig('modSourceFolder', [] as string[]).getRef());
+  ModLoader.loadMods().then(() => {
+    console.log('Mods loaded successfully.');
+  }).catch((error) => {
+    console.error('Error loading mods:', error);
+  });
 };
 
 EventSystem.on(EventType.initDone, async () => {
@@ -102,6 +110,7 @@ import router from '@/router';
 import { path } from '@tauri-apps/api';
 import { currentTheme } from '@/assets/styles/styleController';
 import { Theme } from '@tauri-apps/api/window';
+import { ModLoader } from '@/scripts/lib/ModLoader';
 const handleBackButtonClick = () => {
   // 使用router
   router.back();

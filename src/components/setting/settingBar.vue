@@ -55,6 +55,46 @@
             </s-icon-button>
         </div>
 
+        <!-- -dir:multi -->
+        <div v-else-if="data.type === 'dir:multi'" class="OO-s-text-field-container">
+            <!-- 展示一个不可编辑的列表和一个计数器，边上显示一个按钮打开进一步的编辑菜单 -->
+            <s-text-field :value="(data.dataRef.value.length || 0) + ' 个文件夹'" :disabled="true">
+            </s-text-field>
+            <s-popup align="right">
+                <div slot="trigger">
+                    <s-tooltip>
+                        <s-icon-button type="filled" class="OO-icon-button"
+                            slot="trigger">
+                            <s-icon name="more_horiz"></s-icon>
+                        </s-icon-button>
+                        管理文件夹
+                    </s-tooltip>
+                </div>
+                <div style="min-height: 280px; width: 250px;">
+                    <s-scroll-view style="min-height: 280px; height: 100%; width: 100%;position: relative;">
+                        <div class="OO-s-text-field-container" v-for="(folder, index) in data.dataRef.value"
+                            :key="index" style="height: 40px;width: calc(100% - 20px);position: relative;margin: 10px;">
+                            <s-text-field :value="folder" :disabled="true">
+                            </s-text-field>
+                            <s-tooltip slot="start">
+                                <s-icon-button type="filled" class="OO-icon-button"
+                                    @click="handleMultiDirectoryRemove(folder)" slot="trigger">
+                                    <s-icon name="close"></s-icon>
+                                </s-icon-button>
+                                移除文件夹
+                            </s-tooltip>
+                        </div>
+                        <!-- 点击的时候为按钮添加闪烁效果（添加.flashOnce，播放结束后移除） -->
+                        <s-button class="OO-button" type='text' @mousedown="handleMultiDirectorySelect();flashingButton($event.currentTarget)" 
+                            style="width: calc(100% - 20px); margin-top: 10px;height: 40px;">
+                            添加文件夹
+                        </s-button>
+
+                    </s-scroll-view>
+                </div>
+            </s-popup>
+        </div>
+
         <!-- -ini -->
         <div v-else-if="data.type === 'file:ini'" class="OO-s-text-field-container">
             <s-text-field :value="data.dataRef.value" @input="onChange(($event.target as HTMLInputElement).value)">
@@ -127,6 +167,24 @@ const display = ref(true);
 // 默认icon
 const defaultIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path></svg>`;
 
+// 处理按钮闪烁效果
+const flashingButton = (button: EventTarget|null) => {
+    if (!button || !(button instanceof HTMLElement)) {
+        return;
+    }
+    button.classList.add('flashOnce');
+    setTimeout(() => {
+        button.classList.remove('flashOnce');
+    }, 1000); // 1秒后移除闪烁效果
+};
+
+
+
+
+
+
+
+
 // 几个文件选取写这里，避免臃肿
 const handleDirectorySelect = async () => {
     const dialogTitle = props.data.t_displayName ? getTranslatedText(props.data.t_displayName).value : props.data.displayName;
@@ -180,6 +238,34 @@ const handleExeFileSelect = async () => {
     } else {
         console.warn("没有选择任何文件或目录");
     }
+};
+
+// 处理多选文件夹的选择
+const handleMultiDirectorySelect = async () => {
+    const dialogTitle = props.data.t_displayName ? getTranslatedText(props.data.t_displayName).value : props.data.displayName;
+    const dialogSettings: FileDialogOption = {
+        title: dialogTitle,
+        filters: [{ name: 'Directories', extensions: [''] }],
+        multiple: false, // 这里设置为 false，因为我们会手动处理多选
+        folder: true
+    };
+    const input = await openFileDialog(dialogSettings);
+    console.log("选择的文件:", input);
+    if (input && input.length > 0) {
+        const currentFolders = props.data.dataRef.value as string[];
+        const newFolders = input.filter(folder => !currentFolders.includes(folder));
+        props.data.dataRef.value = [...currentFolders, ...newFolders];
+        onChange(props.data.dataRef.value);
+    } else {
+        console.warn("没有选择任何文件或目录");
+    }
+};
+const handleMultiDirectoryRemove = (folder: string) => {
+    const currentFolders = props.data.dataRef.value as string[];
+    const updatedFolders = currentFolders.filter(f => f !== folder);
+    props.data.dataRef.value = updatedFolders;
+    onChange(updatedFolders);
+    console.log("已移除文件夹:", folder, "当前文件夹列表:", props.data.dataRef.value);
 };
 
 

@@ -4,9 +4,11 @@ import { isDirectoryExists,getDirectoryList } from "./FileHelper";
 // import { join } from "@tauri-apps/api/path";
 import { useGlobalConfig } from '../core/GlobalConfigLoader';
 import { Ref ,ref} from 'vue';
+import { RebindableRef } from './RebindableRef';
+import { $t_snack } from './SnackHelper';
 
 export class ModLoader {
-    public static modSourceFoldersRef :Ref<string[]> = ref([]);
+    public static modSourceFoldersRef :RebindableRef<string[]> = new RebindableRef<string[]>([]);
     static async addModSourceFolder(folder: string) {
         // check一下是否存在
         if (folder === undefined || folder === null || folder === '') {
@@ -53,8 +55,8 @@ export class ModLoader {
         this.mods = [];
 
         if (this.modSourceFoldersRef.value.length === 0) {
-            // throw new Error('ModLoader.loadMods: no mod source folder');
             console.warn('ModLoader.loadMods: no mod source folder');
+            $t_snack('modLoader.noModSourceFolder', 'warning');
             return [];
         }
 

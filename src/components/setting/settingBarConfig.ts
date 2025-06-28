@@ -1,7 +1,7 @@
 // 定义 settingBar 的配置项 (data)
 import { TranslatedText } from "../../scripts/lib/localHelper";
 import { Ref } from "vue";
-export type SettingBarType = "markdown" | "hidden" | "string" | "number" | "dir" | "file:any" | "file:ini" | "file:exe";
+export type SettingBarType = "markdown" | "hidden" | "string" | "number" | "dir" | "file:any" | "file:ini" | "file:exe" | "dir:multi";
 export type SettingBarDataBase = {
     type: SettingBarType;
     name?: string;
@@ -70,6 +70,16 @@ export type SettingBarDataBoolean = {
     callback?: (value: boolean) => void;
 };
 
+export type SettingBarDataMulitiDir = {
+    type: "dir:multi";
+    name?: string;
+    dataRef: Ref<string[]>; // 用于双向绑定的引用
+    displayName?: string;
+    description?: string;
+    t_displayName?: TranslatedText;
+    t_description?: TranslatedText;
+    onChange?: (value: string[]) => boolean | void;
+    callback?: (value: string[]) => void;
+};
 
-
-export type SettingBarData = SettingBarDataBase | SettingBarDataBoolean | SettingBarDataSelect | SettingBarDataButton;
+export type SettingBarData = SettingBarDataBase | SettingBarDataBoolean | SettingBarDataSelect | SettingBarDataButton | SettingBarDataMulitiDir;
