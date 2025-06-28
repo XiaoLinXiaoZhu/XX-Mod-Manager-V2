@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { type repo, repos, getRepos } from '@/scripts/lib/Repo';
 import HorizontalCardList from '@/components/base/HorizontalCardList.vue';
-import { type Ref, ref, watch, onMounted, WatchHandle, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { $t } from '../scripts/lib/localHelper';
 import { EventSystem, EventType } from '@/scripts/core/EventSystem';
 import CreateGameRepo from '@/dialogs/CreateGameRepo.vue';
@@ -55,12 +55,17 @@ import EditGameRepo from '@/dialogs/EditGameRepo.vue';
 import { loadImage } from '@/scripts/lib/ImageHelper';
 import { join } from '@tauri-apps/api/path';
 
+
+//-=========== 数据 =============
 const currentCardIndex = ref(1);
+const showAddRepoDialog = ref(false);
+const showEditRepoDialog = ref(false);
+
 const currentFocusedRepo = computed(() => {
-  // debug
-  console.log('Current card index:', currentCardIndex.value, 'Repos:', repos?.value);
   return repos ? repos.value[currentCardIndex.value - 1] || null : null;
 });
+
+
 
 const getImage = (repo: repo) => {
   if (!repo.cover) {
@@ -85,11 +90,6 @@ const getImage = (repo: repo) => {
     backgroundRepeat: 'no-repeat',
   };
 };
-
-//-============ 对话框 ==============
-const showAddRepoDialog = ref(false);
-const showEditRepoDialog = ref(false);
-
 
 
 
