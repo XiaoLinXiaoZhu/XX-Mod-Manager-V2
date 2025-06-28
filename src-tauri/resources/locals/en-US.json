@@ -37,7 +37,17 @@
     "advanced": "Advanced Settings",
     "switch-config": "Switch Configuration",
     "about": "About",
-    "plugin": "Plugin"
+    "plugin": "Plugin",
+    "general": "General",
+    "language": "Language",
+    "theme": "Theme",
+    "startup": "Startup",
+    "modTargetPath": "Mod Target Path",
+    "modSourcePath": "Mod Source Path",
+    "presetPath": "Preset Storage Path",
+    "traditionalApply": "Traditional Apply Mode",
+    "tools": "Tools",
+    "createShortCut": "Create Shortcut"
   },
   "setting": {
     "title": "Settings",
