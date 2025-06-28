@@ -2,7 +2,7 @@ import { createI18n } from "vue-i18n";
 import en_us from "../../../src-tauri/resources/locals/en-US.json";
 import zh_cn from "../../../src-tauri/resources/locals/zh-CN.json";
 import { EventType,EventSystem } from "@/scripts/core/EventSystem";
-import { ref } from "vue";
+import { Ref, ref } from "vue";
 import { RebindableRef } from "./RebindableRef";
 
 import "@/assets/styles/styleController";
@@ -54,8 +54,6 @@ export type TranslatedText = Record<I18nLocale, string>;
  * @returns {ComputedRef<string>}
  * @note 如果当前语言没有对应的文本，则返回英文文本或空字符串
  */
-import { computed } from "vue";
-
 export function getTranslatedText(text: TranslatedText) {
     if (text === undefined || text === null) {
         console.error('getTranslatedText error: text is undefined or null');
@@ -65,5 +63,12 @@ export function getTranslatedText(text: TranslatedText) {
         console.error('getTranslatedText error: text is empty for current language', currentLanguageRef.value);
     }
     // 返回一个响应式的计算属性
-    return computed(() => text[currentLanguageRef.value] || text['en-US'] || '');
+    // return computed(() => "⚙️" + text[currentLanguageRef.ref.value] || text['en-US'] || '');
+    // 因为现在 currentLanguageRef 是一个 RebindableRef，所以不能直接使用 computed
+    const reactiveText :Ref<string> = ref("⚙️" + text[currentLanguageRef.value] || text['en-US'] || '');
+    currentLanguageRef.watch(() => {
+        reactiveText.value = "⚙️" + text[currentLanguageRef.value] || text['en-US'] || '';
+    }
+    );
+    return reactiveText;
 }
