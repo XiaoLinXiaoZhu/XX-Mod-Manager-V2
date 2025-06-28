@@ -76,9 +76,9 @@ export function getTranslatedText(text: TranslatedText) {
     // 返回一个响应式的计算属性
     // return computed(() => "⚙️" + text[currentLanguageRef.ref.value] || text['en-US'] || '');
     // 因为现在 currentLanguageRef 是一个 RebindableRef，所以不能直接使用 computed
-    const reactiveText :Ref<string> = ref("⚙️" + text[currentLanguageRef.value] || text['en-US'] || '');
+    const reactiveText :Ref<string> = ref(text[currentLanguageRef.value] || text['en-US'] || '');
     currentLanguageRef.watch(() => {
-        reactiveText.value = "⚙️" + text[currentLanguageRef.value] || text['en-US'] || '';
+        reactiveText.value = text[currentLanguageRef.value] || text['en-US'] || '';
     }
     );
     return reactiveText;
