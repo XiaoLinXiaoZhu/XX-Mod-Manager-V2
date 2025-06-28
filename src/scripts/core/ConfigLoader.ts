@@ -1,5 +1,8 @@
+import { join } from '@tauri-apps/api/path';
 import { StorageValue,Storage } from '../lib/Storge';
 import { useGlobalConfig } from './GlobalConfigLoader';
+import { I18nLocale } from '../lib/localHelper';
+import { Theme } from '@/assets/styles/styleController';
 
 class SubConfigLoaderClass extends Storage {
 
@@ -16,9 +19,15 @@ class SubConfigLoaderClass extends Storage {
         return result;
     }
 
-    loadFrom(filePath: string): Promise<void> {
+    async loadFrom(filePath: string): Promise<void> {
         console.log(`从 ${filePath} 读取本地配置`);
-        return super.loadFrom(filePath);
+        await super.loadFrom(filePath);
+        // 特殊配置一下 presetFolder
+        // 如果 presetFolder 没有设置，则使用 filePath 下的 presets 文件夹
+        if (!this.presetFolder.value || this.presetFolder.value === '') {
+            this.presetFolder.value = await join(filePath, 'presets');
+        }
+        return;
     }
 
     async clearAllConfigs(): Promise<void> {
@@ -30,8 +39,8 @@ class SubConfigLoaderClass extends Storage {
     }
 
     //-------------------- 语言 ------------------//
-    language = this.useConfig('language', 'zh-CN' as string, true);
-    theme = this.useConfig('theme', 'dark' as string, true);
+    language = this.useConfig('language', 'zh-CN' as I18nLocale, true);
+    theme = this.useConfig('theme', 'dark' as Theme, true);
     //-------------------- 是否使用上次使用的预设 ------------------//
     ifStartWithLastPreset = this.useConfig('ifStartWithLastPreset', false);
 

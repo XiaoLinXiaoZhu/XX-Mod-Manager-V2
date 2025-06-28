@@ -34,11 +34,12 @@ export class ModInfo extends Storage {
         return hash.toString(16);
     }
 
-    public id: StorageValue<string>;
-    public name: StorageValue<string>;
-    public location: StorageValue<string>;
-    public url: StorageValue<string>;
-    public addDate: StorageValue<string>;
+    public id = this.useStorage("id", ModInfo.createID("")); // 模块的唯一标识符，默认为空
+    public name = this.useStorage("modName", ""); // 模块的名称，默认为空
+    public location = this.useStorage("location", ""); // 模块的文件夹路径，默认为空
+    public url = this.useStorage("url", ""); // 模块的下载地址，默认为空
+    public addDate = this.useStorage("addDate", ""); // 用于存储添加日期
+    public JsonVersion = this.useStorage("JsonVersion", 1); // 模块的 JSON 版本，默认为 1
 
     public newMod = false; // 是否是新的模块
 
@@ -47,14 +48,11 @@ export class ModInfo extends Storage {
     constructor(location: string, canEmpty: boolean = false) {
         super("ModInfo" + ++ModInfo.totalCount);
         // 严格模式，开启后如果没有配置 _filePath 则无法使用 set，但是仍然可以获得配置的引用以及 get 方法
-        // 这样可以保证本地数据不被“污染”，
-        this._strictMode = true; 
-        // 初始化模块信息,但是全部保持为空
-        this.location = this.useStorage("location", ""); // 模块的文件夹路径，默认为空
-        this.id = this.useStorage("id", ""); // 模块的唯一标识符，默认为空
-        this.name = this.useStorage("name", ""); // 模块的名称，默认为空
-        this.url = this.useStorage("url", ""); // 模块的下载地址，默认为空
-        this.addDate = this.useStorage("addDate", ""); // 用于存储添加日期
+        // 这样可以保证本地数据不被“污染”
+        this._strictMode = true; // 开启严格模式，确保在未加载配置前无法使用 set 方法
+        if (canEmpty) {
+            this._strictMode = false; // 允许在未设置文件路径的情况下使用
+        }
 
         // location 是mod的文件夹路径
         if (!location) {
@@ -64,6 +62,7 @@ export class ModInfo extends Storage {
             }
             return;
         }
+
         join(location, 'mod.json').then(async (path) => {
             this.addDate = this.useStorage("addDate", new Date().toISOString()); // 用于存储添加日期
             if (!await isFileExists(path)) {

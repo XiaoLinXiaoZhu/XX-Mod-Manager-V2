@@ -47,7 +47,9 @@
     "presetPath": "预设存储路径",
     "traditionalApply": "传统应用模式",
     "tools": "工具",
-    "createShortCut": "创建快捷方式"
+    "createShortCut": "创建快捷方式",
+    "modTargetFolder": "Mod目标文件夹",
+    "presetFolder": "预设文件夹"
   },
   "setting": {
     "title": "设置",

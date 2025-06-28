@@ -37,17 +37,16 @@ import ModCardManagerSection from '@/section/ModCardManagerSection.vue';
 import SectionSelector from '@/components/base/SectionSelector.vue';
 import SectionSlider from '@/components/base/SectionSlider.vue';
 
-import { ref, watch, onMounted } from 'vue';
+import { ref } from 'vue';
 
 
-import { $t, currentLanguageRef, I18nLocale } from '../scripts/lib/localHelper';
+import { $t, currentLanguageRef } from '../scripts/lib/localHelper';
 import UpdateButtonWithInfo from '@/components/updateButtonWithInfo.vue';
-import { ConfigLoader, useConfig } from '@/scripts/core/ConfigLoader';
+import { ConfigLoader } from '@/scripts/core/ConfigLoader';
 
 
 import { useGlobalConfig } from '@/scripts/core/GlobalConfigLoader';
 import { EventSystem, EventType } from '@/scripts/core/EventSystem';
-import { join } from '@tauri-apps/api/path';
 import SettingSection from '@/section/SettingSection.vue';
 
 
@@ -82,12 +81,12 @@ const rebind = async () => {
   });
 
   //- 重新绑定语言
-  currentLanguageRef.rebind(useConfig('language', 'zh-CN' as I18nLocale).getRef());
+  currentLanguageRef.rebind(ConfigLoader.language.getRef());
   //- 重新绑定主题
-  currentTheme.rebind(useConfig('theme', 'dark' as Theme).getRef());
+  currentTheme.rebind(ConfigLoader.theme.getRef());
 
   //- 重新加载mod
-  ModLoader.modSourceFoldersRef.rebind(useConfig('modSourceFolder', [] as string[]).getRef());
+  ModLoader.modSourceFoldersRef.rebind(ConfigLoader.modSourceFolders.getRef());
   // debug
   console.log('Mod source folders:', ModLoader.modSourceFoldersRef.value);
   ModLoader.loadMods().then(() => {
@@ -111,7 +110,6 @@ EventSystem.on(EventType.routeChanged, async (changeInfo: { to: string, from: st
 import router from '@/router';
 import { path } from '@tauri-apps/api';
 import { currentTheme } from '@/assets/styles/styleController';
-import { Theme } from '@tauri-apps/api/window';
 import { ModLoader } from '@/scripts/lib/ModLoader';
 const handleBackButtonClick = () => {
   // 使用router

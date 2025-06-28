@@ -7,11 +7,14 @@
                 <div v-for="(mod, index) in mods" :key="index" class="mod-item">
                     <h2>{{ mod.name?.value || 'Unknown Mod' }}</h2>
                     <p>{{ mod.location?.value || 'Unknown Location' }}</p>
-                    <p>Version: {{ mod.id?.value || 'Unknown Version' }}</p>
+                    <p>Uid: {{ mod.id?.value || 'Unknown Uid' }}</p>
+                    <p v-if="mod.url?.value">URL: <a :href="mod.url.value" target="_blank">{{ mod.url.value }}</a></p>
+                    <p v-else>No URL provided</p>
+                    <p v-if="mod.addDate?.value">Added on: {{ mod.addDate.value }}</p>
                     <!-- preview -->
                     <div class="preview" v-if="mod.previewUrlRef">
-                        <img :src="mod.previewUrlRef.value" alt="Preview" v-if="mod.previewUrlRef" style="width: 50%;" />
-                        <p v-if="mod.previewUrlRef">Preview URL: {{ mod.previewUrlRef.value }}</p>
+                        <img :src="mod.previewUrlRef" alt="Preview" v-if="mod.previewUrlRef" style="width: 50%;" />
+                        <p v-if="mod.previewUrlRef">Preview URL: {{ mod.previewUrlRef }}</p>
                         <div v-else>Loading preview...</div>
                     </div>
                 </div>
@@ -49,12 +52,12 @@ const IndexStructure = {
 }
 const selectedPath = ref<string>('');
 
-let mods: ModInfo[] = ModLoader.mods;
+let mods = ref<ModInfo[]>([] as ModInfo[]);
 
 // 监听 ModLoader 的 mods 变化
 ModLoader.onAfterLoad(() => {
-    mods = ModLoader.mods;
-    console.log('Mods loaded successfully:', mods);
+    console.log('Mods loaded successfully:', mods.value);
+    mods.value = ModLoader.mods;
 });
 
 </script>
