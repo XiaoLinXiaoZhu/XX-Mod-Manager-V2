@@ -88,6 +88,8 @@ const rebind = async () => {
 
   //- 重新加载mod
   ModLoader.modSourceFoldersRef.rebind(useConfig('modSourceFolder', [] as string[]).getRef());
+  // debug
+  console.log('Mod source folders:', ModLoader.modSourceFoldersRef.value);
   ModLoader.loadMods().then(() => {
     console.log('Mods loaded successfully.');
   }).catch((error) => {

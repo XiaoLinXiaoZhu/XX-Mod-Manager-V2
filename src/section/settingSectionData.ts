@@ -1,11 +1,10 @@
 import { SettingBarData, SettingBarDataMulitiDir } from "@/components/setting/settingBarConfig";
-import { currentLanguageRef, setI18nLocale, I18nLocaleList, I18nLocale } from "../scripts/lib/localHelper";
+import { setI18nLocale, I18nLocaleList } from "../scripts/lib/localHelper";
 import { ref } from 'vue';
-import { ConfigLoader, useConfig } from "@/scripts/core/ConfigLoader";
+import { ConfigLoader } from "@/scripts/core/ConfigLoader";
 import { Theme, setTheme } from "@/assets/styles/styleController";
 import router from "@/router";
 import { t_snack } from "@/scripts/lib/SnackHelper";
-import { window } from "@tauri-apps/api";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 
 const getSettingSectionData = () => {
@@ -13,7 +12,7 @@ const getSettingSectionData = () => {
     //-------------------- 语言 ------------------//
     let languageData: SettingBarData = {
         name: 'language',
-        dataRef: useConfig('language', 'zh-CN' as I18nLocale, true).getRef(),
+        dataRef: ConfigLoader.language.getRef(),
         type: 'select',
         displayName: 'Language',
         description: '', t_displayName: {
@@ -40,7 +39,6 @@ const getSettingSectionData = () => {
                 console.error(`Invalid language code: ${value}`);
                 return 'en-US'; // 如果无效，返回默认语言
             }
-
             setI18nLocale(value);
             return value; // 返回新的语言代码
         }
@@ -49,7 +47,7 @@ const getSettingSectionData = () => {
     //-------------------- 主题 ------------------//
     let themeData: SettingBarData = {
         name: 'theme',
-        dataRef: useConfig('theme', 'dark' as Theme, true).getRef(),
+        dataRef: ConfigLoader.theme.getRef(),
         type: 'select',
         displayName: 'Theme',
         description: '', t_displayName: {
@@ -89,7 +87,7 @@ const getSettingSectionData = () => {
     //-------------------- 是否使用上次使用的预设 ------------------//
     let ifStartWithLastPresetData: SettingBarData = {
         name: 'ifStartWithLastPreset',
-        dataRef: useConfig('ifStartWithLastPreset', false, true).getRef(),
+        dataRef: ConfigLoader.ifStartWithLastPreset.getRef(),
         type: 'boolean',
         displayName: 'Start With Last Preset',
         description: 'Whether to start with the last preset used', t_displayName: {
@@ -104,12 +102,12 @@ const getSettingSectionData = () => {
             ifStartWithLastPresetData.dataRef.value = value; // 更新 dataRef 的值
         }
     }    //-------------------- 模组目标文件夹 ------------------//
-    let modTargetPathData: SettingBarData = {
-        name: 'modTargetPath',
-        dataRef: useConfig('modTargetPath', '', true).getRef(),
+    let modTargetFolderData: SettingBarData = {
+        name: 'modTargetFolder',
+        dataRef: ConfigLoader.modTargetFolder.getRef(),
         type: 'dir',
-        displayName: 'Mod Target Path',
-        description: 'The path of the mod target', t_displayName: {
+        displayName: 'Mod Target Folder',
+        description: 'The folder of the mod target', t_displayName: {
             "zh-CN": 'mod 目标文件夹',
             "en-US": 'Mod Target Folder'
         },
@@ -118,43 +116,43 @@ const getSettingSectionData = () => {
             "en-US": 'Mod target directory is the location where modLoader reads mod, usually the Mods folder'
         },
         onChange: (value) => {
-            modTargetPathData.dataRef.value = value; // 更新 dataRef 的值
+            modTargetFolderData.dataRef.value = value; // 更新 dataRef 的值
         }
     }    //-------------------- 模组源文件夹 ------------------//
-    let modSourcePathData: SettingBarDataMulitiDir = {
-        name: 'modSourcePath',
-        dataRef: useConfig('modSourcePath', [], true).getRef(),
+    let modSourceFoldersData: SettingBarDataMulitiDir = {
+        name: 'modSourceFolders',
+        dataRef: ConfigLoader.modSourceFolders.getRef(),
         type: 'dir:multi', // 现在支持多选文件夹了
         // type: 'dir',
-        displayName: 'Mod Source Path',
-        description: 'The path of the mod source', t_displayName: {
+        displayName: 'Mod Source Folders',
+        description: 'The folders of the mod source', t_displayName: {
             "zh-CN": 'mod来源文件夹',
-            "en-US": 'Mod Source Folder'
+            "en-US": 'Mod Source Folders'
         },
         t_description: {
             "zh-CN": 'mod来源文件夹为程序存储mod的位置，当mod被启用时，会从这里创建链接到mod目标文件夹。',
             "en-US": 'Mod Source directory is the location where the program stores mod. When the mod is enabled, a link will be created from here to the mod target directory.'
         },
         onChange: (value) => {
-            useConfig('modSourcePath', [] as string[], true).set(value)
+            ConfigLoader.modSourceFolders.set(value)
         }
     }    //-------------------- 预设文件夹 ------------------//
-    let presetPathData: SettingBarData = {
-        name: 'presetPath',
-        dataRef: useConfig('presetPath', '', true).getRef(),
+    let presetFolderData: SettingBarData = {
+        name: 'presetFolder',
+        dataRef: ConfigLoader.presetFolder.getRef(),
         type: 'dir',
-        displayName: 'Preset Path',
-        description: 'The path of the preset', t_displayName: {
+        displayName: 'Preset Folder',
+        description: 'The folder of the preset', t_displayName: {
             "zh-CN": '预设文件夹',
             "en-US": 'Preset Folder'
         },
         t_description: {
             "zh-CN": '预设文件夹为存储预设的位置，预设是一组mod的集合，可以通过预设一键启用多个mod',
-            "en-US": 'The preset path is the location where the preset is stored. The preset is a collection of mods that can be enabled with one click.'
+            "en-US": 'The preset folder is the location where the preset is stored. The preset is a collection of mods that can be enabled with one click.'
         },
         onChange: (value) => {
-            console.log('presetPath changed:', value);
-            presetPathData.dataRef.value = value; // 更新 dataRef 的值
+            console.log('presetFolder changed:', value);
+            presetFolderData.dataRef.value = value; // 更新 dataRef 的值
         }
     }    //-------------------- 初始化所有数据的按钮 ------------------//
     let initAllDataButton: SettingBarData = {
@@ -183,7 +181,7 @@ const getSettingSectionData = () => {
     }    //-------------------- 打开 firstLoad 页面的按钮 ------------------//
     let openFirstLoadButton: SettingBarData = {
         name: 'openFirstLoad',
-        dataRef: useConfig('firstLoad', true, true).getRef(),
+        dataRef: ConfigLoader.firstLoad.getRef(),
         type: 'iconButton',
         displayName: 'Open First Load',
         description: 'Open First Load', t_displayName: {
@@ -208,8 +206,7 @@ const getSettingSectionData = () => {
 
     const ifKeepModNameAsModFolderName: SettingBarData = {
         name: 'ifKeepModNameAsModFolderName',
-        // data: iManager.config.ifKeepModNameAsModFolderName,
-        dataRef: useConfig('ifKeepModNameAsModFolderName', false, true).getRef(),
+        dataRef: ConfigLoader.ifKeepModNameAsModFolderName.getRef(),
         type: 'boolean',
         displayName: 'Keep Mod Name As Mod Folder Name',
         t_displayName: {
@@ -224,7 +221,7 @@ const getSettingSectionData = () => {
 
     const ifUseTraditionalApply: SettingBarData = {
         name: 'ifUseTraditionalApply',
-        dataRef: useConfig('ifUseTraditionalApply', false, true).getRef(),
+        dataRef: ConfigLoader.ifUseTraditionalApply.getRef(),
         type: 'boolean',
         displayName: 'Use Traditional Apply',
         t_displayName: {
@@ -242,10 +239,11 @@ const getSettingSectionData = () => {
             // 2. ifKeepModNameAsModFolderName 需要是 false
 
             if (value) {
-                const modTargetPath = useConfig('modTargetPath', '', true).getRef().value;
-                const modSourcePath = useConfig('modSourcePath', '', true).getRef().value;
-                const ifKeepModNameAsModFolderName = useConfig('ifKeepModNameAsModFolderName', false, true).getRef().value;
-                if (modTargetPath !== modSourcePath) {
+                const modTargetFolder = ConfigLoader.modTargetFolder.getRef().value;
+                const modSourceFolders = ConfigLoader.modSourceFolders.getRef().value;
+                const ifKeepModNameAsModFolderName = ConfigLoader.ifKeepModNameAsModFolderName.getRef().value;
+                // 检查 modTargetFolder 是否包含在 modSourceFolders 数组中
+                if (!modSourceFolders.includes(modTargetFolder)) {
                     console.log('ifUseTraditionalApply changed:', value, 'modTarget and modSource need to be the same folder');
                     // "zh-CN": '在传统模式下，mod目标和源文件夹需要是同一个文件夹',
                     // "en-US": 'modTarget and modSource need to be the same folder'
@@ -295,7 +293,7 @@ const getSettingSectionData = () => {
             "zh-CN": '创建快捷方式',
             "en-US": 'Create Short Cut'
         },
-        onChange: (value) => {
+        onChange: (_value) => {
             console.log('createShortOfCurrentConfig changed:', createShortOfCurrentConfig.dataRef.value);
 
             // ! 暂时没有实现
@@ -340,9 +338,9 @@ const getSettingSectionData = () => {
         languageData,
         themeData,
         ifStartWithLastPresetData,
-        modTargetPathData,
-        modSourcePathData,
-        presetPathData,
+        modTargetFolderData,
+        modSourceFoldersData,
+        presetFolderData,
         initAllDataButton,
         openFirstLoadButton,
         ifKeepModNameAsModFolderName,

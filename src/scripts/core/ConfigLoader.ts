@@ -28,6 +28,23 @@ class SubConfigLoaderClass extends Storage {
         await this.saveToFile(); // 保存到文件
         return;
     }
+
+    //-------------------- 语言 ------------------//
+    language = this.useConfig('language', 'zh-CN' as string, true);
+    theme = this.useConfig('theme', 'dark' as string, true);
+    //-------------------- 是否使用上次使用的预设 ------------------//
+    ifStartWithLastPreset = this.useConfig('ifStartWithLastPreset', false);
+
+    modSourceFolders = this.useConfig('modSourceFolders', [] as string[]);
+    modTargetFolder = this.useConfig('modTargetFolder', '');
+    presetFolder = this.useConfig('presetFolder', '');
+
+    ifUseTraditionalApply = this.useConfig('ifUseTraditionalApply', false);
+    ifKeepModNameAsModFolderName = this.useConfig('ifKeepModNameAsModFolderName', false);
+    
+    //-------------------- 新手引导 ------------------//
+    firstLoad = this.useConfig('firstLoad', true, true);
+
 }
 
 export const ConfigLoader = new SubConfigLoaderClass();

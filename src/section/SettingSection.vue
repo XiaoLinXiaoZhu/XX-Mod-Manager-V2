@@ -21,13 +21,13 @@
             <!-- -在这里可以设定 modRootDir，modSourceDir，modLoaderDir，gameDir -->
             <div v-if="isPathActive('Advanced')">
 
-                <settingBar :data="configData.modTargetPathData"></settingBar>
+                <settingBar :data="configData.modTargetFolderData"></settingBar>
 
                 <s-divider></s-divider>
-                <settingBar :data="configData.modSourcePathData"></settingBar>
+                <settingBar :data="configData.modSourceFoldersData"></settingBar>
 
                 <s-divider></s-divider>
-                <settingBar :data="configData.presetPathData"></settingBar>
+                <settingBar :data="configData.presetFolderData"></settingBar>
                 <settingBar :data="configData.ifUseTraditionalApply"></settingBar>
 
                 <s-divider></s-divider>
@@ -164,7 +164,7 @@
 // import leftMenu from '../components/leftMenu.vue';
 import LeftIndex from '@/components/leftIndex.vue';
 import settingBar from '@/components/setting/settingBar.vue';
-import { computed, onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import { openUrlWithDefaultBrowser } from '@/scripts/lib/FileHelper.ts';
 import getSettingSectionData from './settingSectionData';
 import { IPluginLoader, type IPlugin, type IPluginData } from '@/scripts/core/PluginLoader.ts';
@@ -188,9 +188,9 @@ let IndexStructure: {
         "Startup": {}
     },
     "Advanced": {
-        "Mod Target Path": {},
-        "Mod Source Path": {},
-        "Preset Path": {},
+        "Mod Target Folder": {},
+        "Mod Source Folders": {},
+        "Preset Folder": {},
         "Traditional Apply": {}
     },
     "Tools": {
@@ -218,9 +218,9 @@ const computeTranslatedIndexStructure = () => {
         "General/Theme": $t('setting-tab.theme'),
         "General/Startup": $t('setting-tab.startup'),
         
-        "Advanced/Mod Target Path": $t('setting-tab.modTargetPath'),
-        "Advanced/Mod Source Path": $t('setting-tab.modSourcePath'),
-        "Advanced/Preset Path": $t('setting-tab.presetPath'),
+        "Advanced/Mod Target Folder": $t('setting-tab.modTargetFolder'),
+        "Advanced/Mod Source Folders": $t('setting-tab.modSourceFolders'),
+        "Advanced/Preset Folder": $t('setting-tab.presetFolder'),
         "Advanced/Traditional Apply": $t('setting-tab.traditionalApply'),
         
         "Tools/Create Short Cut": $t('setting-tab.createShortCut')
