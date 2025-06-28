@@ -68,7 +68,7 @@ currentLanguageRef.watch((newLocale) => {
 const gameRepoSectionRef: Ref<InstanceType<typeof GameRepoSection> | null> = ref(null);
 const handleStartClicked = async () => {
   if (gameRepoSectionRef.value) {
-    const currentRepo = gameRepoSectionRef.value.currentFocusedRepo;
+    const currentRepo = gameRepoSectionRef.value.getCurrentRepo();
     if (currentRepo) {
       console.log('Starting game with repo:', currentRepo);
       await ConfigLoader.loadFrom(await join(currentRepo.configLocation, 'config.json'));

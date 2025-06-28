@@ -11,7 +11,7 @@
       <div v-for="(repo, index) in repos?.getRef().value" :key="index" class="card horizontal-card-list-item"
         :id="repo.uid" :style="getImage(repo)">
         <h3 class="font-hongmeng">{{ repo.name }}</h3>
-        <s-button class="card-hover OO-button" @click="currentFocusedRepo = repo; showEditRepoDialog = true">
+        <s-button class="card-hover OO-button" @click="showEditRepoDialog = true">
           {{ $t('buttons.editRepo') }}
         </s-button>
       </div>
@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { type repo, repos, getRepos } from '@/scripts/lib/Repo';
 import HorizontalCardList from '@/components/base/HorizontalCardList.vue';
-import { type Ref, ref, watch, onMounted } from 'vue';
+import { type Ref, ref, watch, onMounted, WatchHandle, computed } from 'vue';
 import { $t } from '../scripts/lib/localHelper';
 import { EventSystem, EventType } from '@/scripts/core/EventSystem';
 import CreateGameRepo from '@/dialogs/CreateGameRepo.vue';
@@ -56,16 +56,10 @@ import { loadImage } from '@/scripts/lib/ImageHelper';
 import { join } from '@tauri-apps/api/path';
 
 const currentCardIndex = ref(1);
-
-watch(currentCardIndex, (newIndex) => {
+const currentFocusedRepo = computed(() => {
   // debug
-  console.log('Current card index changed:', newIndex);
-  const currentRepo = repos?.value[currentCardIndex.value - 1];
-  if (currentRepo) {
-    currentFocusedRepo.value = currentRepo;
-    // debug
-    console.log("current repo", currentFocusedRepo)
-  }
+  console.log('Current card index:', currentCardIndex.value, 'Repos:', repos?.value);
+  return repos ? repos.value[currentCardIndex.value - 1] || null : null;
 });
 
 const getImage = (repo: repo) => {
@@ -92,10 +86,9 @@ const getImage = (repo: repo) => {
   };
 };
 
-//-============ 添加repo ==============
+//-============ 对话框 ==============
 const showAddRepoDialog = ref(false);
 const showEditRepoDialog = ref(false);
-const currentFocusedRepo: Ref<repo | null> = ref(null);
 
 
 
@@ -105,24 +98,25 @@ EventSystem.on(EventType.initDone, async () => {
   // debug
   console.log('Initialization done, fetching repos...');
   getRepos();
+  if (!repos) {
+    console.warn('Repos not initialized yet.');
+  } else {
+    console.log('Repos initialized:', repos.value);
+  }
+  
   currentCardIndex.value = 1;
 });
 
 onMounted(() => {
-  // 初始化时获取 repos
-  // if (repos) {
-  //   console.log('Repos initialized:', repos.value);
-  // } else {
-  //   console.warn('Repos not initialized yet.');
-  // }
 });
 
-// export { currentCardIndex, showAddRepoDialog, showEditRepoDialog, currentFocusedRepo };
 defineExpose({
   currentCardIndex,
   showAddRepoDialog,
   showEditRepoDialog,
-  currentFocusedRepo,
+  getCurrentRepo: () => {
+    return currentFocusedRepo.value;
+  },
 });
 </script>
 
