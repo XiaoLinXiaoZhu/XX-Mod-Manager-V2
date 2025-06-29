@@ -5,18 +5,7 @@
             <p>Selected Path: {{ selectedPath }}</p>
             <s-scroll-view style="width: 100%;height: auto;">
                 <div v-for="(mod, index) in mods" :key="index" class="mod-item">
-                    <h2>{{ mod.name?.value || 'Unknown Mod' }}</h2>
-                    <p>{{ mod.location?.value || 'Unknown Location' }}</p>
-                    <p>Uid: {{ mod.id?.value || 'Unknown Uid' }}</p>
-                    <p v-if="mod.url?.value">URL: <a :href="mod.url.value" target="_blank">{{ mod.url.value }}</a></p>
-                    <p v-else>No URL provided</p>
-                    <p v-if="mod.addDate?.value">Added on: {{ mod.addDate.value }}</p>
-                    <!-- preview -->
-                    <div class="preview" v-if="mod.previewUrlRef">
-                        <img :src="mod.previewUrlRef" alt="Preview" v-if="mod.previewUrlRef" style="width: 50%;" />
-                        <p v-if="mod.previewUrlRef">Preview URL: {{ mod.previewUrlRef }}</p>
-                        <div v-else>Loading preview...</div>
-                    </div>
+                    <ModCard :mod-info="mod.convertToUnreactive()"></ModCard>
                 </div>
             </s-scroll-view>
         </div>
@@ -28,6 +17,7 @@ import LeftIndex from '@/components/leftIndex.vue';
 import {ModLoader } from '@/scripts/lib/ModLoader';
 import { ModInfo } from '@/scripts/lib/ModInfo';
 import { ref } from 'vue';
+import ModCard from '@/components/modCard.vue';
 
 const IndexStructure = {
     "Character": {
@@ -52,7 +42,7 @@ const IndexStructure = {
 }
 const selectedPath = ref<string>('');
 
-let mods = ref<ModInfo[]>([] as ModInfo[]);
+const mods = ref<ModInfo[]>([] as ModInfo[]);
 
 // 监听 ModLoader 的 mods 变化
 ModLoader.onAfterLoad(() => {

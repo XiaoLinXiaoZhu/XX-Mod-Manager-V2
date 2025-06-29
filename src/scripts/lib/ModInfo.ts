@@ -5,6 +5,7 @@ import { Storage, type StorageValue } from "./Storge";
 import { EmptyImage, getImage, releaseImage, writeImageFromBase64 } from "./ImageHelper";
 import { ref, type Ref } from "vue";
 import { useConfig } from "../core/ConfigLoader";
+import { isRefObject } from "./RefHelper";
 
 function simpleHash(str: string): number {
     let hash = 0;
@@ -22,7 +23,26 @@ function generateModId(modPath: string): string {
 
 console.log(generateModId("C:/mods/skyrim_mods/cool_armor_mod/"));
 
+export type UnreactiveModInfo = {
+    id: string;
+    name: string;
+    location: string;
+    url: string;
+    addDate: string;
+    JSONVersion: number;
+    category: string;
+    tags: string[];
+    preview: string;
+    hotkeys: { key: string, description: string }[];
+    description: string;
+    getReactiveModInfo: () => ModInfo;
+    getPreviewUrl: (reload?: boolean) => Promise<string>;
+};
+
 export class ModInfo extends Storage {
+    // 严格模式，开启后如果没有配置 _filePath 则无法使用 set，但是仍然可以获得配置的引用以及 get 方法
+    // 这样可以保证本地数据不被“污染”
+    public _strictMode: boolean = true; // 开启严格模式，确保在未加载配置前无法使用 set 方法
     public static get ifKeepModNameAsModFolderName(): boolean {
         return useConfig("keepModNameAsModFolderName", false).value;
     }
@@ -34,12 +54,19 @@ export class ModInfo extends Storage {
         return hash.toString(16);
     }
 
-    public id = this.useStorage("id", ModInfo.createID("")); // 模块的唯一标识符，默认为空
+    public id = this.useStorage("id", ""); // 模块的唯一标识符，默认为空
     public name = this.useStorage("modName", ""); // 模块的名称，默认为空
     public location = this.useStorage("location", ""); // 模块的文件夹路径，默认为空
     public url = this.useStorage("url", ""); // 模块的下载地址，默认为空
     public addDate = this.useStorage("addDate", ""); // 用于存储添加日期
-    public JsonVersion = this.useStorage("JsonVersion", 1); // 模块的 JSON 版本，默认为 1
+    public JSONVersion = this.useStorage("JSONVersion", 1); // 模块的 JSON 版本，默认为 1
+
+    public category = this.useStorage("category", ""); // 模块的分类，默认为空
+    public tags = this.useStorage("tags", [] as string[]); // 模块的标签，默认为空数组
+
+    public preview = this.useStorage("preview", ""); // 模块的预览图路径，默认为空
+    public hotkeys = this.useStorage("hotkeys", [] as { key: string, description: string }[]); // 模块的快捷键，默认为空数组
+    public description = this.useStorage("description", ""); // 模块的描述，默认为空
 
     public newMod = false; // 是否是新的模块
 
@@ -47,9 +74,7 @@ export class ModInfo extends Storage {
 
     constructor(location: string, canEmpty: boolean = false) {
         super("ModInfo" + ++ModInfo.totalCount);
-        // 严格模式，开启后如果没有配置 _filePath 则无法使用 set，但是仍然可以获得配置的引用以及 get 方法
-        // 这样可以保证本地数据不被“污染”
-        this._strictMode = true; // 开启严格模式，确保在未加载配置前无法使用 set 方法
+
         if (canEmpty) {
             this._strictMode = false; // 允许在未设置文件路径的情况下使用
         }
@@ -64,19 +89,26 @@ export class ModInfo extends Storage {
         }
 
         join(location, 'mod.json').then(async (path) => {
-            this.addDate = this.useStorage("addDate", new Date().toISOString()); // 用于存储添加日期
             if (!await isFileExists(path)) {
                 this.newMod = true;
-                this.addDate.set(new Date().toISOString()); // 如果是新 mod，则设置添加日期为当前时间
             }
             await this.loadFrom(path);
-            this.location = this.useStorage("location", location);
             this.location.set(location); // 确保 location 被设置
             const modFolderName = await basename(location);
             this.storageName = modFolderName;
-            this.name = this.useStorage("name", modFolderName);
-            this.id = this.useStorage("id", ModInfo.createID(location));
-            this.url = this.useStorage("url", ""); // 模块的下载地址，默认为空
+
+            if (this.addDate.value === "") {
+                // 如果添加日期为空，则设置为当前时间
+                this.addDate.set(new Date().toISOString());
+            }
+            if (this.id.value === "") {
+                // 如果 id 为空，则生成一个新的 id
+                this.id.set(generateModId(location));
+            }
+            if (this.name.value === "") {
+                // 如果名称为空，则设置为文件夹名称
+                this.name.set(modFolderName);
+            }
 
             // 如果开启了保持 mod 名称和文件夹名称一致
             // 则需要将 mod 名称和文件夹名称一致
@@ -84,39 +116,6 @@ export class ModInfo extends Storage {
                 this.name.set(modFolderName);
             }
         });
-    }
-    static async createMod(location: string) {
-        // 创建一个新的 mod
-        // location 是mod的文件夹路径
-        const Mod = new ModInfo("", true);
-        if (!location) {
-            console.error("ModInfo: location is not set");
-        }
-        const modMetaDataPath = await join(location, 'mod.json');
-        if (!await isFileExists(modMetaDataPath)) {
-            Mod.newMod = true;
-        }
-        //debug
-        // console.log("ModInfo.createMod: modMetaDataPath", modMetaDataPath);
-
-        await Mod.loadFrom(modMetaDataPath);
-        Mod.location = Mod.useStorage("location", location);
-        const modFolderName = await basename(location);
-        //debug
-        Mod.name = Mod.useStorage("name", modFolderName);
-        Mod.id = Mod.useStorage("id", ModInfo.createID(location));
-        // 如果开启了保持 mod 名称和文件夹名称一致
-        // 则需要将 mod 名称和文件夹名称一致
-        if (ModInfo.ifKeepModNameAsModFolderName && Mod.name.value !== modFolderName) {
-            Mod.name.set(modFolderName);
-        }
-        // 如果没有设置 mod 名称，则使用文件夹名称
-        // 因为使用了 useStorage，所以这里不需要使用 set
-
-        // 尝试加载图片
-        await Mod.reloadPreview();
-
-        return Mod;
     }
 
     public async setMetaDataFromJson(json: JSON) {
@@ -136,8 +135,27 @@ export class ModInfo extends Storage {
 
         this.mergeData(metaData, true);
     }
+    public convertToUnreactive(): UnreactiveModInfo {
+        return {
+            id: this.id.value,
+            name: this.name.value,
+            location: this.location.value,
+            url: this.url.value,
+            addDate: this.addDate.value,
+            JSONVersion: this.JSONVersion.value,
+            category: this.category.value,
+            tags: this.tags.value,
+            preview: this.preview.value,
+            hotkeys: this.hotkeys.value,
+            description: this.description.value,
+            getReactiveModInfo: () => this,
+            getPreviewUrl: async (reload: boolean = false) => {
+                return await this.getPreviewUrl(reload);
+            }
+        };
+    }
 
-    private async changeFolderName(newName: string) : Promise<boolean> {
+    private async changeFolderName(newName: string): Promise<boolean> {
         const newModFolderPath = await join(await dirname(this.location.value), newName);
         if (await isFileExists(newModFolderPath)) {
             console.error(`模块名称重复：${newName} 已存在`);
@@ -152,6 +170,10 @@ export class ModInfo extends Storage {
         this.location.set(newLocation);
     }
     public async findDefaultImagePath() {
+        if (!this.location.value) {
+            console.warn(`ModInfo.findDefaultImagePath: 模块位置未设置`);
+            return "";
+        }
         const defaultImagePath = [
             "preview.png",
             "preview.jpg",
@@ -161,6 +183,7 @@ export class ModInfo extends Storage {
             "preview.bmp",
         ]
         for (const imagePath of defaultImagePath) {
+            console.log(`ModInfo.findDefaultImagePath: 尝试寻找默认图片：${this.location.value}/${imagePath}`);
             const path = await join(this.location.value, imagePath);
             if (await isFileExists(path)) {
                 return imagePath;
@@ -177,21 +200,43 @@ export class ModInfo extends Storage {
         }
 
         // 如果没有找到任何图片，则返回空
+        console.warn(`ModInfo.findDefaultImagePath: 没有找到默认图片`);
         return "";
     }
 
 
-    public async getImagePath() {
-        const imagePath = this.useStorage("preview", await this.findDefaultImagePath());
-        console.log("ModInfo.getImagePath of " + this.storageName + ": imagePath", imagePath.value);
-        if (imagePath.value) {
-            return await join(this.location.value, imagePath.value);
+    public async getPreviewPath() {
+        const checkImageExists = async (imagePath: string): Promise<boolean> => {
+            const fullPath = await join(this.location.value, imagePath);
+            return await isFileExists(fullPath);
+        }
+
+        const imagePath = this.preview.value;
+        if (!imagePath) {
+            console.warn(`ModInfo.getPreviewPath: 预览图路径未设置，尝试寻找默认图片`);
+            const defaultImagePath = await this.findDefaultImagePath();
+            if (defaultImagePath && defaultImagePath !== "") {
+                console.log(`ModInfo.getPreviewPath: 找到默认图片：${defaultImagePath}`);
+                return await join(this.location.value, defaultImagePath);
+            }
+            return "";
+        }
+        // 检查预览图是否存在
+        if (await checkImageExists(imagePath)) {
+            return await join(this.location.value, imagePath);
+        }
+        console.warn(`ModInfo.getPreviewPath: 预览图不存在：${imagePath}`);
+        // 如果预览图不存在，则尝试寻找默认图片
+        const defaultImagePath = await this.findDefaultImagePath();
+        if (defaultImagePath && defaultImagePath !== "") {
+            console.log(`ModInfo.getPreviewPath: 找到默认图片：${defaultImagePath}`);
+            return await join(this.location.value, defaultImagePath);
         }
         return "";
     }
 
     private ifGettedPreviewUrl = false;
-    private _previewUrlRef: Ref<string> = ref(EmptyImage);
+    private readonly _previewUrlRef: Ref<string> = ref(EmptyImage);
     public get previewUrlRef(): Ref<string> {
         // 懒加载，直到第一次调用 getPreviewUrl 时才加载
         if (!this.ifGettedPreviewUrl) {
@@ -202,10 +247,13 @@ export class ModInfo extends Storage {
     }
     public async reloadPreview() {
         console.time("ModInfo.reloadPreview" + this.storageName);
-        const imagePath = await this.getImagePath();
+        const imagePath = await this.getPreviewPath();
         if (imagePath) {
             const imageUrl = await getImage(imagePath, true);
             if (imageUrl) {
+                if (!isRefObject(this._previewUrlRef)) {
+                    console.error(`In Mod ${this.name.value} ModInfo.reloadPreview: _previewUrlRef is not a Ref object.`);
+                }
                 this._previewUrlRef.value = imageUrl;
             }
         }
@@ -213,7 +261,7 @@ export class ModInfo extends Storage {
     }
     public async getPreviewUrl(reload: boolean = false): Promise<string> {
         try {
-            const imagePath = await this.getImagePath();
+            const imagePath = await this.getPreviewPath();
 
             if (!imagePath) {
                 console.error(`预览图不存在：${imagePath}`);
@@ -253,7 +301,7 @@ export class ModInfo extends Storage {
         }
 
         // 3. 如果格式支持,检查预览图是否和现在的一致
-        const currentPreviewPath = await this.getImagePath();
+        const currentPreviewPath = await this.getPreviewPath();
         if (currentPreviewPath === previewPath) {
             console.log(`预览图已经是最新的：${previewPath}`);
             return;
@@ -294,7 +342,7 @@ export class ModInfo extends Storage {
         }
 
         // 2. 创建一个临时文件来保存 base64 数据
-        const currentPreviewPath = await this.getImagePath();
+        const currentPreviewPath = await this.getPreviewPath();
 
         const newPreviewFileName = "preview." + ext;
         const newPreviewPath = await join(this.location.value, newPreviewFileName);
@@ -309,7 +357,7 @@ export class ModInfo extends Storage {
         await this.reloadPreview();
         return this.previewUrlRef.value;
     }
-    
+
 
     public async addHotkey(key: string, description: string) {
         if (!key && !description) {

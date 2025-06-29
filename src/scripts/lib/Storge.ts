@@ -164,7 +164,6 @@ export class Storage {
                 // 如果没有值，且默认值不为空，则使用默认值
                 if (defaultValue !== undefined && defaultValue !== null && defaultValue !== '') {
                     this._data[key] = defaultValue;
-                    // this.save();
                 }
             }
             const storedValue = this._data[key];

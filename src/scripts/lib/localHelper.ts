@@ -40,14 +40,13 @@ export const setI18nLocale = (locale: I18nLocale) => {
 export const $t = (key: string,namedValue?: Record<string, any>) => {
     // 如果没有传入命名值，则使用空对象
     //debug currentLanguageRef
-    console.log(`当前语言: ${currentLanguageRef.value}, 翻译键: ${key}, 命名值:`, namedValue || {});
 
     // 添加调试：检查当前语言包是否包含该键
-    const messages = i18nInstance.global.messages.value;
-    console.log(
-        `当前语言包是否包含键 ${key}:`,messages,
-        messages && key.split('.').reduce((obj, k) => obj?.[k], messages[currentLanguageRef.value] as any) !== undefined
-    );
+    // const messages = i18nInstance.global.messages.value;
+    // console.log(
+    //     `当前语言包是否包含键 ${key}:`,messages,
+    //     messages && key.split('.').reduce((obj, k) => obj?.[k], messages[currentLanguageRef.value] as any) !== undefined
+    // );
 
     if (namedValue === undefined || namedValue === null) {
         return i18nInstance.global.t(key);

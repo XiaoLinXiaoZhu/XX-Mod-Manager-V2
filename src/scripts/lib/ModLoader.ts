@@ -2,8 +2,6 @@
 import { ModInfo } from './ModInfo';
 import { isDirectoryExists,getDirectoryList } from "./FileHelper";
 // import { join } from "@tauri-apps/api/path";
-import { useGlobalConfig } from '../core/GlobalConfigLoader';
-import { Ref ,ref} from 'vue';
 import { RebindableRef } from './RebindableRef';
 import { $t_snack } from './SnackHelper';
 
@@ -70,7 +68,8 @@ export class ModLoader {
                 if (await isDirectoryExists(mod)) {
                     // let modInfo = new ModInfo(mod);
                     // 这里需要使用异步加载
-                    let modInfo = await ModInfo.createMod(mod);
+                    // let modInfo = await ModInfo.createMod(mod);
+                    let modInfo = new ModInfo(mod);
                     this.mods.push(modInfo);
                 }
             }));
