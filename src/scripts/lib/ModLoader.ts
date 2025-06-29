@@ -68,8 +68,7 @@ export class ModLoader {
                 if (await isDirectoryExists(mod)) {
                     // let modInfo = new ModInfo(mod);
                     // 这里需要使用异步加载
-                    // let modInfo = await ModInfo.createMod(mod);
-                    let modInfo = new ModInfo(mod);
+                    let modInfo = await ModInfo.createMod(mod);
                     this.mods.push(modInfo);
                 }
             }));

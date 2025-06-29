@@ -67,7 +67,7 @@
 
 import { ref, onMounted,watch } from 'vue';
 import { type repo } from '@/scripts/lib/Repo';
-import { EmptyImage, getImage, releaseImage, writeImageFromBase64, writeImageFromUrl, type ImageBase64 } from '@/scripts/lib/ImageHelper';
+import { EmptyImage, getImage, releaseImage, writeImageFromBase64, writeImageFromUrl, type ImageUrl } from '@/scripts/lib/ImageHelper';
 import { FileDialogOption, openFileDialog } from '@/scripts/lib/FileDialogHelper';
 import { $t } from '../scripts/lib/localHelper';
 import { $t_snack, snack } from '@/scripts/lib/SnackHelper';
@@ -79,7 +79,7 @@ const Repo = defineModel('repo', {
     type: Object as () => repo,
     required: true,
 });
-const imgSrc = ref<ImageBase64>(EmptyImage);
+const imgSrc = ref<ImageUrl>(EmptyImage);
 const updateCover = async () => {
     if (Repo.value.cover) {
         // 仓库的封面默认是相对于仓库位置的相对路径
@@ -91,8 +91,8 @@ const updateCover = async () => {
         }
         // 拼接一下路径
         const coverPath = await join(Repo.value.configLocation, Repo.value.cover);
-        const imgBase64: ImageBase64 = await getImage(coverPath);
-        imgSrc.value = imgBase64;
+        const imgUrl: ImageUrl = await getImage(coverPath);
+        imgSrc.value = imgUrl;
     } else {
         imgSrc.value = EmptyImage;
     }

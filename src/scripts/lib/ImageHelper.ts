@@ -1,29 +1,60 @@
 import { invoke } from "@tauri-apps/api/core";
 import axios from "axios";
 
-export type PathOrUrl = string;
-export type ImageBase64 = string;
+// 更精确的类型定义
+export type FilePath = string;
+export type HttpUrl = string;
+export type BlobUrl = string;
+export type Base64DataUrl = string;
+export type ImageUrl = BlobUrl | Base64DataUrl | HttpUrl;
 
-// 图片缓存
-const imageCache: { [key: PathOrUrl]: ImageBase64 } = {};
-export const EmptyImage: ImageBase64 = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-export async function getImage(filePath: PathOrUrl, reload: boolean = false): Promise<ImageBase64> {
+// 路径或URL的联合类型
+export type PathOrUrl = FilePath | HttpUrl;
+
+// URL类型枚举
+export type UrlType = "blob" | "http" | "base64" | "pathOrUnknown";
+
+// 图片缓存：文件路径映射到 Blob URL
+const imageCache: Map<PathOrUrl, BlobUrl> = new Map();
+
+// 空图片的 Base64 Data URL
+export const EmptyImage: Base64DataUrl = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+/**
+ * 获取图片，返回可用于 <img> 标签的 URL
+ * @param filePath 文件路径或 URL
+ * @param reload 是否强制重新加载
+ * @returns 返回 Blob URL 或 Base64 Data URL
+ */
+export async function getImage(filePath: PathOrUrl, reload: boolean = false): Promise<ImageUrl> {
     // 检查缓存中是否存在图片
-    if (imageCache[filePath] && !reload) {
-        return imageCache[filePath];
+    if (imageCache.has(filePath) && !reload) {
+        return imageCache.get(filePath)!;
     }
     // 如果缓存中不存在或者需要重新加载，则调用 loadImage 函数
     return loadImage(filePath);
 }
+
+/**
+ * 释放图片缓存并撤销 Blob URL
+ * @param filePath 文件路径
+ */
 export async function releaseImage(filePath: PathOrUrl): Promise<void> {
     // 释放图片缓存
-    if (imageCache[filePath]) {
-        URL.revokeObjectURL(imageCache[filePath]);
-        delete imageCache[filePath];
+    const cachedUrl = imageCache.get(filePath);
+    if (cachedUrl) {
+        URL.revokeObjectURL(cachedUrl);
+        imageCache.delete(filePath);
     }
 }
 
-export async function loadImage(filePath: PathOrUrl, ifCreate: boolean = false): Promise<ImageBase64> {
+/**
+ * 从文件系统加载图片并创建 Blob URL
+ * @param filePath 文件路径
+ * @param ifCreate 如果文件不存在是否创建
+ * @returns 返回 Blob URL 或 Base64 Data URL（出错时）
+ */
+export async function loadImage(filePath: PathOrUrl, ifCreate: boolean = false): Promise<ImageUrl> {
     if (filePath === undefined || filePath === null || filePath === '') {
         console.warn('loadImage: filePath is empty');
         return EmptyImage;
@@ -60,9 +91,9 @@ export async function loadImage(filePath: PathOrUrl, ifCreate: boolean = false):
         // 创建 Blob 对象
         const blob = new Blob([uint8Array], { type: mimeType });
         // 创建 URL 对象
-        const url = URL.createObjectURL(blob) as ImageBase64;
+        const url = URL.createObjectURL(blob) as BlobUrl;
         // cache the image
-        imageCache[filePath] = url;
+        imageCache.set(filePath, url);
         // debug
         // console.log('Step3: load image success', filePath, url);
         return url;
@@ -83,20 +114,36 @@ export async function loadImage(filePath: PathOrUrl, ifCreate: boolean = false):
 //         return;
 //     }
 // }
-type UrlType = "blob" | "http" | "base64" | "pathOrUnknown";
-export async function writeImageFromUrl(filePath: PathOrUrl, url: PathOrUrl, ifCreate: boolean = false): Promise<void> {
-    if (!url || url == "") {
-        console.error("Url can't be null")
-    }
-    let type : UrlType = "pathOrUnknown"
+
+/**
+ * 判断 URL 的类型
+ * @param url URL 字符串
+ * @returns URL 类型
+ */
+function getUrlType(url: string): UrlType {
     if (url.startsWith('blob:')) {
-        type = "blob";
+        return "blob";
     } else if (url.startsWith('http')) {
-        type = "http";
-    } 
-    else if (url.startsWith('data:image/')) {
-        type = "base64";
+        return "http";
+    } else if (url.startsWith('data:image/')) {
+        return "base64";
     }
+    return "pathOrUnknown";
+}
+
+/**
+ * 从 URL 写入图片文件
+ * @param filePath 目标文件路径
+ * @param url 源 URL（可以是 blob、http 或本地路径）
+ * @param ifCreate 如果文件不存在是否创建
+ */
+export async function writeImageFromUrl(filePath: PathOrUrl, url: PathOrUrl, ifCreate: boolean = false): Promise<void> {
+    if (!url || url === "") {
+        console.error("Url can't be null");
+        return;
+    }
+
+    const type = getUrlType(url);
 
     try {
         // 从 url 加载 图片 转为 uint8array
@@ -143,7 +190,13 @@ export async function writeImageFromUrl(filePath: PathOrUrl, url: PathOrUrl, ifC
     }
 }
 
-export async function writeImageFromBase64(filePath: PathOrUrl, base64: ImageBase64, ifCreate: boolean = false): Promise<void> {
+/**
+ * 从 Base64 Data URL 写入图片文件
+ * @param filePath 目标文件路径
+ * @param base64 Base64 Data URL 字符串
+ * @param ifCreate 如果文件不存在是否创建
+ */
+export async function writeImageFromBase64(filePath: PathOrUrl, base64: Base64DataUrl, ifCreate: boolean = false): Promise<void> {
     try {
         // Handle data URLs (e.g., "data:image/png;base64,...")
         let rawBase64 = base64;

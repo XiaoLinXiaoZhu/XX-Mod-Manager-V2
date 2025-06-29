@@ -97,7 +97,7 @@ const rebind = async () => {
 };
 
 EventSystem.on(EventType.initDone, async () => {
-  rebind();
+  // rebind();
 });
 
 EventSystem.on(EventType.routeChanged, async (changeInfo: { to: string, from: string }) => {

@@ -2,8 +2,8 @@ import { basename, dirname } from "@tauri-apps/api/path";
 import { join } from "@tauri-apps/api/path";
 import { isFileExists, renameDirectory, getDirectoryList, copyFile } from "./FileHelper";
 import { Storage, type StorageValue } from "./Storge";
-import { EmptyImage, getImage, releaseImage, writeImageFromBase64 } from "./ImageHelper";
-import { ref, type Ref } from "vue";
+import { EmptyImage, getImage, releaseImage, writeImageFromBase64, type ImageUrl, type Base64DataUrl } from "./ImageHelper";
+import { computed, ref, type Ref } from "vue";
 import { useConfig } from "../core/ConfigLoader";
 import { isRefObject } from "./RefHelper";
 
@@ -36,7 +36,7 @@ export type UnreactiveModInfo = {
     hotkeys: { key: string, description: string }[];
     description: string;
     getReactiveModInfo: () => ModInfo;
-    getPreviewUrl: (reload?: boolean) => Promise<string>;
+    getPreviewUrl: (reload?: boolean) => Promise<ImageUrl>;
 };
 
 export class ModInfo extends Storage {
@@ -72,50 +72,43 @@ export class ModInfo extends Storage {
 
     public static totalCount = 0; // 统计模块数量
 
-    constructor(location: string, canEmpty: boolean = false) {
+    private constructor() {
         super("ModInfo" + ++ModInfo.totalCount);
+    }
 
-        if (canEmpty) {
-            this._strictMode = false; // 允许在未设置文件路径的情况下使用
+    // 只能够使用 createMod 方法来创建 ModInfo 实例
+    // 这样可以确保 ModInfo 实例的 location 被正确设置
+    public static async createMod(location: string): Promise<ModInfo> {
+        const modInfo = new ModInfo();
+        const configFile = await join(location, 'mod.json');
+        if (!await isFileExists(configFile)) {
+            modInfo.newMod = true;
+        }
+        await modInfo.loadFrom(configFile);
+        modInfo.location.set(location); // 确保 location 被设置
+        const modFolderName = await basename(location);
+        modInfo.storageName = modFolderName;
+
+        if (modInfo.addDate.value === "") {
+            // 如果添加日期为空，则设置为当前时间
+            modInfo.addDate.set(new Date().toISOString());
+        }
+        if (modInfo.id.value === "") {
+            // 如果 id 为空，则生成一个新的 id
+            modInfo.id.set(generateModId(location));
+        }
+        if (modInfo.name.value === "") {
+            // 如果名称为空，则设置为文件夹名称
+            modInfo.name.set(modFolderName);
         }
 
-        // location 是mod的文件夹路径
-        if (!location) {
-            // 如果没有传入 location，则警告
-            if (!canEmpty) {
-                console.error("ModInfo: location is not set");
-            }
-            return;
+        // 如果开启了保持 mod 名称和文件夹名称一致
+        // 则需要将 mod 名称和文件夹名称一致
+        if (ModInfo.ifKeepModNameAsModFolderName && modInfo.name.value !== modFolderName) {
+            modInfo.name.set(modFolderName);
         }
 
-        join(location, 'mod.json').then(async (path) => {
-            if (!await isFileExists(path)) {
-                this.newMod = true;
-            }
-            await this.loadFrom(path);
-            this.location.set(location); // 确保 location 被设置
-            const modFolderName = await basename(location);
-            this.storageName = modFolderName;
-
-            if (this.addDate.value === "") {
-                // 如果添加日期为空，则设置为当前时间
-                this.addDate.set(new Date().toISOString());
-            }
-            if (this.id.value === "") {
-                // 如果 id 为空，则生成一个新的 id
-                this.id.set(generateModId(location));
-            }
-            if (this.name.value === "") {
-                // 如果名称为空，则设置为文件夹名称
-                this.name.set(modFolderName);
-            }
-
-            // 如果开启了保持 mod 名称和文件夹名称一致
-            // 则需要将 mod 名称和文件夹名称一致
-            if (ModInfo.ifKeepModNameAsModFolderName && this.name.value !== modFolderName) {
-                this.name.set(modFolderName);
-            }
-        });
+        return modInfo;
     }
 
     public async setMetaDataFromJson(json: JSON) {
@@ -237,14 +230,23 @@ export class ModInfo extends Storage {
 
     private ifGettedPreviewUrl = false;
     private readonly _previewUrlRef: Ref<string> = ref(EmptyImage);
-    public get previewUrlRef(): Ref<string> {
+    // public get previewUrlRef(): Ref<string> {
+    //     // 懒加载，直到第一次调用 getPreviewUrl 时才加载
+    //     if (!this.ifGettedPreviewUrl) {
+    //         this.ifGettedPreviewUrl = true;
+    //         this.reloadPreview();
+    //     }
+    //     return this._previewUrlRef;
+    // }
+    public previewUrlRef = computed(() => {
         // 懒加载，直到第一次调用 getPreviewUrl 时才加载
         if (!this.ifGettedPreviewUrl) {
             this.ifGettedPreviewUrl = true;
             this.reloadPreview();
         }
         return this._previewUrlRef;
-    }
+    });
+
     public async reloadPreview() {
         console.time("ModInfo.reloadPreview" + this.storageName);
         const imagePath = await this.getPreviewPath();
@@ -259,7 +261,7 @@ export class ModInfo extends Storage {
         }
         console.timeEnd("ModInfo.reloadPreview" + this.storageName);
     }
-    public async getPreviewUrl(reload: boolean = false): Promise<string> {
+    public async getPreviewUrl(reload: boolean = false): Promise<ImageUrl> {
         try {
             const imagePath = await this.getPreviewPath();
 
@@ -321,7 +323,7 @@ export class ModInfo extends Storage {
         return this.previewUrlRef.value;
     }
 
-    public async setPreviewByBase64(base64: string) {
+    public async setPreviewByBase64(base64: Base64DataUrl) {
         // 1. 先检查 base64 是否有效
         if (!base64.startsWith("data:image/")) {
             console.error(`无效的 base64 数据：${base64}`);
