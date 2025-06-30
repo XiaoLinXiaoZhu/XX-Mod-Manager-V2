@@ -15,26 +15,247 @@
 src/
 ├── core/                    # 核心系统
 │   ├── config/             # 配置管理
+│   │   ├── config-manager.ts          # 统一配置管理器
+│   │   ├── config-schema.ts           # 配置类型定义
+│   │   └── config-migration.ts        # 配置迁移工具
 │   ├── plugin/             # 插件系统
+│   │   ├── plugin-registry.ts         # 插件注册中心
+│   │   ├── plugin-loader.ts           # 插件加载器
+│   │   ├── plugin-lifecycle.ts        # 插件生命周期管理
+│   │   └── plugin-sandbox.ts          # 插件沙箱环境
 │   ├── event/              # 事件系统
+│   │   ├── event-bus.ts               # 类型安全的事件总线
+│   │   ├── event-types.ts             # 事件类型定义
+│   │   └── event-logger.ts            # 事件日志记录
 │   └── storage/            # 存储管理
+│       ├── data-store.ts              # 数据存储接口
+│       ├── persistence-adapter.ts     # 持久化适配器
+│       └── transaction-manager.ts     # 事务管理器
 ├── features/               # 功能模块
 │   ├── mod-manager/        # Mod管理
+│   │   ├── components/             # Mod管理相关组件
+│   │   │   ├── mod-card.vue           # → 当前: src/components/modCard.vue
+│   │   │   ├── mod-list.vue           # → 当前: src/section/ModCardManagerSection.vue
+│   │   │   └── mod-conflict-dialog.vue
+│   │   ├── services/               # Mod管理服务
+│   │   │   ├── mod-loader.ts          # → 当前: src/scripts/lib/ModLoader.ts
+│   │   │   ├── mod-info.ts            # → 当前: src/scripts/lib/ModInfo.ts
+│   │   │   └── mod-conflict-detector.ts
+│   │   └── types/                  # Mod相关类型
+│   │       └── mod.types.ts
 │   ├── repository/         # 仓库管理
+│   │   ├── components/             # 仓库管理组件
+│   │   │   ├── repo-selector.vue      # → 当前: src/section/GameRepoSection.vue
+│   │   │   ├── repo-editor.vue        # → 当前: src/components/EditRepo.vue
+│   │   │   ├── create-repo-dialog.vue # → 当前: src/dialogs/CreateGameRepo.vue
+│   │   │   └── edit-repo-dialog.vue   # → 当前: src/dialogs/EditGameRepo.vue
+│   │   ├── services/               # 仓库管理服务
+│   │   │   ├── repo-manager.ts        # → 当前: src/scripts/lib/Repo.ts
+│   │   │   └── repo-validator.ts
+│   │   └── types/                  # 仓库相关类型
+│   │       └── repository.types.ts
 │   ├── settings/          # 设置管理
+│   │   ├── components/             # 设置相关组件
+│   │   │   ├── setting-panel.vue     # → 当前: src/section/SettingSection.vue
+│   │   │   ├── setting-bar.vue       # → 当前: src/components/setting/settingBar.vue
+│   │   │   └── setting-item.vue
+│   │   ├── services/               # 设置管理服务
+│   │   │   ├── setting-manager.ts    # → 当前: src/section/settingSectionData.ts
+│   │   │   └── setting-validator.ts
+│   │   └── types/                  # 设置相关类型
+│   │       └── settings.types.ts
 │   └── updater/           # 更新管理
+│       ├── components/             # 更新相关组件
+│       │   └── update-button.vue     # → 当前: src/components/updateButtonWithInfo.vue
+│       ├── services/               # 更新服务
+│       │   └── update-checker.ts     # → 当前: src/scripts/core/UpdateChecker.ts
+│       └── types/                  # 更新相关类型
+│           └── update.types.ts
 ├── shared/                 # 共享模块
 │   ├── components/         # 通用组件
+│   │   ├── ui/                     # 基础UI组件
+│   │   │   ├── animated-element.vue  # → 当前: src/components/base/AnimatedElement.vue
+│   │   │   ├── berger-frame.vue      # → 当前: src/components/base/BergerFrame.vue
+│   │   │   ├── section-slider.vue    # → 当前: src/components/base/SectionSlider.vue
+│   │   │   ├── section-selector.vue  # → 当前: src/components/base/SectionSelector.vue
+│   │   │   ├── horizontal-card-list.vue # → 当前: src/components/base/HorizontalCardList.vue
+│   │   │   ├── markdown.vue          # → 当前: src/components/base/markdown.vue
+│   │   │   └── flippable-element.vue # → 当前: src/components/base/FlippableElement.vue
+│   │   ├── navigation/             # 导航组件
+│   │   │   ├── back-button.vue       # → 当前: src/components/BackButton.vue
+│   │   │   ├── left-index.vue        # → 当前: src/components/leftIndex.vue
+│   │   │   └── left-menu.vue         # → 当前: src/components/leftMenu.vue
+│   │   └── forms/                  # 表单组件
+│   │       └── dragable-card-list.vue # → 当前: src/components/DragableCardList.vue
 │   ├── composables/        # 组合式函数
+│   │   ├── use-config.ts           # 配置相关组合函数
+│   │   ├── use-event-bus.ts        # 事件总线组合函数
+│   │   ├── use-storage.ts          # 存储相关组合函数
+│   │   └── use-i18n.ts             # 国际化组合函数
 │   ├── utils/             # 工具函数
+│   │   ├── file.utils.ts           # → 当前: src/scripts/lib/FileHelper.ts
+│   │   ├── image.utils.ts          # → 当前: src/scripts/lib/ImageHelper.ts
+│   │   ├── dialog.utils.ts         # → 当前: src/scripts/lib/FileDialogHelper.ts
+│   │   ├── download.utils.ts       # → 当前: src/scripts/lib/DownloadFile.ts
+│   │   ├── window.utils.ts         # → 当前: src/scripts/lib/WindowHelper.ts
+│   │   ├── snack.utils.ts          # → 当前: src/scripts/lib/SnackHelper.ts
+│   │   ├── ref.utils.ts            # → 当前: src/scripts/lib/RefHelper.ts
+│   │   ├── version.utils.ts        # → 当前: src/scripts/lib/VersionInfo.ts
+│   │   ├── validation.utils.ts     # 数据验证工具
+│   │   ├── format.utils.ts         # 格式化工具
+│   │   ├── crypto.utils.ts         # 加密/哈希工具
+│   │   └── async.utils.ts          # 异步处理工具
 │   ├── types/             # 类型定义
+│   │   ├── common.types.ts         # 通用类型定义
+│   │   ├── api.types.ts            # API相关类型
+│   │   ├── config.types.ts         # 配置相关类型
+│   │   ├── plugin.types.ts         # → 当前: src/scripts/core/PluginTypes.ts
+│   │   └── event.types.ts          # 事件相关类型
 │   └── constants/         # 常量定义
+│       ├── app.constants.ts        # 应用常量
+│       ├── api.constants.ts        # API常量
+│       └── ui.constants.ts         # UI常量
 ├── ui/                     # UI层
 │   ├── layouts/           # 布局组件
+│   │   ├── app-layout.vue          # 应用主布局
+│   │   └── dialog-layout.vue       # 对话框布局
 │   ├── pages/             # 页面组件
+│   │   ├── home-page.vue           # → 当前: src/pages/MainPage.vue
+│   │   ├── mod-list-page.vue       # → 当前: src/pages/ModListPage.vue
+│   │   ├── tutorial-page.vue       # → 当前: src/pages/TutorialPage.vue
+│   │   ├── switch-config-page.vue  # → 当前: src/pages/SwitchConfigPage.vue
+│   │   └── route-list-page.vue     # → 当前: src/pages/RouteList.vue
 │   └── dialogs/           # 对话框组件
+│       ├── dialog-template.vue     # → 当前: src/dialogs/dialogTemplate.vue
+│       ├── dialog-route-list.vue   # → 当前: src/dialogs/dialogRouteList.vue
+│       ├── dialog-mod-info.vue     # → 当前: src/dialogs/dialogModInfo2.vue
+│       └── old-dialog-template.vue # → 当前: src/dialogs/OldDialogTemplate.vue (待删除)
 └── assets/                 # 静态资源
+    ├── images/             # → 当前: src/assets/ 下的图片文件
+    ├── fonts/              # → 当前: src/assets/fonts/
+    └── styles/             # 样式文件
+        ├── base/               # 基础样式
+        ├── components/         # 组件样式
+        ├── themes/             # 主题样式
+        │   └── sober-theme.css # → 当前: src/assets/styles/sober-theme.css
+        └── variables/          # 样式变量
+            ├── css-variables.ts # → 当前: src/assets/styles/CSSVariableManager.ts
+            ├── style-controller.ts # → 当前: src/assets/styles/styleController.ts
+            └── variables.scss   # → 当前: src/assets/styles/variable.scss
 ```
+
+#### 📂 重要文件迁移映射说明
+
+**🏗️ 核心系统文件迁移：**
+- `src/scripts/core/ConfigLoader.ts` → `src/core/config/config-manager.ts`
+- `src/scripts/core/GlobalConfigLoader.ts` → `src/core/config/config-manager.ts` (合并)
+- `src/scripts/core/PluginLoader.ts` → `src/core/plugin/plugin-registry.ts` + `plugin-loader.ts`
+- `src/scripts/core/EventSystem.ts` → `src/core/event/event-bus.ts`
+- `src/scripts/lib/Storge.ts` → `src/core/storage/data-store.ts`
+
+**🧩 功能模块文件迁移：**
+- Mod管理：`src/components/modCard.vue` → `src/features/mod-manager/components/mod-card.vue`
+- 仓库管理：`src/section/GameRepoSection.vue` → `src/features/repository/components/repo-selector.vue`
+- 设置管理：`src/section/SettingSection.vue` → `src/features/settings/components/setting-panel.vue`
+
+**🔧 工具函数迁移：**
+- `src/scripts/lib/FileHelper.ts` → `src/shared/utils/file.utils.ts`
+- `src/scripts/lib/ImageHelper.ts` → `src/shared/utils/image.utils.ts`
+- 所有 `src/scripts/lib/` 下的工具类 → `src/shared/utils/` 对应命名
+
+#### 🛠️ Utils工具函数设计规范
+
+**什么是Utils工具函数？**
+- **纯函数**：输入相同时输出必须相同，无副作用
+- **无状态**：不依赖外部状态，不修改全局变量
+- **可复用**：多个模块都可能使用的通用功能
+- **职责单一**：每个函数只做一件事，且做好
+
+**Utils函数分类及标准：**
+
+1. **文件操作工具 (file.utils.ts)**
+   ```typescript
+   // ✅ 符合utils标准：纯函数，无副作用
+   export function getFileExtension(filename: string): string {
+     return filename.split('.').pop()?.toLowerCase() || '';
+   }
+   
+   export function formatFileSize(bytes: number): string {
+     const units = ['B', 'KB', 'MB', 'GB'];
+     let size = bytes;
+     let unitIndex = 0;
+     while (size >= 1024 && unitIndex < units.length - 1) {
+       size /= 1024;
+       unitIndex++;
+     }
+     return `${size.toFixed(1)} ${units[unitIndex]}`;
+   }
+   
+   // ❌ 不符合utils：有副作用，应该放在service层
+   // export async function deleteFile(path: string): Promise<void>
+   ```
+
+2. **数据验证工具 (validation.utils.ts)**
+   ```typescript
+   export function isValidEmail(email: string): boolean {
+     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+     return emailRegex.test(email);
+   }
+   
+   export function isValidPath(path: string): boolean {
+     // 验证路径格式是否正确
+     return /^[a-zA-Z]:\\/.test(path) || /^\//.test(path);
+   }
+   ```
+
+3. **格式化工具 (format.utils.ts)**
+   ```typescript
+   export function formatDate(date: Date, format: string): string {
+     // 日期格式化逻辑
+   }
+   
+   export function truncateText(text: string, maxLength: number): string {
+     return text.length > maxLength 
+       ? text.substring(0, maxLength) + '...' 
+       : text;
+   }
+   ```
+
+**Utils函数设计原则：**
+
+- **Input/Output明确**：函数签名清晰，类型定义完整
+- **错误处理**：对无效输入有合理的处理和返回
+- **性能考虑**：避免不必要的计算和内存分配
+- **文档完整**：每个函数都有清晰的JSDoc注释
+
+**不应该放在Utils中的文件：**
+- 有状态的类 (Class with state)
+- 依赖特定框架的代码 (Vue组件、React hooks)
+- 业务逻辑 (Business logic)
+- 需要依赖注入的代码
+- 有副作用的操作 (API调用、文件写入等)
+
+**当前项目中Utils迁移分析：**
+
+✅ **适合作为Utils：**
+- `RefHelper.ts` - 纯函数式的引用操作
+- `VersionInfo.ts` - 版本号比较和格式化
+- 部分 `FileHelper.ts` 中的路径处理函数
+
+❌ **不适合Utils，需要重构：**
+- `FileHelper.ts` 中的文件读写操作 → 移至 service 层
+- `ImageHelper.ts` 中的图片缓存逻辑 → 移至 service 层
+- `SnackHelper.ts` 中的UI通知逻辑 → 移至 composables
+
+**🎨 UI组件迁移：**
+- `src/components/base/` → `src/shared/components/ui/`
+- `src/pages/` → `src/ui/pages/`
+- `src/dialogs/` → `src/ui/dialogs/`
+
+**📁 需要删除的文件：**
+- 所有 `.bak`, `.new` 后缀的文件
+- `src/pages/test/` 目录下的测试文件
+- `src/components/EditRepo.vue.bak` 等备份文件
 
 ### 2. 文件清理
 - [ ] 删除所有 `.bak`, `.new`, `.vue.bak` 等备份文件

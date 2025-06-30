@@ -13,7 +13,7 @@ import { $t_snack } from './scripts/lib/SnackHelper.ts';
 //-===============================
 //-🔧 添加事件钩子
 //-===============================
-import { EventSystem, EventType } from './scripts/core/EventSystem.ts';
+import { EventSystem, EventType } from './core/event/EventSystem.ts';
 
 //- 禁用 tab 切换焦点
 document.addEventListener('keydown', (e) => {
@@ -78,7 +78,7 @@ if (argv.custom_config_folder) {
 //-===============================
 import { createApp, watch } from 'vue'
 import App from './App.vue'
-import router from './router/index.ts';
+import router from './features/router/index.ts';
 import { i18nInstance, I18nLocale, setI18nLocale } from './scripts/lib/localHelper.ts';
 
 const vueApp = createApp(App);
@@ -91,7 +91,7 @@ vueApp.mount('#app');
 //-===============================
 //-🧐 响应Argv参数
 //-===============================
-import { repos, getRepos } from './scripts/lib/Repo.ts';
+import { repos, getRepos } from './features/repository/Repo.ts';
 // 如果有 repo 参数，则设置为当前仓库
 await getRepos(); // 确保仓库列表已加载
 if (argv.repo) {
@@ -136,7 +136,7 @@ if (ifCheckUpdatesOnStart.value) {
 //-================================
 //-🧩 插件加载
 //-================================
-import IPluginLoader from './scripts/core/PluginLoader.ts';
+import IPluginLoader from './core/plugin/PluginLoader.ts';
 // await IPluginLoader.Init().then(() => {
 //     console.log('插件加载完成');
 // }).catch((err) => {
