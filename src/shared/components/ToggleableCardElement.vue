@@ -109,7 +109,8 @@ const handleLeftClick = (event: MouseEvent) => {
 
   & div[slot="image"] {
     width: 250px;
-    height: 200px;
+    height: 250px;
+    max-height: 200px;
     overflow: hidden;
   }
 

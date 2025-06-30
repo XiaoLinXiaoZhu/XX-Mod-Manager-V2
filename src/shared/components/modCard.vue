@@ -12,16 +12,7 @@
       <div id="mod-item-subhead">{{ props.modInfo.category || 'Unknown Category' }}</div>
     </template>
     <template #text>
-      <s-scroll-view>
-        <p>{{ props.modInfo.tags || 'Unknown Tags' }}</p>
-        <p>{{ props.modInfo.location || 'Unknown Location' }}</p>
-        <p>Uid: {{ props.modInfo.id || 'Unknown Uid' }}</p>
-        <!-- <p id="mod-hotkeys">Hotkeys: {{ displayHotKeys }}</p> -->
-        <p id="mod-item-description">{{ props.modInfo.description || 'No Description' }}</p>
-        <!-- 将按键拼合为文本 -->
-        {{props.modInfo.hotkeys.map(hotkey => hotkey.description + "->" + hotkey.key).join(' ') || 'Unknown Hotkeys'}}
-        <div class="placeholder"></div>
-      </s-scroll-view>
+
     </template>
   </ToggleableCardElement>
 </template>
