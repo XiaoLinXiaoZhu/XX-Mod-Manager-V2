@@ -162,16 +162,16 @@
 
 <script setup lang="ts">
 // import leftMenu from '../components/leftMenu.vue';
-import LeftIndex from '@/components/leftIndex.vue';
-import settingBar from '@/components/setting/settingBar.vue';
+import LeftIndex from '@/shared/components/leftIndex.vue';
+import settingBar from '@/features/settings/settingBar.vue';
 import { onMounted, ref } from 'vue';
-import { openUrlWithDefaultBrowser } from '@/scripts/lib/FileHelper.ts';
+import { openUrlWithDefaultBrowser } from '@/shared/services/FileHelper';
 import getSettingSectionData from './settingSectionData';
-import { IPluginLoader, type IPlugin, type IPluginData } from '@/core/plugin/PluginLoader.ts';
-import { EventSystem, EventType } from '@/core/event/EventSystem.ts';
-import { ConfigLoader } from '@/scripts/core/ConfigLoader';
-import { getTranslatedText, $t, currentLanguageRef } from '../scripts/lib/localHelper.ts';
-import markdown from '@/components/base/markdown.vue';
+import { IPluginLoader, type IPlugin, type IPluginData } from '@/core/plugin/PluginLoader';
+import { EventSystem, EventType } from '@/core/event/EventSystem';
+import { ConfigLoader } from '@/core/config/ConfigLoader';
+import { getTranslatedText, $t, currentLanguageRef } from '@/shared/composables/localHelper';
+import markdown from '@/shared/components/markdown.vue';
 
 let configData = getSettingSectionData();
 

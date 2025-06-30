@@ -1,5 +1,5 @@
 // 定义 settingBar 的配置项 (data)
-import { TranslatedText } from "../../scripts/lib/localHelper";
+import { TranslatedText } from "@/shared/composables/localHelper";
 import { Ref } from "vue";
 export type SettingBarType = "markdown" | "hidden" | "string" | "number" | "dir" | "file:any" | "file:ini" | "file:exe" | "dir:multi";
 export type SettingBarDataBase = {

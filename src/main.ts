@@ -1,19 +1,19 @@
 // 这是 Tauri 应用的入口文件
 // 这里会初始化 Vue 应用，设置路由和国际化等
 import 'sober';
-import { GlobalConfigLoader, useGlobalConfig } from './scripts/core/GlobalConfigLoader.ts';
-import { ConfigLoader } from './scripts/core/ConfigLoader.ts';
+import { GlobalConfigLoader, useGlobalConfig } from './core/config/GlobalConfigLoader';
+import { ConfigLoader } from './core/config/ConfigLoader';
 
-import { getArgv, type Argv } from '@/scripts/lib/Argv.ts';
+import { getArgv, type Argv } from './shared/utils/Argv';
 import * as path from '@tauri-apps/api/path';
 import { listen } from '@tauri-apps/api/event';
-import { $t_snack } from './scripts/lib/SnackHelper.ts';
+import { $t_snack } from './shared/composables/use-snack';
 
 
 //-===============================
 //-🔧 添加事件钩子
 //-===============================
-import { EventSystem, EventType } from './core/event/EventSystem.ts';
+import { EventSystem, EventType } from './core/event/EventSystem';
 
 //- 禁用 tab 切换焦点
 document.addEventListener('keydown', (e) => {
@@ -76,10 +76,10 @@ if (argv.custom_config_folder) {
 //-===============================
 //-🔰 vue 和 router 挂载
 //-===============================
-import { createApp, watch } from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
-import router from './features/router/index.ts';
-import { i18nInstance, I18nLocale, setI18nLocale } from './scripts/lib/localHelper.ts';
+import router from './features/router/index';
+import { i18nInstance } from './shared/composables/localHelper';
 
 const vueApp = createApp(App);
 
@@ -123,7 +123,7 @@ EventSystem.on(EventType.initDone, () => {
 EventSystem.trigger(EventType.initDone);
 
 //- updatecheck
-import { checkForUpdates } from '@/scripts/core/UpdateChecker.ts';
+import { checkForUpdates } from './features/updater/UpdateChecker';
 const ifCheckUpdatesOnStart = useGlobalConfig('checkUpdatesOnStart', false);
 EventSystem.on(EventType.wakeUp, async () => {
 // debug
@@ -136,7 +136,7 @@ if (ifCheckUpdatesOnStart.value) {
 //-================================
 //-🧩 插件加载
 //-================================
-import IPluginLoader from './core/plugin/PluginLoader.ts';
+// import IPluginLoader from './core/plugin/PluginLoader';
 // await IPluginLoader.Init().then(() => {
 //     console.log('插件加载完成');
 // }).catch((err) => {

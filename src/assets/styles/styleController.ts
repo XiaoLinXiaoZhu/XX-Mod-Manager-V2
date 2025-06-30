@@ -1,5 +1,5 @@
-import { useConfig } from "@/scripts/core/ConfigLoader";
-import { RebindableRef } from "@/scripts/lib/RebindableRef";
+import { useConfig } from "@/core/config/ConfigLoader";
+import { RebindableRef } from "@/shared/composables/RebindableRef";
 import { StorageValue } from "@/core/plugin/Storge";
 
 // let currentTheme:StorageValue<Theme> | null = null;

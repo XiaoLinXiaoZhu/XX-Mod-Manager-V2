@@ -67,13 +67,13 @@
 
 import { ref, onMounted,watch } from 'vue';
 import { type repo } from '@/features/repository/Repo';
-import { EmptyImage, getImage, releaseImage, writeImageFromBase64, writeImageFromUrl, type ImageUrl } from '@/scripts/lib/ImageHelper';
-import { FileDialogOption, openFileDialog } from '@/shared/utils/FileDialogHelper';
-import { $t } from '../scripts/lib/localHelper';
-import { $t_snack, snack } from '@/scripts/lib/SnackHelper';
+import { EmptyImage, getImage, releaseImage, writeImageFromBase64, writeImageFromUrl, type ImageUrl } from '@/shared/services/ImageHelper';
+import { FileDialogOption, openFileDialog } from '@/shared/services/FileDialogHelper';
+import { $t } from '@/shared/composables/localHelper';
+import { $t_snack, snack } from '@/shared/composables/use-snack';
 import { basename, isAbsolute, join } from '@tauri-apps/api/path';
-import { showDirectoryInExplorer } from '@/scripts/lib/FileHelper';
-import DialogTemplate from '@/dialogs/dialogTemplate.vue';
+import { showDirectoryInExplorer } from '@/shared/services/FileHelper';
+import DialogTemplate from '@/ui/dialogs/dialogTemplate.vue';
 
 const Repo = defineModel('repo', {
     type: Object as () => repo,

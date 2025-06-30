@@ -34,22 +34,22 @@
 </template>
 
 <script setup lang="ts">
-import BergerFrame from '@/components/base/BergerFrame.vue';
-import BackButton from '@/components/BackButton.vue';
+import BergerFrame from '@/ui/layouts/BergerFrame.vue';
+import BackButton from '@/shared/components/BackButton.vue';
 
-import SectionSelector from '@/components/base/SectionSelector.vue';
-import SectionSlider from '@/components/base/SectionSlider.vue';
+import SectionSelector from '@/shared/components/SectionSelector.vue';
+import SectionSlider from '@/shared/components/SectionSlider.vue';
 
 import { ref, watch, type Ref } from 'vue';
 
 
-import { $t, currentLanguageRef, getTranslatedText } from '../../scripts/lib/localHelper';
-import UpdateButtonWithInfo from '@/components/updateButtonWithInfo.vue';
-import GameRepoSection from '@/section/GameRepoSection.vue';
-import { ConfigLoader } from '@/scripts/core/ConfigLoader';
+import { $t, currentLanguageRef, getTranslatedText } from '@/shared/composables/localHelper';
+import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
+import GameRepoSection from '@/ui/section/GameRepoSection.vue';
+import { ConfigLoader } from '@/core/config/ConfigLoader';
 import { join } from '@tauri-apps/api/path';
 import router from '@/features/router';
-import { useGlobalConfig } from '@/scripts/core/GlobalConfigLoader';
+import { useGlobalConfig } from '@/core/config/GlobalConfigLoader';
 import { EventSystem, EventType } from '@/core/event/EventSystem';
 
 
@@ -83,8 +83,8 @@ const handleStartClicked = async () => {
   }
 }
 
-import { type I18nLocale } from '@/scripts/lib/localHelper.ts';
-import { currentTheme, type Theme } from '@/assets/styles/styleController.ts';
+import { type I18nLocale } from '@/shared/composables/localHelper';
+import { currentTheme, type Theme } from '@/assets/styles/styleController';
 
 
 

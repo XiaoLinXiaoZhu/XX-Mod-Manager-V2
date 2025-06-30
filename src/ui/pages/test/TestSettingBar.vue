@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import settingBar from '@/components/setting/settingBar.vue';
+import settingBar from '@/features/settings/settingBar.vue';
 import { type SettingBarData } from '@/features/settings/settingBarConfig';
 
 const selectFolder :SettingBarData = {

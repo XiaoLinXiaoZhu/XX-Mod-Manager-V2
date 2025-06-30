@@ -1,4 +1,4 @@
-import { readFile } from '../lib/FileHelper';
+import { readFile } from "./FileHelper";
 import { path } from '@tauri-apps/api';
 
 // async function loadPlugins(folder: string, files: string[]) {

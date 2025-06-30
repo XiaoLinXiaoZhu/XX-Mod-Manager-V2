@@ -25,8 +25,8 @@
 
 <script setup lang="ts">
 import { defineModel, onMounted, ref ,type Ref} from 'vue';
-import dialogTemplate from '@/dialogs/dialogTemplate.vue';
-import editRepo from '@/components/EditRepo.vue';
+import dialogTemplate from './dialogTemplate.vue';
+import EditRepo from '../layouts/EditRepo.vue';
 import { type repo,repos,getRepos } from '@/features/repository/Repo';
 import { EventSystem, EventType } from '@/core/event/EventSystem';
 import { path } from '@tauri-apps/api';

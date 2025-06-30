@@ -1,9 +1,9 @@
 // 加载 Mod 并导出几个公共的变量
 import { ModInfo } from './ModInfo';
-import { isDirectoryExists,getDirectoryList } from "../../scripts/lib/FileHelper";
+import { isDirectoryExists,getDirectoryList } from "@/shared/services/FileHelper";
 // import { join } from "@tauri-apps/api/path";
-import { RebindableRef } from '../../scripts/lib/RebindableRef';
-import { $t_snack } from '../../scripts/lib/SnackHelper';
+import { RebindableRef } from '@/shared/composables/RebindableRef';
+import { $t_snack } from '@/shared/composables/use-snack';
 
 export class ModLoader {
     public static modSourceFoldersRef :RebindableRef<string[]> = new RebindableRef<string[]>([]);
@@ -90,7 +90,8 @@ export class ModLoader {
         if (!await isDirectoryExists(modPath)) {
             throw new Error(`ModLoader.loadMod: modPath does not exist: ${modPath}`);
         }
-        let modInfo = new ModInfo(modPath);
+        // let modInfo = new ModInfo(modPath);
+        let modInfo = await ModInfo.createMod(modPath);
         this.mods.push(modInfo);
 
         return modInfo;

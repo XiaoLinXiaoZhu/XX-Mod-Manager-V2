@@ -5,8 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import dialogRouteList from './dialogs/dialogRouteList.vue';
-
+import dialogRouteList from './ui/dialogs/dialogRouteList.vue';
 </script>
 <style lang="scss">
 

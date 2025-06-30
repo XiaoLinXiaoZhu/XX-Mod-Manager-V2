@@ -17,8 +17,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import RouteList from '@/pages/RouteList.vue';
-import DialogTemplate from './dialogTemplate.vue';
+import RouteList from '@/features/router/RouteList.vue';
+import DialogTemplate from '@/ui/dialogs/dialogTemplate.vue';
 const ifShow = ref(false);
 
 // 热键绑定 ctrl + p

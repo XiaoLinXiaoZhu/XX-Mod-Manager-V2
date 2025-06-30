@@ -1,10 +1,10 @@
 import { SettingBarData, SettingBarDataMulitiDir } from "@/features/settings/settingBarConfig";
-import { setI18nLocale, I18nLocaleList } from "../scripts/lib/localHelper";
+import { setI18nLocale, I18nLocaleList } from "@/shared/composables/localHelper";
 import { ref } from 'vue';
-import { ConfigLoader } from "@/scripts/core/ConfigLoader";
+import { ConfigLoader } from "@/core/config/ConfigLoader";
 import { Theme, setTheme } from "@/assets/styles/styleController";
 import router from "@/features/router";
-import { t_snack } from "@/scripts/lib/SnackHelper";
+import { t_snack } from "@/shared/composables/use-snack";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 
 const getSettingSectionData = () => {

@@ -46,13 +46,13 @@
 
 <script setup lang="ts">
 import { type repo, repos, getRepos } from '@/features/repository/Repo';
-import HorizontalCardList from '@/components/base/HorizontalCardList.vue';
+import HorizontalCardList from '@/shared/components/HorizontalCardList.vue';
 import { ref, onMounted, computed } from 'vue';
-import { $t } from '../scripts/lib/localHelper';
+import { $t } from '@/shared/composables/localHelper';
 import { EventSystem, EventType } from '@/core/event/EventSystem';
-import CreateGameRepo from '@/dialogs/CreateGameRepo.vue';
-import EditGameRepo from '@/dialogs/EditGameRepo.vue';
-import { loadImage } from '@/scripts/lib/ImageHelper';
+import CreateGameRepo from '@/ui/dialogs/CreateGameRepo.vue';
+import EditGameRepo from '@/ui/dialogs/EditGameRepo.vue';
+import { loadImage } from '@/shared/services/ImageHelper';
 import { join } from '@tauri-apps/api/path';
 
 

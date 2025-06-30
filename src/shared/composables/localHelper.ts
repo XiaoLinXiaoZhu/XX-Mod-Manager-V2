@@ -3,7 +3,7 @@ import en_us from "../../../src-tauri/resources/locals/en-US.json";
 import zh_cn from "../../../src-tauri/resources/locals/zh-CN.json";
 import { EventType,EventSystem } from "@/core/event/EventSystem";
 import { Ref, ref } from "vue";
-import { RebindableRef } from "./RebindableRef";
+import { RebindableRef } from "@/shared/composables/RebindableRef";
 
 import "@/assets/styles/styleController";
 

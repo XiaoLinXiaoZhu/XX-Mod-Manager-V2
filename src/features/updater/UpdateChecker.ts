@@ -7,7 +7,7 @@ import { Command } from '@tauri-apps/plugin-shell';
 import { getVersion } from '@tauri-apps/api/app';
 
 import axios from 'axios';
-import { downloadFile, type downloadOptions } from '../lib/DownloadFile';
+import { downloadFile, type downloadOptions } from '@/shared/services/DownloadFile';
 
 type UpdateCheckerOptions = {
     urls: string[];

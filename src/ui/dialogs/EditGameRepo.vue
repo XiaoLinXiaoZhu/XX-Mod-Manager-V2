@@ -26,12 +26,12 @@
 
 <script setup lang="ts">
 import { defineModel, onMounted, ref, watch, type Ref } from 'vue';
-import dialogTemplate from '@/dialogs/dialogTemplate.vue';
-import editRepo from '@/components/EditRepo.vue';
+import dialogTemplate from '@/ui/dialogs/dialogTemplate.vue';
+import editRepo from '@/ui/layouts/EditRepo.vue';
 import { type repo, repos } from '@/features/repository/Repo';
-import { snack } from '@/scripts/lib/SnackHelper';
+import { snack } from '@/shared/composables/use-snack';
 
-import { $t } from '@/scripts/lib/localHelper';
+import { $t } from '@/shared/composables/localHelper';
 const showEditRepoDialog = defineModel<boolean>("visible", {
     type: Boolean,
     default: false,

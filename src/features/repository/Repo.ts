@@ -4,9 +4,9 @@
 // 其他用于展示的的信息
 
 import { isAbsolute, join,appDataDir } from "@tauri-apps/api/path";
-import { useGlobalConfig } from "../core/GlobalConfigLoader";
-import type { StorageValue } from "../../core/plugin/Storge";
-import { createDirectory, isDirectoryExists } from "../../scripts/lib/FileHelper";
+import { useGlobalConfig } from "@/core/config/GlobalConfigLoader";
+import type { StorageValue } from "@/core/plugin/Storge";
+import { createDirectory, isDirectoryExists } from "@/shared/services/FileHelper";
 
 export type repo = {
     /**

@@ -20,10 +20,10 @@
 </template>
 
 <script setup lang="ts">
-import { checkForUpdates } from '@/scripts/core/UpdateChecker';
+import { checkForUpdates } from '@/features/updater/UpdateChecker';
 import { versionData } from '@/features/updater/VersionInfo';
-import { $t } from '../scripts/lib/localHelper';
-import { $t_snack } from '@/scripts/lib/SnackHelper';
+import { $t } from '@/shared/composables/localHelper';
+import { $t_snack } from '@/shared/composables/use-snack';
 
 const handleCheckUpdate = async () => {
   // Logic to check for updates

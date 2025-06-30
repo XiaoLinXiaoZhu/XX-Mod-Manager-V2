@@ -150,13 +150,13 @@
 </template>
 
 <script setup lang="ts">
-import markdown from '@/components/base/markdown.vue';
-import horizontalScrollBar from '@/components/base/horizontalScrollBar.vue';
+import markdown from '@/shared/components/markdown.vue';
+import horizontalScrollBar from '@/shared/components/horizontalScrollBar.vue';
 
 import { ref, defineProps, defineEmits, onMounted } from 'vue';
-import { getTranslatedText } from '../../scripts/lib/localHelper';
+import { getTranslatedText } from '@/shared/composables/localHelper';
 import type { SettingBarData } from './settingBarConfig';
-import { type FileDialogOption, openFileDialog } from '@/shared/utils/FileDialogHelper';
+import { type FileDialogOption, openFileDialog } from '@/shared/services/FileDialogHelper';
 
 const props = defineProps<{
     data: SettingBarData

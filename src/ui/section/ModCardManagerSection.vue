@@ -13,11 +13,11 @@
 
 </template>
 <script setup lang="ts">
-import LeftIndex from '@/components/leftIndex.vue';
+import LeftIndex from '@/shared/components/leftIndex.vue';
 import {ModLoader } from '@/features/mod-manager/ModLoader';
 import { ModInfo } from '@/features/mod-manager/ModInfo';
 import { ref } from 'vue';
-import ModCard from '@/components/modCard.vue';
+import ModCard from '@/shared/components/modCard.vue';
 
 const IndexStructure = {
     "Character": {

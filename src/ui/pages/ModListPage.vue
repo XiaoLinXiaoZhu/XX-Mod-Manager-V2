@@ -30,24 +30,24 @@
 </template>
 
 <script setup lang="ts">
-import BergerFrame from '@/components/base/BergerFrame.vue';
-import BackButton from '@/components/BackButton.vue';
-import ModCardManagerSection from '@/section/ModCardManagerSection.vue';
+import BergerFrame from '../layouts/BergerFrame.vue';
+import BackButton from '@/shared/components/BackButton.vue';
+import ModCardManagerSection from '@/ui/section/ModCardManagerSection.vue';
 
-import SectionSelector from '@/components/base/SectionSelector.vue';
-import SectionSlider from '@/components/base/SectionSlider.vue';
+import SectionSelector from '@/shared/components/SectionSelector.vue';
+import SectionSlider from '@/shared/components/SectionSlider.vue';
 
 import { ref } from 'vue';
 
 
-import { $t, currentLanguageRef } from '../../scripts/lib/localHelper';
-import UpdateButtonWithInfo from '@/components/updateButtonWithInfo.vue';
-import { ConfigLoader } from '@/scripts/core/ConfigLoader';
+import { $t, currentLanguageRef } from '@/shared/composables/localHelper';
+import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
+import { ConfigLoader } from '@/core/config/ConfigLoader';
 
 
-import { useGlobalConfig } from '@/scripts/core/GlobalConfigLoader';
+import { useGlobalConfig } from '@/core/config/GlobalConfigLoader';
 import { EventSystem, EventType } from '@/core/event/EventSystem';
-import SettingSection from '@/section/SettingSection.vue';
+import SettingSection from '@/ui/section/SettingSection.vue';
 
 
 const currentSection = ref('');

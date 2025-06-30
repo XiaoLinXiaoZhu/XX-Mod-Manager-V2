@@ -1,20 +1,20 @@
 //-===================== 插件 =====================
-import { snack } from "@/scripts/lib/SnackHelper";
-import { $t, getTranslatedText } from "../../scripts/lib/localHelper";
+import { snack } from "../../shared/composables/use-snack";
+import { $t, getTranslatedText } from "../../shared/composables/localHelper";
 
-import { ToolsCanUsedInPlugin } from '../../scripts/core/ToolsCanUsedInPlugin';
+import { ToolsCanUsedInPlugin } from './ToolsCanUsedInPlugin';
 import { appDataDir } from "@tauri-apps/api/path";
-import { useConfig } from "./ConfigLoader";
-import { useGlobalConfig } from "./GlobalConfigLoader";
+import { useConfig } from "../config/ConfigLoader";
+import { useGlobalConfig } from "../config/GlobalConfigLoader";
 import { ref, Ref } from "vue";
 
 // 从类型定义文件导入类型
-import type { IPlugin, IPluginData, ToolsConUsedInPluginType } from '../../scripts/core/PluginTypes';
+import type { IPlugin, IPluginData, ToolsConUsedInPluginType } from './PluginTypes';
 import { join } from "@tauri-apps/api/path";
-import { createDirectory, getDirectoryList, getFullPath, isDirectoryExists, isFileExists, readFile } from "../../scripts/lib/FileHelper";
+import { createDirectory, getDirectoryList, getFullPath, isDirectoryExists } from "../../shared/services/FileHelper";
 import { EventSystem, EventType } from "../event/EventSystem";
-import { loadExternScript } from "./LoadExternScript";
-import { currentPage } from "../../scripts/core/XXMMState";
+import { loadExternScript } from "../../shared/services/LoadExternScript";
+import { currentPage } from "../XXMMState";
 
 
 // 导出自 PluginTypes.ts 的类型

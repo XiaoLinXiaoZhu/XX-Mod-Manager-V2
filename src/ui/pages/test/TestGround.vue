@@ -4,7 +4,7 @@
 </template>
 
 <script setup lang="ts">
-import CreateGameRepo from '@/dialogs/CreateGameRepo.vue';
+import CreateGameRepo from '@/ui/dialogs/CreateGameRepo.vue';
 import { onMounted, ref } from 'vue';
 
 const showAddRepoDialog = ref(true);

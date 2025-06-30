@@ -13,9 +13,9 @@
 <script setup lang="ts">
 //debug
 import { onMounted, ref } from 'vue';
-import RouteList from '@/pages/RouteList.vue';
-import {readFile, writeFile} from '@/scripts/lib/FileHelper.ts';
-import { loadImage,writeImageFromUrl } from '@/scripts/lib/ImageHelper';
+import RouteList from '@/features/router/RouteList.vue';
+import {readFile, writeFile} from '@/shared/services/FileHelper';
+import { loadImage,writeImageFromUrl } from '@/shared/services/ImageHelper';
 
 console.log("TestRW loaded");
 

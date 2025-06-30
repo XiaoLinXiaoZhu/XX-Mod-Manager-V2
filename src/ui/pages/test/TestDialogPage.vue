@@ -51,13 +51,13 @@
 </template>
 
 <script setup lang="ts">
-import BergerFrame from '@/components/base/BergerFrame.vue';
-import BackButton from '@/components/BackButton.vue';
-import UpdateButtonWithInfo from '@/components/updateButtonWithInfo.vue';
+import BergerFrame from '@/ui/layouts/BergerFrame.vue';
+import BackButton from '@/shared/components/BackButton.vue';
+import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
 
-import DialogTemplate from '@/dialogs/dialogTemplate.vue';
+import DialogTemplate from '@/ui/dialogs/dialogTemplate.vue';
 
-import { $t_snack,snack} from '@/scripts/lib/SnackHelper';
+import { $t_snack,snack} from '@/shared/composables/use-snack';
 import {ref } from 'vue';
 
 
