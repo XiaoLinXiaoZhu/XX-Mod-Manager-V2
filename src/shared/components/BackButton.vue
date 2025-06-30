@@ -11,6 +11,7 @@
 <script setup lang="ts">
 import FlashingButton from '@/shared/components/FlashingButton.vue'
 </script>
+
 <style lang="scss" scoped>
 .back-button {
     width: 80px;

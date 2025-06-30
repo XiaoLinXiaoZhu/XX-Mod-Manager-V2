@@ -3,9 +3,9 @@
         <LeftIndex class="OO-left-container OO-box" :structure="IndexStructure" v-model:selected-path="selectedPath" />
         <div class="OO-right-container OO-box">
             <p>Selected Path: {{ selectedPath }}</p>
-            <s-scroll-view style="width: 100%;height: auto;">
-                <div v-for="(mod, index) in mods" :key="index" class="mod-item">
-                    <ModCard :mod-info="mod.convertToUnreactive()"></ModCard>
+            <s-scroll-view style="width: 100%;flex: 1 1 0;">
+                <div class="mod-item-list">
+                        <ModCard v-for="(mod, index) in mods" :key="index" :mod-info="mod.convertToUnreactive()" :display="true"></ModCard>
                 </div>
             </s-scroll-view>
         </div>
@@ -87,8 +87,18 @@ ModLoader.onAfterLoad(() => {
     overflow-y: auto;
     padding: 10px;
     display: flex;
+    flex-direction: column;
     flex-wrap: wrap;
     gap: 10px;
     box-sizing: border-box;
+}
+
+.mod-item-list {
+    flex: 1 1 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    box-sizing: border-box;
+    padding-top: 10px;
 }
 </style>
