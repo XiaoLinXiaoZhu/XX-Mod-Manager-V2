@@ -3,10 +3,14 @@
         <LeftIndex class="OO-left-container OO-box" :structure="IndexStructure" v-model:selected-path="selectedPath" />
         <div class="OO-right-container OO-box">
             <p>Selected Path: {{ selectedPath }}</p>
+            <TagSearch ref="tagSearchRef"></TagSearch>
             <s-scroll-view style="width: 100%;flex: 1 1 0;">
                 <div class="mod-item-list" ref="modListRef">
                     <ModCard class="mod-item" v-for="(mod, index) in mods" :data-uid="mod.id.getRef()" :key="index"
                         :mod-info="mod.convertToUnreactive()" :display="true"
+                        :class="{
+                            'hidden': !isMatch(mod.convertToUnreactive()),
+                        }"
                         @mouseenter="(event: Event) => handleModCardHover(mod, event)" @mouseleave="handleModCardLeave">
                     </ModCard>
                 </div>
@@ -37,10 +41,18 @@
 </template>
 <script setup lang="ts">
 import LeftIndex from '@/shared/components/leftIndex.vue';
+import TagSearch from '@/shared/components/TagSearch.vue';
+
 import { ModLoader } from '@/features/mod-manager/ModLoader';
-import { ModInfo } from '@/features/mod-manager/ModInfo';
+import { ModInfo, UnreactiveModInfo } from '@/features/mod-manager/ModInfo';
 import { ref, computed, nextTick } from 'vue';
 import ModCard from '@/shared/components/modCard.vue';
+
+
+const tagSearchRef = ref<InstanceType<typeof TagSearch> | null>(null);
+const isMatch = (modInfo: UnreactiveModInfo): boolean => {
+    return tagSearchRef.value?.matchesTags(modInfo) ?? false;
+};
 
 const IndexStructure = {
     "Character": {
@@ -271,6 +283,12 @@ ModLoader.onAfterLoad(() => {
     gap: 10px;
     box-sizing: border-box;
     padding-top: 10px;
+
+    .mod-item {
+        &.hidden {
+            display: none;
+        }
+    }
 }
 
 /* 悬浮窗口样式 */

@@ -135,6 +135,22 @@ s-chip {
   height: fit-content;
   align-items: center;
   z-index: 1;
+
+  > * {
+    display: block;
+    transform: skew(20deg);
+  }
+
+  &[active] {
+    border: 1px solid var(--s-color-primary);
+    color: var(--s-color-on-primary);
+  }
+
+  /* 没有active状态 */
+  &:not([active]) {
+    border: 1px solid var(--s-color-outline);
+    color: var(--s-color-on-surface);
+  }
 }
 
 s-chip p {
@@ -147,11 +163,6 @@ s-chip p {
   margin: 10px 0px;
   font-weight: bold;
   transition: all 0.3s ease-in-out 0s;
-}
-
-s-chip[type=filled-tonal] {
-  border: 1px solid var(--s-color-outline);
-  color: var(--s-color-on-primary);
 }
 
 s-tooltip p {

@@ -1,7 +1,7 @@
 <template>
   <BergerFrame>
     <template #header>
-      <BackButton @click="handleBackButtonClick"/>
+      <BackButton @click="handleBackButtonClick" />
       <h1 draggable>Mod List</h1>
       <SectionSelector :sections="sections" v-model:currentSection="currentSection" v-model:index="currentIndex"
         style="position: absolute; width: 500px; right: 10px;" />
@@ -13,7 +13,7 @@
         <SectionSlider :currentSection="currentIndex" class="section-slider">
           <ModCardManagerSection ref="gameRepoSectionRef" />
           <div>
-            <p>{{ 'element.helpContent'}}</p>
+            <p>{{ 'element.helpContent' }}</p>
           </div>
           <SettingSection />
         </SectionSlider>
@@ -22,9 +22,14 @@
     </template>
 
     <template #footer>
-      <s-button v-if="currentIndex === 0" class="OO-button OO-color-gradient font-hongmeng start-button" style="font-size: large;" @click="">{{ $t('buttons.useRepo') }}</s-button>
+      <div v-if="currentIndex === 0" class="start-button">
+        <
+        <s-button class="OO-button OO-color-gradient font-hongmeng " style="font-size: large;" @click="">{{
+          $t('buttons.applyMods') }}
+        </s-button>
+      </div>
 
-      <UpdateButtonWithInfo v-if="currentIndex === 2"/>
+      <UpdateButtonWithInfo v-if="currentIndex === 2" />
     </template>
   </BergerFrame>
 </template>
@@ -118,10 +123,8 @@ const handleBackButtonClick = () => {
 </script>
 
 <style scoped lang="scss">
-
-.start-button{
+.start-button {
   position: absolute;
   right: 10px;
 }
-
 </style>

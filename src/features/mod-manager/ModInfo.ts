@@ -6,22 +6,7 @@ import { EmptyImage, getImage, releaseImage, writeImageFromBase64, type ImageUrl
 import { computed, ref, type Ref } from "vue";
 import { useConfig } from "@/core/config/ConfigLoader";
 import { isRefObject } from "@/shared/utils/RefHelper";
-
-function simpleHash(str: string): number {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash |= 0; // Convert to 32bit integer
-    }
-    return hash >>> 0; // Unsigned
-}
-
-function generateModId(modPath: string): string {
-    return simpleHash(modPath).toString(16); // 转为十六进制
-}
-
-console.log(generateModId("C:/mods/skyrim_mods/cool_armor_mod/"));
+import { hash256 } from "@/shared/utils/SimpleHash";
 
 export type UnreactiveModInfo = {
     id: string;
@@ -45,13 +30,6 @@ export class ModInfo extends Storage {
     public _strictMode: boolean = true; // 开启严格模式，确保在未加载配置前无法使用 set 方法
     public static get ifKeepModNameAsModFolderName(): boolean {
         return useConfig("keepModNameAsModFolderName", false).value;
-    }
-    static createID(path: string): string {
-        // 生成一个随机的 id
-        // id 由 mod文件夹路径 + timestamp 组成
-        const timestamp = Date.now();
-        const hash = simpleHash(path + "-" + timestamp);
-        return hash.toString(16);
     }
 
     public id = this.useStorage("id", ""); // 模块的唯一标识符，默认为空
@@ -95,7 +73,7 @@ export class ModInfo extends Storage {
         }
         if (modInfo.id.value === "") {
             // 如果 id 为空，则生成一个新的 id
-            modInfo.id.set(generateModId(location));
+            modInfo.id.set(hash256(location));
         }
         if (modInfo.name.value === "") {
             // 如果名称为空，则设置为文件夹名称
