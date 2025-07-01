@@ -238,5 +238,8 @@
   },
   "modLoader": {
     "noModSourceFolder": "未能加载Mod：未指定Mod来源文件夹"
+  },
+  "applyMods": {
+    "noModsSelected": "无法应用：没有选中的mod"
   }
 }

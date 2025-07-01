@@ -116,7 +116,7 @@ const getSettingSectionData = () => {
             "en-US": 'Mod target directory is the location where modLoader reads mod, usually the Mods folder'
         },
         onChange: (value) => {
-            modTargetFolderData.dataRef.value = value; // 更新 dataRef 的值
+            ConfigLoader.modTargetFolder.value = value; // 更新 dataRef 的值
         }
     }    //-------------------- 模组源文件夹 ------------------//
     let modSourceFoldersData: SettingBarDataMulitiDir = {

@@ -7,7 +7,7 @@
             <s-scroll-view style="width: 100%;flex: 1 1 0;">
                 <div class="mod-item-list" ref="modListRef">
                     <ModCard class="mod-item" v-for="(mod, index) in mods" :data-uid="mod.id.getRef()" :key="index"
-                        :mod-info="mod.convertToUnreactive()" :display="true"
+                        :mod-info="mod.convertToUnreactive()" :display="true" v-model:clicked="ifModSelected[index]"
                         :class="{
                             'hidden': !isMatch(mod.convertToUnreactive()),
                         }"
@@ -78,6 +78,7 @@ const IndexStructure = {
 const selectedPath = ref<string>('');
 
 const mods = ref<ModInfo[]>([] as ModInfo[]);
+const ifModSelected = ref<boolean[]>([] as boolean[]);
 
 // 悬浮窗口相关状态
 const hoveredMod = ref<ModInfo | null>(null);
@@ -232,6 +233,10 @@ const handleTooltipLeave = () => {
 ModLoader.onAfterLoad(() => {
     console.log('Mods loaded successfully:', mods.value);
     mods.value = ModLoader.mods;
+});
+
+defineExpose({
+    ifModSelected
 });
 </script>
 

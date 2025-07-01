@@ -74,7 +74,7 @@ export async function renameDirectory(oldPath: string, newPath: string): Promise
     try {
         await invoke('rename_directory', { oldPathStr: oldPath, newPathStr: newPath });
     } catch (error) {
-        console.error('Error renaming directory:', error);
+        console.error(`Error renaming directory: ${oldPath} to ${newPath}`, error);
         return;
     }
 }

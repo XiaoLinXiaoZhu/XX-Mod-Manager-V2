@@ -126,7 +126,7 @@ export class ModInfo extends Storage {
         };
     }
 
-    private async changeFolderName(newName: string): Promise<boolean> {
+    public async changeFolderName(newName: string): Promise<boolean> {
         const newModFolderPath = await join(await dirname(this.location.value), newName);
         if (await isFileExists(newModFolderPath)) {
             console.error(`模块名称重复：${newName} 已存在`);

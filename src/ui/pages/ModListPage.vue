@@ -11,7 +11,7 @@
       <div class="main-content" style="height: 100%; width: 100%;overflow: hidden;">
         <!-- 主页面有三个主要功能: 查看所有的子配置项，新建新的仓库，打开设置面板 -->
         <SectionSlider :currentSection="currentIndex" class="section-slider">
-          <ModCardManagerSection ref="gameRepoSectionRef" />
+          <ModCardManagerSection ref="modCardManagerSectionRef" />
           <div>
             <p>{{ 'element.helpContent' }}</p>
           </div>
@@ -23,8 +23,7 @@
 
     <template #footer>
       <div v-if="currentIndex === 0" class="start-button">
-        <
-        <s-button class="OO-button OO-color-gradient font-hongmeng " style="font-size: large;" @click="">{{
+        <s-button class="OO-button OO-color-gradient font-hongmeng " style="font-size: large;" @click="handleApplyButtonClicked">{{
           $t('buttons.applyMods') }}
         </s-button>
       </div>
@@ -116,10 +115,39 @@ import router from '@/features/router';
 import { path } from '@tauri-apps/api';
 import { currentTheme } from '@/assets/styles/styleController';
 import { ModLoader } from '@/features/mod-manager/ModLoader';
+import { $t_snack } from '@/shared/composables/use-snack';
+import { applyMod } from '@/features/mod-apply/ApplyMod';
 const handleBackButtonClick = () => {
   // 使用router
   router.back();
 };
+
+
+const modCardManagerSectionRef = ref<InstanceType<typeof ModCardManagerSection> | null>(null);
+const handleApplyButtonClicked = () => {
+  if (modCardManagerSectionRef.value) {
+    console.log(modCardManagerSectionRef.value.ifModSelected);
+    const ifModSelected = modCardManagerSectionRef.value.ifModSelected;
+    const selectedMods = ModLoader.mods.filter((mod, index) => {
+      return ifModSelected[index];
+    });
+    console.log('Selected Mods:', selectedMods);
+
+    const distFolder = ConfigLoader.modTargetFolder.value;
+    const ifUseTraditionalApply = ConfigLoader.ifUseTraditionalApply.value;
+    
+    applyMod( ModLoader.mods, selectedMods, distFolder, !ifUseTraditionalApply)
+      .then(() => {
+        $t_snack('applyMods.success', "success");
+      })
+      .catch((error) => {
+        console.error('Error applying mods:', error);
+        $t_snack('applyMods.error', "error");
+      });
+
+  }
+};
+
 </script>
 
 <style scoped lang="scss">
