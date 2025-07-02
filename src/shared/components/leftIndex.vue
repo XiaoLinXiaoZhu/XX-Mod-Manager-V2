@@ -1,10 +1,10 @@
 <!-- *
-* @ Author: GitHub Copilot
+* @ Author: XLXZ
 * @ Description: 左侧多层级索引菜单，支持展开/折叠子目录
 
 * @ Input: v-model: string 当前选中项的路径，如 "B/1"
 *         structure: Object 多层级目录结构
-*         translatedStructure: Object 多层级目录结构的翻译
+*         displayStructure: Object 多层级目录结构的翻译
 * @ Output: update:modelValue: string 当选中项发生变化时触发
 
 * @ function: selectPath: (path: string) => void 选中指定路径

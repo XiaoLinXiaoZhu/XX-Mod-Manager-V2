@@ -1,6 +1,18 @@
 <template>
+    <!-- {{ ifAutoRecommendShow }} -->
+    <AutoRecommend class="tag-search-autocomplete" 
+    v-show="ifAutoRecommendShow > 0" 
+    v-model:recommend-list="recommendList" 
+    v-model:input-value="inputValue" 
+    :max-comment-length="100" 
+    @mouseenter="ifAutoRecommendShow += 1"
+    @mouseleave="ifAutoRecommendShow -= 1"
+    />
     <div class="tag-chip-list">
-        <s-chip class="tag-chip" :class="{ 'tag-disabled': tag.disabled }" type="filled" v-for="(tag, index) in searchTags" :key="tag.raw" @click="toggleTag(index)">
+        <s-text-field class="tag-search-input" v-model="inputValue" label="搜索标签" @change="addTag" @focus="ifAutoRecommendShow = 1" @blur="ifAutoRecommendShow -= 1" />
+
+        <s-chip class="tag-chip" :class="{ 'tag-disabled': tag.disabled }" type="filled"
+            v-for="(tag, index) in searchTags" :key="tag.raw" @click="toggleTag(index)">
             <!-- 不同的标签类型，显示不同的图标 -->
             <s-tooltip slot="start" class="tag-tooltip">
                 <s-icon v-html="tagTypeSvg[tag.type]" slot="trigger"></s-icon>
@@ -13,7 +25,6 @@
             </s-icon-button>
         </s-chip>
     </div>
-    <s-text-field class="tag-search-input" v-model="inputValue" label="搜索标签" @change="addTag" />
 </template>
 
 <script setup lang="ts">
@@ -22,19 +33,19 @@
 // 暴露一个函数 用于外部判断 是否符合搜索条件
 
 import { UnreactiveModInfo } from '@/features/mod-manager/ModInfo';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { SearchTag, TagType } from '@/shared/types/search-tag';
+import { ModLoader } from '@/features/mod-manager/ModLoader';
+import { AutoRecommendItem } from '../types/auto-recommend';
+import AutoRecommend from './AutoRecommend.vue';
 
-type SearchTag = {
-    type: TagType;
-    value: string;
-    disabled: boolean;
-    raw: string; // 原始输入字符串
-};
 
-const searchTags = ref<SearchTag[]>([]);
+const searchTags = defineModel<SearchTag[]>('searchTags', {
+    type: Array as () => SearchTag[],
+    default: () => []
+});
 const inputValue = ref('');
 
-type TagType = "category" | "tags" | "name" | "description" | "location" | "hotkeys";
 // 触发搜索的标签类型的关键词，比如 $c abc 指的是分类为abc的标签
 const tagTypeMarkers: Record<TagType, string> = {
     category: '$c',
@@ -74,10 +85,10 @@ const parseTag = (tagInput: string): SearchTag => {
         if (tagInput.startsWith(tagTypeMarkers.hotkeys)) return 'hotkeys';
         return 'name'; // 默认返回 name
     }
-    
+
     const type = detectType();
     const value = tagInput.replace(tagTypeMarkers[type], '').trim();
-    
+
     return {
         type,
         value,
@@ -105,15 +116,15 @@ const matchesTags = (modInfo: UnreactiveModInfo): boolean => {
     if (searchTags.value.length === 0) {
         return true;
     }
-    
+
     // 获取所有启用的标签
     const activeTags = searchTags.value.filter(tag => !tag.disabled);
-    
+
     // 如果所有标签都被禁用，匹配所有mod
     if (activeTags.length === 0) {
         return true;
     }
-    
+
     // 检查每个启用的标签是否匹配
     return activeTags.every(tag => {
         switch (tag.type) {
@@ -121,40 +132,136 @@ const matchesTags = (modInfo: UnreactiveModInfo): boolean => {
                 // 精确匹配分类路径：完全相等或是子分类
                 const categoryPath = modInfo.category || '';
                 return categoryPath === tag.value || categoryPath.startsWith(tag.value + '/');
-                
+
             case 'tags':
                 return modInfo.tags.includes(tag.value);
-                
+
             case 'name':
                 return modInfo.name.includes(tag.value);
-                
+
             case 'description':
                 return modInfo.description.includes(tag.value);
-                
+
             case 'location':
                 return modInfo.location.includes(tag.value);
-                
+
             case 'hotkeys':
-                return modInfo.hotkeys.some(hotkey => 
+                return modInfo.hotkeys.some(hotkey =>
                     hotkey.key.includes(tag.value) || hotkey.description.includes(tag.value)
                 );
-                
+
             default:
                 return false;
         }
     });
 };
 
+const recommendList = computed(() => {
+    // 根据ModList 的标签和分类生成推荐列表
+
+    // 1. hints
+    // 提示各种功能
+    const hints: AutoRecommendItem[] = [
+        {
+            type: "matchRegex",
+            match: `^$`,
+            content: `输入 ${tagTypeMarkers.category}分类名 来搜索分类`,
+            callback: (item: AutoRecommendItem) => {
+                inputValue.value = tagTypeMarkers.category;
+            }
+        },
+        {
+            type: "matchRegex",
+            match: `^$`,
+            content: `输入 ${tagTypeMarkers.tags}标签名 来搜索标签`,
+            callback: (item: AutoRecommendItem) => {
+                inputValue.value = tagTypeMarkers.tags;
+            }
+        },
+        {
+            type: "matchRegex",
+            match: `^$`,
+            content: `输入 ${tagTypeMarkers.description}描述 来搜索描述`,
+            callback: (item: AutoRecommendItem) => {
+                inputValue.value = tagTypeMarkers.description;
+            }
+        },
+        {
+            type: "matchRegex",
+            match: `^$`,
+            content: `输入 ${tagTypeMarkers.location}位置 来搜索位置`,
+            callback: (item: AutoRecommendItem) => {
+                inputValue.value = tagTypeMarkers.location;
+            }
+        },
+        {
+            type: "matchRegex",
+            match: `^$`,
+            content: `输入 ${tagTypeMarkers.hotkeys}热键 来搜索热键`,
+            callback: (item: AutoRecommendItem) => {
+                inputValue.value = tagTypeMarkers.hotkeys;
+            }
+        }
+    ];
+    // 2. tags
+    const tags: AutoRecommendItem[] = Object.keys(ModLoader.allTags.value).map((tag: string) => ({
+        type: "matchContent",
+        match: ``,
+        content: `${tagTypeMarkers.tags}${tag}`,
+        callback: (item: AutoRecommendItem) => {
+            searchTags.value.push(parseTag(item.content));
+            //清空输入框
+            inputValue.value = '';
+        }
+    }));
+
+    // 3. categories
+    const categories: AutoRecommendItem[] = ModLoader.mods.map(mod => {
+        const category = mod.category.getRef().value;
+        if (category) {
+            return {
+                type: "matchContent",
+                match: ``,
+                content: `${tagTypeMarkers.category}${category}`,
+                callback: (item: AutoRecommendItem) => {
+                    searchTags.value.push(parseTag(item.content));
+                    //清空输入框
+                    inputValue.value = '';
+                }
+            };
+        }
+        return null;
+    }).filter(item => item !== null) as AutoRecommendItem[];
+
+
+    const result: AutoRecommendItem[] = [
+        ...hints,
+        ...tags,
+        ...categories
+    ]
+    console.log('推荐列表:', result);
+    return result;
+});
+
+const ifAutoRecommendShow = ref(0);
+
 // 导出函数供外部使用
 defineExpose({
     matchesTags,
     searchTags,
+    recommendList,
     toggleTag
 });
 
 </script>
 
 <style scoped lang="scss">
+.tag-search-autocomplete{
+    position: relative;
+    border-radius: 10px;
+    max-height: 20vh;
+}
+
 .tag-chip-list {
     display: flex;
     flex-wrap: wrap;
@@ -183,6 +290,8 @@ defineExpose({
     --text-field-padding: 10px;
     --border-radius: 10px;
     transform: skew(-20deg);
+    left: 5px;
+    margin-right: 5px;
     position: relative;
     height: 36px;
     min-height: 36px;
@@ -203,7 +312,7 @@ defineExpose({
         border-radius: 4px;
     }
 
-    ::after{
+    ::after {
         // 显示一个斜的竖线作为分隔符
         content: '';
         width: 1px;

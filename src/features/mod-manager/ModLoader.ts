@@ -1,12 +1,14 @@
 // 加载 Mod 并导出几个公共的变量
 import { ModInfo } from './ModInfo';
-import { isDirectoryExists,getDirectoryList } from "@/shared/services/FileHelper";
+import { isDirectoryExists, getDirectoryList } from "@/shared/services/FileHelper";
 // import { join } from "@tauri-apps/api/path";
 import { RebindableRef } from '@/shared/composables/RebindableRef';
 import { $t_snack } from '@/shared/composables/use-snack';
+import { computed, ref } from 'vue';
+import { calculateIndexStructure } from '@/shared/utils/caculate-index';
 
 export class ModLoader {
-    public static modSourceFoldersRef :RebindableRef<string[]> = new RebindableRef<string[]>([]);
+    public static modSourceFoldersRef: RebindableRef<string[]> = new RebindableRef<string[]>([]);
     static async addModSourceFolder(folder: string) {
         // check一下是否存在
         if (folder === undefined || folder === null || folder === '') {
@@ -24,8 +26,51 @@ export class ModLoader {
     }
 
     // 加载 Mod
-    static mods: ModInfo[] = [];
-    
+    private static _mods: ModInfo[] = [];
+    static modsRef = ref<ModInfo[]>([]);
+
+    static get mods(): ModInfo[] {
+        return this._mods;
+    }
+
+    static set mods(value: ModInfo[]) {
+        this._mods = value;
+        this.modsRef.value = value;
+    }
+
+    // 计算分类索引结构
+    static categoryIndexStructure = computed(() => {
+        // 计算索引结构
+        // 收集所有的分类
+        const allCategories: string[] = [];
+        ModLoader.modsRef.value.forEach(mod => {
+            if (mod.category && mod.category.getRef().value) {
+                allCategories.push(mod.category.getRef().value);
+            }
+        });
+
+        console.log('ModLoader.categoryIndexStructure: allCategories', allCategories);
+
+        // 计算索引结构
+        return calculateIndexStructure(allCategories);
+    });
+
+    // 计算所有的tag
+    static allTags = computed(() => {
+        // 收集所有的标签
+        const allTags: string[] = [];
+        ModLoader.modsRef.value.forEach(mod => {
+            if (mod.tags && mod.tags.getRef().value) {
+                allTags.push(...mod.tags.getRef().value);
+            }
+        });
+
+        console.log('ModLoader.tagIndexStructure: allTags', allTags);
+
+        // 计算索引结构
+        return calculateIndexStructure(allTags);
+    });
+
     private static afterLoadCallbacks: ((mods: ModInfo[]) => void)[] = [];
 
     static onAfterLoad(callback: (mods: ModInfo[]) => void) {
@@ -47,7 +92,7 @@ export class ModLoader {
 
     static async loadMods() {
         // 检查一下调用堆栈
-        console.trace('ModLoader.loadMods: called from', new Error(),'load from',this.modSourceFoldersRef.value);
+        console.trace('ModLoader.loadMods: called from', new Error(), 'load from', this.modSourceFoldersRef.value);
         let startTime = Date.now();
 
         this.mods = [];
@@ -69,11 +114,13 @@ export class ModLoader {
                     // let modInfo = new ModInfo(mod);
                     // 这里需要使用异步加载
                     let modInfo = await ModInfo.createMod(mod);
-                    this.mods.push(modInfo);
+                    this._mods.push(modInfo);
                 }
             }));
         })).then(() => {
             console.log(`ModLoader.loadMods: loaded ${this.mods.length} mods in ${Date.now() - startTime}ms`);
+            // 同步到响应式引用
+            this.modsRef.value = [...this._mods];
         });
 
         // 触发回调函数
@@ -92,7 +139,8 @@ export class ModLoader {
         }
         // let modInfo = new ModInfo(modPath);
         let modInfo = await ModInfo.createMod(modPath);
-        this.mods.push(modInfo);
+        this._mods.push(modInfo);
+        this.modsRef.value = [...this._mods];
 
         return modInfo;
     }
