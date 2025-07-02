@@ -1,6 +1,6 @@
 // 之前的configloader.ts 有一些地方非常麻烦这里想要优化一下：
 import { readFile, writeFile, isFileExists } from '@/shared/services/FileHelper';
-import { Ref, ref, watch } from 'vue';
+import { Ref, ref } from 'vue';
 
 export type StorageValue<T> = {
     value: T;

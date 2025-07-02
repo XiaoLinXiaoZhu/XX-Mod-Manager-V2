@@ -42,8 +42,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, onBeforeUnmount, computed } from 'vue';
-import AnimatedElement from './base/AnimatedElement.vue';
-import FlippableElement from './base/FlippableElement.vue';
+import AnimatedElement from '@/shared/components/AnimatedElement.vue';
+import FlippableElement from '@/shared/components/FlippableElement.vue';
 
 // 定义游戏类型接口
 interface Game {

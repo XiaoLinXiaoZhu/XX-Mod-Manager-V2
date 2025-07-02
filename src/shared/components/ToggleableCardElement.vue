@@ -65,13 +65,13 @@ const flipAnimationArgs = computed(() => {
   }
 });
 
-const handleClick = (event: MouseEvent) => {
+const handleClick = (_event: MouseEvent) => {
   if (locked.value) return;
   clicked.value = !clicked.value;
   // 这里可以添加其他点击事件处理逻辑
 };
 
-const handleLeftClick = (event: MouseEvent) => {
+const handleLeftClick = (_event: MouseEvent) => {
   locked.value = !locked.value;
 
   if (!elementRef.value) return;

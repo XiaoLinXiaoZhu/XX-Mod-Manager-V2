@@ -44,7 +44,7 @@ const handleClick = (event: MouseEvent) => {
     playClickAnim(event, props.strength, props.duration, props.scaleRatio, props.translateRatio);
 };
 
-const handleMouseDown = (event: MouseEvent) => {
+const handleMouseDown = (_event: MouseEvent) => {
     if (props.disable) return;
     const element = elementRef.value;
     if (!element) return;

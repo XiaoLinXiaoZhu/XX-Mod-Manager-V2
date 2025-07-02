@@ -24,7 +24,7 @@
             <div v-for="(tab, index) in tabs" :key="index" :class="['tab', { active: currentTab === tab }]"
                 @click="selectTab(tab, index)" :ref="setTabRef(tab)">
                 <p> {{ translatedTabs[index] || tab }} </p>
-                <s-ripple attached="true"></s-ripple>
+                <s-ripple :attached="true"></s-ripple>
             </div>
             <div class="slider OO-color-gradient" :style="sliderStyle"></div>
         </div>
@@ -43,11 +43,11 @@
 import { ref, reactive, onMounted } from 'vue';
 const props = defineProps({
     tabs: {
-        type: Array,
+        type: Array as () => string[],
         required: true
     },
     translatedTabs: {
-        type: Array,
+        type: Array as () => string[],
         required: false,
         default: () => []
     }
@@ -57,9 +57,11 @@ const emit = defineEmits(['tabChange']);
 const currentTab = ref(props.tabs[0]);
 
 //-=============== 按钮引用 ===============
-const tabRefs = ref({});
-const setTabRef = (tab) => (el) => {
-    tabRefs.value[tab] = el;
+const tabRefs = ref<Record<string, HTMLElement>>({});
+const setTabRef = (tab: string) => (el: any) => {
+    if (el && el instanceof HTMLElement) {
+        tabRefs.value[tab] = el;
+    }
 }
 
 //-=============== 浮动滑块 ===============
@@ -69,7 +71,7 @@ const sliderStyle = reactive({
     width: '0px',
 });
 
-const updateSlider = (index) => {
+const updateSlider = (index: number) => {
     const selectedTab = tabRefs.value[props.tabs[index]];
     if (!selectedTab) {
         console.log(`tab not found: ${index}`);
@@ -84,14 +86,14 @@ const updateSlider = (index) => {
 
 
 //-=============== 选项切换 ===============
-const selectTab = (tab, index) => {
+const selectTab = (tab: string, index: number) => {
     updateSlider(index);
     if (tab === currentTab.value) return;
     currentTab.value = tab;
     emit('tabChange', tab);
 };
 
-const selectTabByName = (tab) => {
+const selectTabByName = (tab: string) => {
     if (tab === currentTab.value) return;
     currentTab.value = tab;
     

@@ -128,7 +128,7 @@ const handleApplyButtonClicked = () => {
   if (modCardManagerSectionRef.value) {
     console.log(modCardManagerSectionRef.value.ifModSelected);
     const ifModSelected = modCardManagerSectionRef.value.ifModSelected;
-    const selectedMods = ModLoader.mods.filter((mod, index) => {
+    const selectedMods = ModLoader.mods.filter((_mod, index) => {
       return ifModSelected[index];
     });
     console.log('Selected Mods:', selectedMods);

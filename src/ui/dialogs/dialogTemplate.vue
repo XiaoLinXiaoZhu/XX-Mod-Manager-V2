@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, defineModel, watch, Teleport } from 'vue'
+import { defineProps, defineEmits, defineModel, watch } from 'vue'
 import { getIndex,releaseIndex } from '@/assets/styles/CSSVariableManager';
 import { ref } from 'vue';
 

@@ -3,7 +3,7 @@
 // location - 仓库的存储位置
 // 其他用于展示的的信息
 
-import { isAbsolute, join,appDataDir } from "@tauri-apps/api/path";
+import { isAbsolute } from "@tauri-apps/api/path";
 import { useGlobalConfig } from "@/core/config/GlobalConfigLoader";
 import type { StorageValue } from "@/core/plugin/Storge";
 import { createDirectory, isDirectoryExists } from "@/shared/services/FileHelper";

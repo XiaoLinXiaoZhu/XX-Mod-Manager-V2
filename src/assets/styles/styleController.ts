@@ -1,6 +1,4 @@
-import { useConfig } from "@/core/config/ConfigLoader";
 import { RebindableRef } from "@/shared/composables/RebindableRef";
-import { StorageValue } from "@/core/plugin/Storge";
 
 // let currentTheme:StorageValue<Theme> | null = null;
 export const currentTheme = new RebindableRef<Theme>('dark' as Theme); // 默认主题为 dark

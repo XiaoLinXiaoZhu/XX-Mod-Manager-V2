@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { type AutoRecommendItem } from '@/shared/types/auto-recommend';
 
 const recommendList = defineModel<AutoRecommendItem[]>('recommendList', {

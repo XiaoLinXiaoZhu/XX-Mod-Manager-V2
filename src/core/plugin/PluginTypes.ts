@@ -1,6 +1,5 @@
-import { TranslatedText } from "../lib/localHelper";
+import { TranslatedText } from "@/shared/composables/localHelper";
 import { type SettingBarData } from "@/features/settings/settingBarConfig";
-import { Ref } from "vue";
 import { ToolsCanUsedInPlugin } from './ToolsCanUsedInPlugin';
 
 /**

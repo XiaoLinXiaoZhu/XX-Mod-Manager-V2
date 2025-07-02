@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineModel, onMounted, ref, watch, type Ref } from 'vue';
+import { defineModel, onMounted, ref, type Ref } from 'vue';
 import dialogTemplate from '@/ui/dialogs/dialogTemplate.vue';
 import editRepo from '@/ui/layouts/EditRepo.vue';
 import { type repo, repos } from '@/features/repository/Repo';

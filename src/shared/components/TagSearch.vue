@@ -166,7 +166,7 @@ const recommendList = computed(() => {
             type: "matchRegex",
             match: `^$`,
             content: `输入 ${tagTypeMarkers.category}分类名 来搜索分类`,
-            callback: (item: AutoRecommendItem) => {
+            callback: (_item: AutoRecommendItem) => {
                 inputValue.value = tagTypeMarkers.category;
             }
         },
@@ -174,7 +174,7 @@ const recommendList = computed(() => {
             type: "matchRegex",
             match: `^$`,
             content: `输入 ${tagTypeMarkers.tags}标签名 来搜索标签`,
-            callback: (item: AutoRecommendItem) => {
+            callback: (_item: AutoRecommendItem) => {
                 inputValue.value = tagTypeMarkers.tags;
             }
         },
@@ -182,7 +182,7 @@ const recommendList = computed(() => {
             type: "matchRegex",
             match: `^$`,
             content: `输入 ${tagTypeMarkers.description}描述 来搜索描述`,
-            callback: (item: AutoRecommendItem) => {
+            callback: (_item: AutoRecommendItem) => {
                 inputValue.value = tagTypeMarkers.description;
             }
         },
@@ -190,7 +190,7 @@ const recommendList = computed(() => {
             type: "matchRegex",
             match: `^$`,
             content: `输入 ${tagTypeMarkers.location}位置 来搜索位置`,
-            callback: (item: AutoRecommendItem) => {
+            callback: (_item: AutoRecommendItem) => {
                 inputValue.value = tagTypeMarkers.location;
             }
         },
@@ -198,7 +198,7 @@ const recommendList = computed(() => {
             type: "matchRegex",
             match: `^$`,
             content: `输入 ${tagTypeMarkers.hotkeys}热键 来搜索热键`,
-            callback: (item: AutoRecommendItem) => {
+            callback: (_item: AutoRecommendItem) => {
                 inputValue.value = tagTypeMarkers.hotkeys;
             }
         }

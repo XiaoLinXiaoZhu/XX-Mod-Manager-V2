@@ -40,7 +40,7 @@ import BackButton from '@/shared/components/BackButton.vue';
 import SectionSelector from '@/shared/components/SectionSelector.vue';
 import SectionSlider from '@/shared/components/SectionSlider.vue';
 
-import { ref, watch, type Ref } from 'vue';
+import { ref, type Ref } from 'vue';
 
 
 import { $t, currentLanguageRef, getTranslatedText } from '@/shared/composables/localHelper';
