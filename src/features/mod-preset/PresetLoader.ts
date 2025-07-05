@@ -1,4 +1,4 @@
-import { Storage } from "@/core/plugin/Storge";
+import { Storage } from "@/core/storage/Storge";
 import { getDirectoryList, getFullPath, isFileExists } from "@/shared/services/FileHelper";
 import { hash256 } from "@/shared/utils/SimpleHash";
 import { isAbsolute } from "@tauri-apps/api/path";

@@ -1,7 +1,7 @@
 import { basename, dirname } from "@tauri-apps/api/path";
 import { join } from "@tauri-apps/api/path";
 import { isFileExists, renameDirectory, getDirectoryList, copyFile } from "@/shared/services/FileHelper";
-import { Storage } from "@/core/plugin/Storge";
+import { Storage } from "@/core/storage/Storge";
 import { EmptyImage, getImage, releaseImage, writeImageFromBase64, type ImageUrl, type Base64DataUrl } from "@/shared/services/ImageHelper";
 import { computed, ref, type Ref } from "vue";
 import { useConfig } from "@/core/config/ConfigLoader";

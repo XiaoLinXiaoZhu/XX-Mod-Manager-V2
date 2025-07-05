@@ -1,5 +1,5 @@
 import { join } from '@tauri-apps/api/path';
-import { StorageValue,Storage } from '../plugin/Storge';
+import { StorageValue,Storage } from '../storage/Storge';
 import { useGlobalConfig } from './GlobalConfigLoader';
 import { I18nLocale } from '@/shared/composables/localHelper';
 import { Theme } from '@/assets/styles/styleController';

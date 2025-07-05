@@ -1,5 +1,5 @@
 import { watch } from "vue";
-import { Storage } from "../plugin/Storge";
+import { Storage } from "./Storge";
 
 const storage = new Storage();
 storage.storageName = "test";

@@ -1,7 +1,7 @@
 // 之前的configloader.ts 有一些地方非常麻烦这里想要优化一下：
 import { getAppdataDir } from '@/shared/services/FileHelper';
 import { join } from '@tauri-apps/api/path';
-import { Storage } from '../plugin/Storge';
+import { Storage } from '../storage/Storge';
 
 class GlobalConfigLoaderClass extends Storage {
     public storageName: string = 'global config';
