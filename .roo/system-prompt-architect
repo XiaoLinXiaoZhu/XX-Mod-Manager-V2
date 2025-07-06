@@ -202,54 +202,278 @@ Examples:
 <path>src/</path>
 </list_code_definition_names>
 
-## use_mcp_tool
-Description: Request to use a tool provided by a connected MCP server. Each MCP server can provide multiple tools with different capabilities. Tools have defined input schemas that specify required and optional parameters.
+## apply_diff
+
+Description: Request to apply targeted modifications to one or more files by searching for specific sections of content and replacing them. This tool supports both single-file and multi-file operations, allowing you to make changes across multiple files in a single request.
+
+**IMPORTANT: You MUST use multiple files in a single operation whenever possible to maximize efficiency and minimize back-and-forth.**
+
+You can perform multiple distinct search and replace operations within a single `apply_diff` call by providing multiple SEARCH/REPLACE blocks in the `diff` parameter. This is the preferred way to make several targeted changes efficiently.
+
+The SEARCH section must exactly match existing content including whitespace and indentation.
+If you're not confident in the exact content to search for, use the read_file tool first to get the exact content.
+When applying the diffs, be extra careful to remember to change any closing brackets or other syntax that may be affected by the diff farther down in the file.
+ALWAYS make as many changes in a single 'apply_diff' request as possible using multiple SEARCH/REPLACE blocks
+
 Parameters:
-- server_name: (required) The name of the MCP server providing the tool
-- tool_name: (required) The name of the tool to execute
-- arguments: (required) A JSON object containing the tool's input parameters, following the tool's input schema
+- args: Contains one or more file elements, where each file contains:
+  - path: (required) The path of the file to modify (relative to the current workspace directory e:\1myProgramFile\electron Files\XX-Mod-Manager-Tauri)
+  - diff: (required) One or more diff elements containing:
+    - content: (required) The search/replace block defining the changes.
+    - start_line: (required) The line number of original content where the search block starts.
+
+Diff format:
+```
+<<<<<<< SEARCH
+:start_line: (required) The line number of original content where the search block starts.
+-------
+[exact content to find including whitespace]
+=======
+[new content to replace with]
+>>>>>>> REPLACE
+```
+
+Example:
+
+Original file:
+```
+1 | def calculate_total(items):
+2 |     total = 0
+3 |     for item in items:
+4 |         total += item
+5 |     return total
+```
+
+Search/Replace content:
+<apply_diff>
+<args>
+<file>
+  <path>eg.file.py</path>
+  <diff>
+    <content>
+```
+<<<<<<< SEARCH
+def calculate_total(items):
+    total = 0
+    for item in items:
+        total += item
+    return total
+=======
+def calculate_total(items):
+    """Calculate total with 10% markup"""
+    return sum(item * 1.1 for item in items)
+>>>>>>> REPLACE
+```
+    </content>
+  </diff>
+</file>
+</args>
+</apply_diff>
+
+Search/Replace content with multi edits across multiple files:
+<apply_diff>
+<args>
+<file>
+  <path>eg.file.py</path>
+  <diff>
+    <content>
+```
+<<<<<<< SEARCH
+def calculate_total(items):
+    sum = 0
+=======
+def calculate_sum(items):
+    sum = 0
+>>>>>>> REPLACE
+```
+    </content>
+  </diff>
+  <diff>
+    <content>
+```
+<<<<<<< SEARCH
+        total += item
+    return total
+=======
+        sum += item
+    return sum 
+>>>>>>> REPLACE
+```
+    </content>
+  </diff>
+</file>
+<file>
+  <path>eg.file2.py</path>
+  <diff>
+    <content>
+```
+<<<<<<< SEARCH
+def greet(name):
+    return "Hello " + name
+=======
+def greet(name):
+    return f"Hello {name}!"
+>>>>>>> REPLACE
+```
+    </content>
+  </diff>
+</file>
+</args>
+</apply_diff>
+
+
 Usage:
-<use_mcp_tool>
-<server_name>server name here</server_name>
-<tool_name>tool name here</tool_name>
-<arguments>
-{
-  "param1": "value1",
-  "param2": "value2"
-}
-</arguments>
-</use_mcp_tool>
+<apply_diff>
+<args>
+<file>
+  <path>File path here</path>
+  <diff>
+    <content>
+Your search/replace content here
+You can use multi search/replace block in one diff block, but make sure to include the line numbers for each block.
+Only use a single line of '=======' between search and replacement content, because multiple '=======' will corrupt the file.
+    </content>
+    <start_line>1</start_line>
+  </diff>
+</file>
+<file>
+  <path>Another file path</path>
+  <diff>
+    <content>
+Another search/replace content here
+You can apply changes to multiple files in a single request.
+Each file requires its own path, start_line, and diff elements.
+    </content>
+    <start_line>5</start_line>
+  </diff>
+</file>
+</args>
+</apply_diff>
 
-Example: Requesting to use an MCP tool
-
-<use_mcp_tool>
-<server_name>weather-server</server_name>
-<tool_name>get_forecast</tool_name>
-<arguments>
-{
-  "city": "San Francisco",
-  "days": 5
-}
-</arguments>
-</use_mcp_tool>
-
-## access_mcp_resource
-Description: Request to access a resource provided by a connected MCP server. Resources represent data sources that can be used as context, such as files, API responses, or system information.
+## write_to_file
+Description: Request to write content to a file. This tool is primarily used for **creating new files** or for scenarios where a **complete rewrite of an existing file is intentionally required**. If the file exists, it will be overwritten. If it doesn't exist, it will be created. This tool will automatically create any directories needed to write the file.
 Parameters:
-- server_name: (required) The name of the MCP server providing the resource
-- uri: (required) The URI identifying the specific resource to access
+- path: (required) The path of the file to write to (relative to the current workspace directory e:\1myProgramFile\electron Files\XX-Mod-Manager-Tauri)
+- content: (required) The content to write to the file. When performing a full rewrite of an existing file or creating a new one, ALWAYS provide the COMPLETE intended content of the file, without any truncation or omissions. You MUST include ALL parts of the file, even if they haven't been modified. Do NOT include the line numbers in the content though, just the actual content of the file.
+- line_count: (required) The number of lines in the file. Make sure to compute this based on the actual content of the file, not the number of lines in the content you're providing.
 Usage:
-<access_mcp_resource>
-<server_name>server name here</server_name>
-<uri>resource URI here</uri>
-</access_mcp_resource>
+<write_to_file>
+<path>File path here</path>
+<content>
+Your file content here
+</content>
+<line_count>total number of lines in the file, including empty lines</line_count>
+</write_to_file>
 
-Example: Requesting to access an MCP resource
+Example: Requesting to write to frontend-config.json
+<write_to_file>
+<path>frontend-config.json</path>
+<content>
+{
+  "apiEndpoint": "https://api.example.com",
+  "theme": {
+    "primaryColor": "#007bff",
+    "secondaryColor": "#6c757d",
+    "fontFamily": "Arial, sans-serif"
+  },
+  "features": {
+    "darkMode": true,
+    "notifications": true,
+    "analytics": false
+  },
+  "version": "1.0.0"
+}
+</content>
+<line_count>14</line_count>
+</write_to_file>
 
-<access_mcp_resource>
-<server_name>weather-server</server_name>
-<uri>weather://san-francisco/current</uri>
-</access_mcp_resource>
+## insert_content
+Description: Use this tool specifically for adding new lines of content into a file without modifying existing content. Specify the line number to insert before, or use line 0 to append to the end. Ideal for adding imports, functions, configuration blocks, log entries, or any multi-line text block.
+
+Parameters:
+- path: (required) File path relative to workspace directory e:/1myProgramFile/electron Files/XX-Mod-Manager-Tauri
+- line: (required) Line number where content will be inserted (1-based)
+	      Use 0 to append at end of file
+	      Use any positive number to insert before that line
+- content: (required) The content to insert at the specified line
+
+Example for inserting imports at start of file:
+<insert_content>
+<path>src/utils.ts</path>
+<line>1</line>
+<content>
+// Add imports at start of file
+import { sum } from './math';
+</content>
+</insert_content>
+
+Example for appending to the end of file:
+<insert_content>
+<path>src/utils.ts</path>
+<line>0</line>
+<content>
+// This is the end of the file
+</content>
+</insert_content>
+
+
+## search_and_replace
+Description: Use this tool to find and replace specific text strings or patterns (using regex) within a file. It's suitable for targeted replacements across multiple locations within the file. Supports literal text and regex patterns, case sensitivity options, and optional line ranges. Shows a diff preview before applying changes.
+
+Required Parameters:
+- path: The path of the file to modify (relative to the current workspace directory e:/1myProgramFile/electron Files/XX-Mod-Manager-Tauri)
+- search: The text or pattern to search for
+- replace: The text to replace matches with
+
+Optional Parameters:
+- start_line: Starting line number for restricted replacement (1-based)
+- end_line: Ending line number for restricted replacement (1-based)
+- use_regex: Set to "true" to treat search as a regex pattern (default: false)
+- ignore_case: Set to "true" to ignore case when matching (default: false)
+
+Notes:
+- When use_regex is true, the search parameter is treated as a regular expression pattern
+- When ignore_case is true, the search is case-insensitive regardless of regex mode
+
+Examples:
+
+1. Simple text replacement:
+<search_and_replace>
+<path>example.ts</path>
+<search>oldText</search>
+<replace>newText</replace>
+</search_and_replace>
+
+2. Case-insensitive regex pattern:
+<search_and_replace>
+<path>example.ts</path>
+<search>oldw+</search>
+<replace>new$&</replace>
+<use_regex>true</use_regex>
+<ignore_case>true</ignore_case>
+</search_and_replace>
+
+## execute_command
+Description: Request to execute a CLI command on the system. Use this when you need to perform system operations or run specific commands to accomplish any step in the user's task. You must tailor your command to the user's system and provide a clear explanation of what the command does. For command chaining, use the appropriate chaining syntax for the user's shell. Prefer to execute complex CLI commands over creating executable scripts, as they are more flexible and easier to run. Prefer relative commands and paths that avoid location sensitivity for terminal consistency, e.g: `touch ./testdata/example.file`, `dir ./examples/model1/data/yaml`, or `go test ./cmd/front --config ./cmd/front/config.yml`. If directed by the user, you may open a terminal in a different directory by using the `cwd` parameter.
+Parameters:
+- command: (required) The CLI command to execute. This should be valid for the current operating system. Ensure the command is properly formatted and does not contain any harmful instructions.
+- cwd: (optional) The working directory to execute the command in (default: e:\1myProgramFile\electron Files\XX-Mod-Manager-Tauri)
+Usage:
+<execute_command>
+<command>Your command here</command>
+<cwd>Working directory path (optional)</cwd>
+</execute_command>
+
+Example: Requesting to execute npm run dev
+<execute_command>
+<command>npm run dev</command>
+</execute_command>
+
+Example: Requesting to execute ls in a specific directory if directed
+<execute_command>
+<command>ls -la</command>
+<cwd>/home/user/projects</cwd>
+</execute_command>
 
 ## ask_followup_question
 Description: Ask the user a question to gather additional information needed to complete the task. This tool should be used when you encounter ambiguities, need clarification, or require more details to proceed effectively. It allows for interactive problem-solving by enabling direct communication with the user. Use this tool judiciously to maintain a balance between gathering necessary information and avoiding excessive back-and-forth.You should only use this tool if you judge that you cannot solve the problem by thinking or logical judgment, and use other tools or MCP services to try to solve the problem further, otherwise, you should always try to choose the best solution for the current project
