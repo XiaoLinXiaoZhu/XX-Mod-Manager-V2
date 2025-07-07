@@ -134,7 +134,7 @@ const getSettingSectionData = () => {
             "en-US": 'Mod Source directory is the location where the program stores mod. When the mod is enabled, a link will be created from here to the mod target directory.'
         },
         onChange: (value) => {
-            ConfigLoader.modSourceFolders.set(value)
+            ConfigLoader.modSourceFolders.value = value
         }
     }    //-------------------- 预设文件夹 ------------------//
     let presetFolderData: SettingBarData = {

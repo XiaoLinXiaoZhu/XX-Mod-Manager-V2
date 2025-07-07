@@ -32,12 +32,12 @@
 // 窗口将多个标签动态渲染为多个标签按钮
 // 暴露一个函数 用于外部判断 是否符合搜索条件
 
-import { UnreactiveModInfo } from '@/features/mod-manager/ModInfo';
 import { computed, ref } from 'vue';
 import { SearchTag, TagType } from '@/shared/types/search-tag';
 import { ModLoader } from '@/features/mod-manager/ModLoader';
 import { AutoRecommendItem } from '../types/auto-recommend';
 import AutoRecommend from './AutoRecommend.vue';
+import { ModMetadata } from '@/features/mod-manager/ModMetadata';
 
 
 const searchTags = defineModel<SearchTag[]>('searchTags', {
@@ -111,7 +111,7 @@ const toggleTag = (index: number) => {
     searchTags.value[index].disabled = !searchTags.value[index].disabled;
 };
 
-const matchesTags = (modInfo: UnreactiveModInfo): boolean => {
+const matchesTags = (modInfo: ModMetadata): boolean => {
     // 如果没有搜索标签，匹配所有mod
     if (searchTags.value.length === 0) {
         return true;
@@ -130,23 +130,23 @@ const matchesTags = (modInfo: UnreactiveModInfo): boolean => {
         switch (tag.type) {
             case 'category':
                 // 精确匹配分类路径：完全相等或是子分类
-                const categoryPath = modInfo.category || '';
+                const categoryPath = modInfo.category.value || '';
                 return categoryPath === tag.value || categoryPath.startsWith(tag.value + '/');
 
             case 'tags':
-                return modInfo.tags.includes(tag.value);
+                return modInfo.tags.value.includes(tag.value);
 
             case 'name':
-                return modInfo.name.includes(tag.value);
+                return modInfo.name.value.includes(tag.value);
 
             case 'description':
-                return modInfo.description.includes(tag.value);
+                return modInfo.description.value.includes(tag.value);
 
             case 'location':
-                return modInfo.location.includes(tag.value);
+                return modInfo.location.value.includes(tag.value);
 
             case 'hotkeys':
-                return modInfo.hotkeys.some(hotkey =>
+                return modInfo.hotkeys.value.some(hotkey =>
                     hotkey.key.includes(tag.value) || hotkey.description.includes(tag.value)
                 );
 
@@ -217,7 +217,7 @@ const recommendList = computed(() => {
 
     // 3. categories
     const categories: AutoRecommendItem[] = ModLoader.mods.map(mod => {
-        const category = mod.category.getRef().value;
+        const category = mod.metadata.category.getRef().value;
         if (category) {
             return {
                 type: "matchContent",

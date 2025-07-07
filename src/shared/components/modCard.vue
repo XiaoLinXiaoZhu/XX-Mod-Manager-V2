@@ -6,10 +6,10 @@
       <div class="placeholder" v-else>Loading preview...</div>
     </template>
     <template #headline>
-      <div id="mod-item-headline">{{ props.modInfo.name || 'Unknown Mod' }}</div>
+      <div id="mod-item-headline">{{ props.modInfo.metadata.name.getRef() || 'Unknown Mod' }}</div>
     </template>
     <template #subhead>
-      <div id="mod-item-subhead">{{ props.modInfo.category || 'Unknown Category' }}</div>
+      <div id="mod-item-subhead">{{ props.modInfo.metadata.category.getRef || 'Unknown Category' }}</div>
     </template>
     <template #text>
 
@@ -18,11 +18,11 @@
 </template>
 
 <script setup lang="ts">
-import { type UnreactiveModInfo } from '@/features/mod-manager/ModInfo';
+import { ModInfo } from '@/features/mod-manager/ModInfo';
 import ToggleableCardElement from './ToggleableCardElement.vue';
 
 const props = defineProps<{
-  modInfo: UnreactiveModInfo;
+  modInfo: ModInfo;
   display: boolean;
 }>();
 
@@ -31,7 +31,7 @@ const clicked = defineModel<boolean>('clicked', {
   default: false,
 });
 
-const previewUrlRef = props.modInfo.getReactiveModInfo().previewUrlRef;
+const previewUrlRef = props.modInfo.previewManager.previewUrlRef;
 
 </script>
 

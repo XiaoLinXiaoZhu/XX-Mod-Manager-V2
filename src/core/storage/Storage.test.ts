@@ -14,7 +14,7 @@ watch(B.getRef(), (newValue) => {
 });
 
 
-A.set("123123");
+A.value = "123"; // 修改 A 的值
 
 storage.mergeData({
     id: "456",

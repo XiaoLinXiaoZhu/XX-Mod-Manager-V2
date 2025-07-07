@@ -7,6 +7,7 @@ import { ModHotkeyManager } from "@/features/mod-manager/ModHotkeyManager";
 import type { ModConfig } from "@/features/mod-manager/ModMetadata";
 
 export class ModInfo {
+    public getSelf() { return this; }
     public newMod = false;
     public static totalCount = 0;
 

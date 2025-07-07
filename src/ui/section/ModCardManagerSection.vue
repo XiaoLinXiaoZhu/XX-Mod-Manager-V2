@@ -7,10 +7,10 @@
             <TagSearch ref="tagSearchRef" v-model:search-tags="searchTags" style="position: relative; left: 10px;" />
             <s-scroll-view style="width: 100%;flex: 1 1 0;">
                 <div class="mod-item-list" ref="modListRef">
-                    <ModCard class="mod-item" v-for="(mod, index) in mods" :data-uid="mod.id.getRef()" :key="index"
-                        :mod-info="mod.convertToUnreactive()" :display="true" v-model:clicked="ifModSelected[index]"
+                    <ModCard class="mod-item" v-for="(mod, index) in mods" :data-uid="mod.metadata.id.getRef()" :key="index"
+                        :mod-info="mod.getSelf()" :display="true" v-model:clicked="ifModSelected[index]"
                         :class="{
-                            'hidden': !isMatch(mod.convertToUnreactive()),
+                            'hidden': !isMatch(mod.metadata as ModMetadata),
                         }" @mouseenter="(event: Event) => handleModCardHover(mod, event)"
                         @mouseleave="handleModCardLeave">
                     </ModCard>
@@ -33,14 +33,14 @@
                         </button>
                     </div>
                     <div class="tooltip-content">
-                        <h3>{{ hoveredMod.name.getRef() }}</h3>
-                        <p>描述: {{ hoveredMod.description.getRef() }}</p>
-                        <p>热键: {{ hoveredMod.hotkeys.getRef().value.join(', ') }}</p>
-                        <p>标签: {{ hoveredMod.tags.getRef().value.join(', ') }}</p>
+                        <h3>{{ hoveredMod.metadata.name.getRef() }}</h3>
+                        <p>描述: {{ hoveredMod.metadata.description.getRef() }}</p>
+                        <p>热键: {{ hoveredMod.metadata.hotkeys.getRef().value.join(', ') }}</p>
+                        <p>标签: {{ hoveredMod.metadata.tags.getRef().value.join(', ') }}</p>
                         <s-text-field v-model="tempTagInput" label="标签"/>
-                        <s-text-field v-model="hoveredMod.category.value" label="类型"/>
-                        <p>位置: {{ hoveredMod.location.getRef() }}</p>
-                        <p>Uid: {{ hoveredMod.id.getRef() }}</p>
+                        <s-text-field v-model="hoveredMod.metadata.category.value" label="类型"/>
+                        <p>位置: {{ hoveredMod.metadata.location.getRef() }}</p>
+                        <p>Uid: {{ hoveredMod.metadata.id.getRef() }}</p>
                         <!-- 这里可以添加更多详细信息 -->
                     </div>
                 </div>
@@ -53,16 +53,17 @@ import LeftIndex from '@/shared/components/leftIndex.vue';
 import TagSearch from '@/shared/components/TagSearch.vue';
 
 import { ModLoader } from '@/features/mod-manager/ModLoader';
-import { ModInfo, UnreactiveModInfo } from '@/features/mod-manager/ModInfo';
+import { ModInfo } from '@/features/mod-manager/ModInfo';
 import { ref, computed, nextTick, watch } from 'vue';
 import ModCard from '@/shared/components/modCard.vue';
 import { SearchTag } from '@/shared/types/search-tag';
 import { currentLanguageRef } from '@/shared/composables/localHelper';
+import { ModMetadata } from '@/features/mod-manager/ModMetadata';
 
 const tagSearchRef = ref<InstanceType<typeof TagSearch> | null>(null);
 const searchTags = ref<SearchTag[]>([] as SearchTag[]);
-const isMatch = (modInfo: UnreactiveModInfo): boolean => {
-    return tagSearchRef.value?.matchesTags(modInfo) ?? false;
+const isMatch = (modMetadata: ModMetadata): boolean => {
+    return tagSearchRef.value?.matchesTags(modMetadata) ?? false;
 };
 
 
@@ -158,9 +159,9 @@ watch(hoveredMod, (newValue,oldValue) => {
         // 当 hoveredMod 变化时，保存标签，之后设置为新的
         if (oldValue) {
             // 如果之前有 hoveredMod，清空之前的输入
-            oldValue.tags.set(tempTagInput.value.split(/[,，]/).map(tag => tag.trim()));
+            oldValue.metadata.tags.value = (tempTagInput.value.split(/[,，]/).map(tag => tag.trim()));
         }
-        tempTagInput.value = newValue.tags.getRef().value.join(', ');
+        tempTagInput.value = newValue.metadata.tags.value.join(', ');
     } else {
         // 如果没有悬浮的 mod，清空输入
         tempTagInput.value = '';

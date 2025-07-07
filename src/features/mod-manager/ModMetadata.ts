@@ -23,6 +23,10 @@ export class ModMetadata extends Storage {
     public readonly description = this.useStorage("description", "");
     public readonly hotkeys = this.useStorage("hotkeys", [] as { key: string, description: string }[]);
 
+    // public get metadata() {
+    //     return this;
+    // }
+
     constructor(private _config: ModConfig) {
         super("ModMetadata" + ++ModMetadata.counter);
     }

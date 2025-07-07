@@ -27,8 +27,8 @@ async function pathsToNames(paths: string[]): Promise<string[]> {
 }
 
 async function applyModBySymlink(allMods: ModInfo[], selectedMods: ModInfo[], distFolder: string): Promise<void> {
-    const allModPaths = allMods.map(mod => mod.location.value);
-    const selectedModPaths = selectedMods.map(mod => mod.location.value);
+    const allModPaths = allMods.map(mod => mod.metadata.location.value);
+    const selectedModPaths = selectedMods.map(mod => mod.metadata.location.value);
 
     // 如果使用软链接方式，那么需要确保distFolder和 allModPaths 位于不同目录下
     if (await dirname(allModPaths[0]) === distFolder) {
@@ -105,8 +105,8 @@ async function applyModBySymlink(allMods: ModInfo[], selectedMods: ModInfo[], di
 }
 
 async function applyModTraditionally(allMods: ModInfo[], selectedMods: ModInfo[], distFolder: string): Promise<void> {
-    const allModPaths = allMods.map(mod => mod.location.value);
-    const selectedModIds = selectedMods.map(mod => mod.id.value);
+    const allModPaths = allMods.map(mod => mod.metadata.location.value);
+    const selectedModIds = selectedMods.map(mod => mod.metadata.id.value);
     // 如果使用传统方式，那么需要确保distFolder和 allModPaths 位于的同一目录下
     if (!(await dirname(allModPaths[0]) === distFolder)) {
         console.warn(`mods Must in the distFolder: ${distFolder}`);
@@ -132,8 +132,8 @@ async function applyModTraditionally(allMods: ModInfo[], selectedMods: ModInfo[]
     // 遍历所有mods，根据是否在selectedMods中来决定启用或禁用
     await Promise.all(
         allMods.map(async (mod) => {
-            const modPath = mod.location.value;
-            const isSelected = selectedModIds.includes(mod.id.value);
+            const modPath = mod.metadata.location.value;
+            const isSelected = selectedModIds.includes(mod.metadata.id.value);
             
             // 1. 如果mod路径不存在，跳过
             if (!await isDirectoryExists(modPath)) {
@@ -144,7 +144,7 @@ async function applyModTraditionally(allMods: ModInfo[], selectedMods: ModInfo[]
             const isCurrentlyDisabled = fileName.startsWith('disable_');
             
             // debug
-            console.log(`Processing mod: ${mod.name.value} (ID: ${mod.id.value}), folder: ${fileName}, disabled: ${isCurrentlyDisabled}, selected: ${isSelected}`);
+            console.log(`Processing mod: ${mod.metadata.name.value} (ID: ${mod.metadata.id.value}), folder: ${fileName}, disabled: ${isCurrentlyDisabled}, selected: ${isSelected}`);
             
             // 2. 如果mod当前被禁用，但是在选中列表中，则需要启用
             if (isCurrentlyDisabled && isSelected) {
@@ -168,13 +168,13 @@ async function applyModTraditionally(allMods: ModInfo[], selectedMods: ModInfo[]
     // 禁用文件夹
     await Promise.all(
         allMods.map(async (mod) => {
-            if (folderNeedDisable.includes(mod.location.value)) {
+            if (folderNeedDisable.includes(mod.metadata.location.value)) {
                 // 将mod的文件夹名称前添加 disable_ 前缀
-                const folderPath = mod.location.value;
+                const folderPath = mod.metadata.location.value;
                 const newFolderName = `disable_${await basename(folderPath)}`;
                 try {
                     console.log(`Disabling mod folder: ${folderPath} to ${newFolderName}`);
-                    await mod.changeFolderName(newFolderName);
+                    await mod.fileOperator.changeFolderName(newFolderName);
                 } catch (error) {
                     console.error(`Failed to disable mod folder ${folderPath}`, error);
                 }
@@ -185,9 +185,9 @@ async function applyModTraditionally(allMods: ModInfo[], selectedMods: ModInfo[]
     // 启用文件夹
     await Promise.all(
         allMods.map(async (mod) => {
-            if (folderNeedEnable.includes(mod.location.value)) {
+            if (folderNeedEnable.includes(mod.metadata.location.value)) {
                 // 将mod的文件夹名称前添加 disable_ 前缀
-                const folderPath = mod.location.value;
+                const folderPath = mod.metadata.location.value;
                 const baseName = await basename(folderPath);
                 let newFolderName = baseName;
                 while (newFolderName.startsWith('disable_')) {
@@ -196,7 +196,7 @@ async function applyModTraditionally(allMods: ModInfo[], selectedMods: ModInfo[]
                 }
                 try {
                     console.log(`Enabled mod folder: ${folderPath} to ${newFolderName}`);
-                    await mod.changeFolderName(newFolderName);
+                    await mod.fileOperator.changeFolderName(newFolderName);
                 } catch (error) {
                     console.error(`Failed to enable mod folder ${folderPath}`, error);
                 }

@@ -72,7 +72,7 @@ const handleStartClicked = async () => {
     if (currentRepo) {
       console.log('Starting game with repo:', currentRepo);
       await ConfigLoader.loadFrom(await join(currentRepo.configLocation, 'config.json'));
-      useGlobalConfig("lastUsedGameRepo", currentRepo.configLocation).set(currentRepo.configLocation);
+      useGlobalConfig("lastUsedGameRepo", currentRepo.configLocation).value = currentRepo.configLocation;
       // route to ModListPage
       router.push({
         name: 'ModList'

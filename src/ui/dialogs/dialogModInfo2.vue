@@ -308,7 +308,7 @@ const handleCancel = async () => {
 
 const handleSave = () => {
   //debug
-  const ifEqual = props.mod.equals(tempModInfo.value);
+  const ifEqual = props.mod.metadata.equals(tempModInfo.value);
   console.log('saved', saved, `equals`, ifEqual);
   // 保存修改的 mod 信息
 
@@ -320,20 +320,20 @@ const handleSave = () => {
 
   // 处理 图片 更改
   let needChangePreview = false;
-  if (props.mod.preview !== tempModInfo.value.preview) {
+  if (props.mod.metadata.preview !== tempModInfo.value.preview) {
     needChangePreview = true;
   }
 
   // 保存修改的 mod 信息
-  props.mod.editModInfo(tempModInfo.value);
+  props.mod.metadata.editModInfo(tempModInfo.value);
 
   if (needChangePreview) {
-    props.mod.setPreviewByPath(tempModInfo.value.preview);
+    props.mod.metadata.setPreviewByPath(tempModInfo.value.preview);
   }
 
   // 如果是通过粘贴操作更改的预览图片，则保存到本地
   if (changdPreviewByPaste) {
-    props.mod.setPreviewByBase64(img.value);
+    props.mod.metadata.setPreviewByBase64(img.value);
   }
 
   tempModInfo.value = props.mod.copy();
@@ -350,7 +350,7 @@ onMounted(() => {
   // 监听 dialog 的 dismiss 事件，如果未保存则弹出保存更改的 dialog
   editModInfoDialog.value.$el.addEventListener('dismiss', () => {
     console.log('dismiss', 'props.mod', props.mod, 'tempModInfo', tempModInfo.value, saved);
-    if (!saved && !props.mod.equals(tempModInfo.value)) {
+    if (!saved && !props.mod.metadata.equals(tempModInfo.value)) {
       iManager.showDialog('save-change-dialog');
     }
     saved = false;

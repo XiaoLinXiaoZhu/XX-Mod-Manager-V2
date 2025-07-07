@@ -422,11 +422,11 @@ export class IPluginLoader {
 
         // 根据 插件的作用域来保存配置
         if (plugin.scope === 'local') {
-            useConfig(`plugin-${pluginName}`, {}).set(pluginDataToSave);
+            useConfig(`plugin-${pluginName}`, {}).value = pluginDataToSave;
         } else if (plugin.scope === 'global') {
-            useGlobalConfig(`plugin-${pluginName}`, {}).set(pluginDataToSave);
+            useGlobalConfig(`plugin-${pluginName}`, {}).value = pluginDataToSave;
         } else if (plugin.scope === 'all') {
-            useConfig(`plugin-${pluginName}`, {}).set(pluginDataToSave);
+            useConfig(`plugin-${pluginName}`, {}).value = pluginDataToSave;
             // ! 这里临时的处理方式是全部保存到本地配置
         }
     }
@@ -479,11 +479,11 @@ export class IPluginLoader {
 
             // 根据 插件的作用域来保存配置
             if (plugin.scope === 'local') {
-                useConfig(`plugin-${pluginName}`, {}).set(pluginDataToSave);
+                useConfig(`plugin-${pluginName}`, {}).value = pluginDataToSave;
             } else if (plugin.scope === 'global') {
-                useGlobalConfig(`plugin-${pluginName}`, {}).set(pluginDataToSave);
+                useGlobalConfig(`plugin-${pluginName}`, {}).value = pluginDataToSave;
             } else if (plugin.scope === 'all') {
-                useConfig(`plugin-${pluginName}`, {}).set(pluginDataToSave);
+                useConfig(`plugin-${pluginName}`, {}).value = pluginDataToSave;
                 // ! 这里临时的处理方式是全部保存到本地配置
             }
         }
