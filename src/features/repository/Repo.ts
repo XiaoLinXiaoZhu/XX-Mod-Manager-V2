@@ -5,7 +5,7 @@
 
 import { isAbsolute } from "@tauri-apps/api/path";
 import { useGlobalConfig } from "@/core/config/GlobalConfigLoader";
-import type { StorageValue } from "@/core/storage/Storge";
+import type { StorageValue } from "@/core/storage/Storage";
 import { createDirectory, isDirectoryExists } from "@/shared/services/FileHelper";
 
 export type repo = {

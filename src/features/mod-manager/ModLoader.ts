@@ -1,5 +1,6 @@
 // 加载 Mod 并导出几个公共的变量
 import { ModInfo } from './ModInfo';
+import type {ModConfig} from './ModMetadata';
 import { isDirectoryExists, getDirectoryList } from "@/shared/services/FileHelper";
 // import { join } from "@tauri-apps/api/path";
 import { RebindableRef } from '@/shared/composables/RebindableRef';
@@ -44,8 +45,8 @@ export class ModLoader {
         // 收集所有的分类
         const allCategories: string[] = [];
         ModLoader.modsRef.value.forEach(mod => {
-            if (mod.category && mod.category.getRef().value) {
-                allCategories.push(mod.category.getRef().value);
+            if (mod.metadata.category && mod.metadata.category.getRef().value) {
+                allCategories.push(mod.metadata.category.getRef().value);
             }
         });
 
@@ -60,8 +61,8 @@ export class ModLoader {
         // 收集所有的标签
         const allTags: string[] = [];
         ModLoader.modsRef.value.forEach(mod => {
-            if (mod.tags && mod.tags.getRef().value) {
-                allTags.push(...mod.tags.getRef().value);
+            if (mod.metadata.tags && mod.metadata.tags.getRef().value) {
+                allTags.push(...mod.metadata.tags.getRef().value);
             }
         });
 
@@ -103,6 +104,11 @@ export class ModLoader {
             return [];
         }
 
+        // 默认配置
+        const defaultConfig: ModConfig = {
+            keepModNameAsModFolderName: true
+        };
+
         // 读取所有的 mod 文件夹
         await Promise.all(this.modSourceFoldersRef.value.map(async folder => {
             let mods = await getDirectoryList(folder);
@@ -113,7 +119,7 @@ export class ModLoader {
                 if (await isDirectoryExists(mod)) {
                     // let modInfo = new ModInfo(mod);
                     // 这里需要使用异步加载
-                    let modInfo = await ModInfo.createMod(mod);
+                    let modInfo = await ModInfo.createMod(mod, defaultConfig);
                     this._mods.push(modInfo);
                 }
             }));
@@ -138,7 +144,10 @@ export class ModLoader {
             throw new Error(`ModLoader.loadMod: modPath does not exist: ${modPath}`);
         }
         // let modInfo = new ModInfo(modPath);
-        let modInfo = await ModInfo.createMod(modPath);
+        const defaultConfig: ModConfig = {
+            keepModNameAsModFolderName: true
+        };
+        let modInfo = await ModInfo.createMod(modPath, defaultConfig);
         this._mods.push(modInfo);
         this.modsRef.value = [...this._mods];
 
@@ -146,7 +155,7 @@ export class ModLoader {
     }
 
     public static getModByID(id: string): ModInfo | undefined {
-        return this.mods.find(mod => mod.id.value === id);
+        return this.mods.find(mod => mod.metadata.id.value === id);
     }
 }
 

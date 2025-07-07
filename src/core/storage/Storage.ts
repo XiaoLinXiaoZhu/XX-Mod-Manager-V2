@@ -4,7 +4,6 @@ import { Ref, ref } from 'vue';
 
 export type StorageValue<T> = {
     value: T;
-    set: (newValue: T) => Promise<void>;
     getRef: () => Ref<T>;
 };
 
@@ -184,14 +183,6 @@ export class Storage {
                 valueRef!.value = newValue;
                 storage._data[key] = newValue;
                 storage.saveToFile();
-            },
-            set: async (newValue: T) => {
-                if (storage._strictMode && !storage._filePath) {
-                    throw new Error(`Storage ${storage.storageName} is in strict mode, cannot set value without file path.`);
-                }
-                valueRef!.value = newValue;
-                this._data[key] = newValue;
-                await this.saveToFile();
             },
             getRef: () => valueRef!,
         };
