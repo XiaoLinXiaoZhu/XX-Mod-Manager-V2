@@ -4,6 +4,7 @@ import path from "path";
 import * as pathTauri from "@tauri-apps/api/path";
 import fs from "fs";
 import beforeVite from "./vite.before";
+
 // @ts-ignore process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
 // @ts-ignore process is a nodejs global
