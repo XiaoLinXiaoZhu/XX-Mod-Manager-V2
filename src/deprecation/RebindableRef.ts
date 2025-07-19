@@ -1,6 +1,10 @@
 import { ref, watch, type Ref, type UnwrapRef,type WatchHandle } from "vue"
 
 type RebindableRefCallback<T> = (newValue: UnwrapRef<T>) => void | ((newValue: UnwrapRef<T>, oldValue: UnwrapRef<T>) => void);
+
+/**
+ * @deprecated
+ */
 export class RebindableRef<T> {
     private _ref: Ref<UnwrapRef<T>>;
     private _watchers: WatchHandle[] = [];

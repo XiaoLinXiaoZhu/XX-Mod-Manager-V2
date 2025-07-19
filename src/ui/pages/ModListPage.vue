@@ -41,10 +41,10 @@ import ModCardManagerSection from '@/ui/section/ModCardManagerSection.vue';
 import SectionSelector from '@/shared/components/SectionSelector.vue';
 import SectionSlider from '@/shared/components/SectionSlider.vue';
 
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 
-import { $t, currentLanguageRef } from '@/shared/composables/localHelper';
+import { $t, currentLanguageRef, getTranslatedText } from '@/shared/composables/localHelper';
 import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
 import { ConfigLoader } from '@/core/config/ConfigLoader';
 
@@ -55,11 +55,16 @@ import SettingSection from '@/ui/section/SettingSection.vue';
 
 
 const currentSection = ref('');
-const sections = ref([$t('element.section.mod'), $t('element.section.help'), $t('element.section.settings')]);
+// const sections = ref([$t('element.section.mod'), $t('element.section.help'), $t('element.section.settings')]);
+const section = ref([
+  getTranslatedText("element.section.mod"),
+  getTranslatedText("element.section.help"),
+  getTranslatedText("element.section.settings")
+])
 const currentIndex = ref(0);
 
 
-currentLanguageRef.watch(() => {
+watch(currentLanguageRef, () => {
   // 当语言变化时，重新设置 sections
   sections.value = [$t('element.section.mod'), $t('element.section.help'), $t('element.section.settings')];
 });

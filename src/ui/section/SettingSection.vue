@@ -164,7 +164,7 @@
 // import leftMenu from '../components/leftMenu.vue';
 import LeftIndex from '@/shared/components/leftIndex.vue';
 import settingBar from '@/features/settings/settingBar.vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { openUrlWithDefaultBrowser } from '@/shared/services/FileHelper';
 import getSettingSectionData from './settingSectionData';
 import { IPluginLoader, type IPlugin, type IPluginData } from '@/core/plugin/PluginLoader';
@@ -237,7 +237,7 @@ const computeTranslatedIndexStructure = () => {
     return result;
 }
 
-currentLanguageRef.watch(() => {
+watch(currentLanguageRef, () => {
     t_IndexStructure.value = computeTranslatedIndexStructure();
     console.log("当前语言变更，更新左侧菜单结构:", t_IndexStructure.value);
 });

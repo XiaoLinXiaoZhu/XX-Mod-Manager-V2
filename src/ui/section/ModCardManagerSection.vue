@@ -82,7 +82,7 @@ const updateTranslatedIndexStructure = () => {
         "tag": "标签",
     }
 };
-currentLanguageRef.watch(() => {
+watch(currentLanguageRef, () => {
     translatedIndexStructure = updateTranslatedIndexStructure();
     console.log("当前语言变更，更新左侧菜单结构:", translatedIndexStructure);
 });

@@ -3,7 +3,7 @@ import { ModInfo } from './ModInfo';
 import type {ModConfig} from './ModMetadata';
 import { isDirectoryExists, getDirectoryList } from "@/shared/services/FileHelper";
 // import { join } from "@tauri-apps/api/path";
-import { RebindableRef } from '@/shared/composables/RebindableRef';
+import { RebindableRef } from '@/deprecation/RebindableRef';
 import { $t_snack } from '@/shared/composables/use-snack';
 import { computed, ref } from 'vue';
 import { calculateIndexStructure } from '@/shared/utils/caculate-index';

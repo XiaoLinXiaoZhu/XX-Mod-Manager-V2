@@ -2,10 +2,10 @@ import { createI18n } from "vue-i18n";
 import en_us from "../../../src-tauri/resources/locals/en-US.json";
 import zh_cn from "../../../src-tauri/resources/locals/zh-CN.json";
 import { EventType,EventSystem } from "@/core/event/EventSystem";
-import { Ref, ref } from "vue";
-import { RebindableRef } from "@/shared/composables/RebindableRef";
+import { computed, ComputedRef, Ref, ref, watch } from "vue";
 
 import "@/assets/styles/styleController";
+import { sharedConfigManager } from "@/core/state/SharedConfigManager";
 
 export const i18nInstance = createI18n({
     locale: "en-US", // set locale
@@ -19,9 +19,9 @@ export const i18nInstance = createI18n({
 
 export type I18nLocale = "en-US" | "zh-CN";
 export const I18nLocaleList: I18nLocale[] = ["en-US", "zh-CN"]; // 支持的语言列表
-export const currentLanguageRef: RebindableRef<I18nLocale> = new RebindableRef<I18nLocale>("en-US"); // 当前语言的引用
+export const currentLanguageRef = sharedConfigManager.language;
 
-currentLanguageRef.watch((newLocale) => {
+watch(currentLanguageRef, (newLocale) => {
     // 设置 i18n 的语言
     i18nInstance.global.locale.value = newLocale;
     // debug
@@ -38,21 +38,25 @@ export const setI18nLocale = (locale: I18nLocale) => {
 
 // 暴露它的翻译函数
 export const $t = (key: string,namedValue?: Record<string, any>) => {
-    // 如果没有传入命名值，则使用空对象
-    //debug currentLanguageRef
-
-    // 添加调试：检查当前语言包是否包含该键
-    // const messages = i18nInstance.global.messages.value;
-    // console.log(
-    //     `当前语言包是否包含键 ${key}:`,messages,
-    //     messages && key.split('.').reduce((obj, k) => obj?.[k], messages[currentLanguageRef.value] as any) !== undefined
-    // );
-
     if (namedValue === undefined || namedValue === null) {
         return i18nInstance.global.t(key);
     }
-
     return i18nInstance.global.t(key,namedValue);
+};
+
+// 暴露一个响应式的计算属性，获取当前语言的翻译
+export const $rt = (key: string, namedValue?: Record<string, any>): ComputedRef<string> => {
+    return computed(() => {
+        // 引用一下 currentLanguageRef 使其 更随其变更
+        if (currentLanguageRef.value === undefined || currentLanguageRef.value === null) {
+            console.error('当前语言未设置，无法获取翻译');
+            return key; // 返回原始 key
+        }
+        if (namedValue === undefined || namedValue === null) {
+            return i18nInstance.global.t(key);
+        }
+        return i18nInstance.global.t(key, namedValue);
+    });
 };
 
 
@@ -73,12 +77,5 @@ export function getTranslatedText(text: TranslatedText) {
         console.error('getTranslatedText error: text is empty for current language', currentLanguageRef.value);
     }
     // 返回一个响应式的计算属性
-    // return computed(() => "⚙️" + text[currentLanguageRef.ref.value] || text['en-US'] || '');
-    // 因为现在 currentLanguageRef 是一个 RebindableRef，所以不能直接使用 computed
-    const reactiveText :Ref<string> = ref(text[currentLanguageRef.value] || text['en-US'] || '');
-    currentLanguageRef.watch(() => {
-        reactiveText.value = text[currentLanguageRef.value] || text['en-US'] || '';
-    }
-    );
-    return reactiveText;
+    return computed(() => "⚙️" + (text[currentLanguageRef.value as I18nLocale] || text['en-US'] || ''));
 }

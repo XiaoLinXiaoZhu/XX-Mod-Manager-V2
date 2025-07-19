@@ -4,7 +4,7 @@
       <BackButton />
       <h1 draggable>{{ getTranslatedText({ "en-US": "Main Page", "zh-CN": "主页面" }) }}</h1>
 
-      <SectionSelector :sections="sections" v-model:currentSection="currentSection" v-model:index="currentIndex"
+      <SectionSelector :sections="sections.map(section => section.value)" v-model:currentSection="currentSection" v-model:index="currentIndex"
         style="position: absolute; width: 500px; right: 10px;" />
     </template>
 
@@ -17,7 +17,7 @@
             <p>{{ 'element.helpContent' }}</p>
           </div>
           <div>
-            <p>{{ 'element.settingsContent' }}</p>
+            <GlobalConfigSection />
           </div>
         </SectionSlider>
 
@@ -36,34 +36,27 @@
 <script setup lang="ts">
 import BergerFrame from '@/ui/layouts/BergerFrame.vue';
 import BackButton from '@/shared/components/BackButton.vue';
-
+import GlobalConfigSection from '@/ui/section/GlobalConfigSection.vue';
 import SectionSelector from '@/shared/components/SectionSelector.vue';
 import SectionSlider from '@/shared/components/SectionSlider.vue';
 
 import { ref, type Ref } from 'vue';
 
 
-import { $t, currentLanguageRef, getTranslatedText } from '@/shared/composables/localHelper';
+import { $rt, getTranslatedText } from '@/shared/composables/localHelper';
 import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
 import GameRepoSection from '@/ui/section/GameRepoSection.vue';
 import { ConfigLoader } from '@/core/config/ConfigLoader';
 import { join } from '@tauri-apps/api/path';
 import router from '@/features/router';
-import { useGlobalConfig } from '@/core/config/GlobalConfigLoader';
+import { GlobalConfigLoader, useGlobalConfig } from '@/core/config/GlobalConfigLoader';
 import { EventSystem, EventType } from '@/core/event/EventSystem';
+import { sharedConfigManager } from '@/core/state/SharedConfigManager';
 
 
 const currentSection = ref('Section 1');
-const sections = ref([$t('element.section.games'), $t('element.section.help'), $t('element.section.settings')]);
+const sections = [$rt('element.section.games'), $rt('element.section.help'), $rt('element.section.settings')];
 const currentIndex = ref(0);
-
-
-currentLanguageRef.watch((newLocale) => {
-  // debug
-  console.log('语言变化:', newLocale, "重新设置 sections");
-  // 当语言变化时，重新设置 sections
-  sections.value = [$t('element.section.games'), $t('element.section.help'), $t('element.section.settings')];
-});
 
 const gameRepoSectionRef: Ref<InstanceType<typeof GameRepoSection> | null> = ref(null);
 const handleStartClicked = async () => {
@@ -81,37 +74,11 @@ const handleStartClicked = async () => {
       console.warn('No game repository selected.');
     }
   }
-}
-
-import { type I18nLocale } from '@/shared/composables/localHelper';
-import { currentTheme, type Theme } from '@/assets/styles/styleController';
-
-
-
-const rebind = () => {
-  //-================================
-  //-💾 重新绑定回全局配置
-  //-================================
-  //- 1. rebind 一下语言
-  currentLanguageRef.rebind(useGlobalConfig('language', 'zh-CN' as I18nLocale).getRef());
-
-  //- 2. rebind 一下主题
-  currentTheme.rebind(useGlobalConfig('theme', 'dark' as Theme).getRef());
 };
 
+// 重新绑定事件
 EventSystem.on(EventType.initDone, () => {
-  rebind();
-});
-
-EventSystem.on(EventType.routeChanged, (changeInfo: { to: string, from: string }) => {
-  //-================================
-  //-🔄 路由变化时，重新绑定
-  //-================================
-  //debug
-  console.log('Route changed from', changeInfo.from, 'to', changeInfo.to);
-  if (changeInfo.to === 'Main') {
-    rebind();
-  }
+  sharedConfigManager.setUpdateSource(GlobalConfigLoader);
 });
 
 </script>
