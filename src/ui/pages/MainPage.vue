@@ -4,7 +4,7 @@
       <BackButton />
       <h1 draggable>{{ getTranslatedText({ "en-US": "Main Page", "zh-CN": "主页面" }) }}</h1>
 
-      <SectionSelector :sections="sections.map(section => section.value)" v-model:currentSection="currentSection" v-model:index="currentIndex"
+      <SectionSelector :sections="sections" v-model:currentSection="currentSection" v-model:index="currentIndex"
         style="position: absolute; width: 500px; right: 10px;" />
     </template>
 
@@ -40,10 +40,10 @@ import GlobalConfigSection from '@/ui/section/GlobalConfigSection.vue';
 import SectionSelector from '@/shared/components/SectionSelector.vue';
 import SectionSlider from '@/shared/components/SectionSlider.vue';
 
-import { ref, type Ref } from 'vue';
+import { computed, ref, type Ref } from 'vue';
 
 
-import { $rt, getTranslatedText } from '@/shared/composables/localHelper';
+import { $rt, $t, currentLanguageRef, getTranslatedText } from '@/shared/composables/localHelper';
 import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
 import GameRepoSection from '@/ui/section/GameRepoSection.vue';
 import { ConfigLoader } from '@/core/config/ConfigLoader';
@@ -53,10 +53,23 @@ import { GlobalConfigLoader, useGlobalConfig } from '@/core/config/GlobalConfigL
 import { EventSystem, EventType } from '@/core/event/EventSystem';
 import { sharedConfigManager } from '@/core/state/SharedConfigManager';
 
-
 const currentSection = ref('Section 1');
-const sections = [$rt('element.section.games'), $rt('element.section.help'), $rt('element.section.settings')];
+const sections = computed(() => {
+  // debug language
+  const result = [
+    $t('element.section.games'),
+    $t('element.section.help'),
+    $t('element.section.settings')
+  ];
+  console.log('Section get Current language:', currentLanguageRef.value , result);
+  return result;
+});
 const currentIndex = ref(0);
+
+//每秒打印一次language
+setInterval(() => {
+  console.log('🦒❗ currentLanguageRef:', currentLanguageRef);
+}, 1000);
 
 const gameRepoSectionRef: Ref<InstanceType<typeof GameRepoSection> | null> = ref(null);
 const handleStartClicked = async () => {
@@ -75,12 +88,6 @@ const handleStartClicked = async () => {
     }
   }
 };
-
-// 重新绑定事件
-EventSystem.on(EventType.initDone, () => {
-  sharedConfigManager.setUpdateSource(GlobalConfigLoader);
-});
-
 </script>
 
 <style scoped lang="scss">

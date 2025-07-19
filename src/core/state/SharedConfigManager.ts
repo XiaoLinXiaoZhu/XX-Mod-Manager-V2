@@ -3,7 +3,7 @@
 // 所以说改为：
 // 1. 直接使用 ComputedRef
 // 2. 通过改变 同步源 来实现跟随 配置的变化
-import { computed, WritableComputedRef } from "vue";
+import { computed, WritableComputedRef, ref } from "vue";
 import { Storage } from "../storage/Storage";
 import { I18nLocale } from "@/shared/composables/localHelper";
 import { EventSystem, EventType } from "../event/EventSystem";
@@ -12,29 +12,40 @@ import { GlobalConfigLoader } from "../config/GlobalConfigLoader";
 import { Theme } from "@/assets/styles/styleController";
 
 class SharedConfigManager {
-    private updateSource?: Storage;
+    // 使用响应式的 ref 来存储 updateSource，这样可以触发 computed 的重新计算
+    private updateSource = ref<Storage | undefined>(undefined);
 
     public setUpdateSource(source: Storage) {
-        this.updateSource = source;
+        // debug
+        console.log('👉🏻 SharedConfigManager: setUpdateSource', source);
+        this.updateSource.value = source;
     }
 
     private buildComputedRef<T>(key: string, defaultValue: T): WritableComputedRef<T> {
         return computed({
             get: () => {
-                if (!this.updateSource) {
+                const source = this.updateSource.value;
+                if (!source) {
                     console.warn(`SharedConfigManager: updateSource is not set, returning default value for ${key}`);
                     return defaultValue;
                 }
-                const ref = this.updateSource.useStorage(key, defaultValue).getRef();
+                
+                const ref = source.useStorage(key, defaultValue).getRef();
+                if (!ref) {
+                    console.warn(`SharedConfigManager: no ref found for ${key}, returning default value`);
+                    return defaultValue;
+                }
                 return ref.value;
             },
             set: (value: T) => {
-                if (!this.updateSource) {
+                const source = this.updateSource.value;
+                if (!source) {
                     console.warn(`SharedConfigManager: updateSource is not set, cannot set value for ${key}`);
                     return;
                 }
-                const ref = this.updateSource.useStorage(key, value).getRef();
-                ref.value = value;
+                // debug
+                console.log(`SCM[${source.storageName}]: Setting ${key} to`, value);
+                source.useStorage(key, value).value = value;
             }
         });
     }
@@ -56,4 +67,12 @@ EventSystem.on(EventType.routeChanged, (changeInfo: { to: string, from: string }
     sharedConfigManager.setUpdateSource(ConfigLoader);
   }
 });
+
+// 重新绑定事件
+EventSystem.on(EventType.initDone, () => {
+  // debug
+  console.log('MainPage initDone event triggered');
+  sharedConfigManager.setUpdateSource(GlobalConfigLoader);
+});
+
 export const sharedConfigManager = new SharedConfigManager();

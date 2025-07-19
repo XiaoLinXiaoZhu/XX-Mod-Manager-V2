@@ -182,6 +182,7 @@ export class Storage {
                 }
                 valueRef!.value = newValue;
                 storage._data[key] = newValue;
+                console.log(`Storage ${storage.storageName} set ${key} to`, newValue);
                 storage.saveToFile();
             },
             getRef: () => valueRef!,

@@ -22,10 +22,14 @@ export const I18nLocaleList: I18nLocale[] = ["en-US", "zh-CN"]; // 支持的语�
 export const currentLanguageRef = sharedConfigManager.language;
 
 watch(currentLanguageRef, (newLocale) => {
+    // 检查是否是有效的语言代码
+    if (!I18nLocaleList.includes(newLocale as I18nLocale)) {
+        console.error(`Invalid language code: ${newLocale}`);
+        return;
+    }
+    console.log(`当前语言已设置为: ${newLocale}`);
     // 设置 i18n 的语言
     i18nInstance.global.locale.value = newLocale;
-    // debug
-    console.log(`当前语言已设置为: ${newLocale}`);
 });
 
 export const setI18nLocale = (locale: I18nLocale) => {
@@ -53,6 +57,8 @@ export const $rt = (key: string, namedValue?: Record<string, any>): ComputedRef<
             return key; // 返回原始 key
         }
         if (namedValue === undefined || namedValue === null) {
+            //debug
+            console.log('🦒❗$rt debug:', currentLanguageRef.value);
             return i18nInstance.global.t(key);
         }
         return i18nInstance.global.t(key, namedValue);

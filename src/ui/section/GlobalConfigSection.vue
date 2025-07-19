@@ -169,10 +169,7 @@ let IndexStructure: {
     "Plugins": {}
 };
 
-
-let t_IndexStructure = ref<Record<string, Record<string, unknown>>>({});
-
-const computeTranslatedIndexStructure = computed(() => {
+const t_IndexStructure = computed(() => {
     // 创建与原始结构相匹配的翻译结构
     const result: Record<string, ComputedRef<string>> = {
         // 顶级菜单翻译

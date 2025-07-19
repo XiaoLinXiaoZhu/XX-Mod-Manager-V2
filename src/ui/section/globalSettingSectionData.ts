@@ -1,14 +1,14 @@
 import { SettingBarData } from "@/features/settings/settingBarConfig";
 import { setI18nLocale, I18nLocaleList } from "@/shared/composables/localHelper";
-import { ConfigLoader } from "@/core/config/ConfigLoader";
-import { Theme, setTheme } from "@/assets/styles/styleController";
+import { sharedConfigManager } from "@/core/state/SharedConfigManager";
+import { setTheme, Theme } from "@/assets/styles/styleController";
 
 const getSettingSectionData = () => {
     //- ========================== 常规设置 ========================== -//
     //-------------------- 语言 ------------------//
     let languageData: SettingBarData = {
         name: 'language',
-        dataRef: ConfigLoader.language.getRef(),
+        dataRef: sharedConfigManager.language,
         type: 'select',
         displayName: 'Language',
         description: '', t_displayName: {
@@ -43,7 +43,7 @@ const getSettingSectionData = () => {
     //-------------------- 主题 ------------------//
     let themeData: SettingBarData = {
         name: 'theme',
-        dataRef: ConfigLoader.theme.getRef(),
+            dataRef: sharedConfigManager.theme,
         type: 'select',
         displayName: 'Theme',
         description: '', t_displayName: {

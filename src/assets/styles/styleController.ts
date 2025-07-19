@@ -1,10 +1,10 @@
-import { RebindableRef } from "@/deprecation/RebindableRef";
+import { sharedConfigManager } from '@/core/state/SharedConfigManager';
 import { watch } from 'vue';
 
 // let currentTheme:StorageValue<Theme> | null = null;
-export const currentTheme = new RebindableRef<Theme>('dark' as Theme); // 默认主题为 dark
+export const currentTheme = sharedConfigManager.theme;
 watch(currentTheme, (newTheme) => {
-    document.querySelector('#app-container')?.setAttribute('theme', newTheme.value);
+    document.querySelector('#app-container')?.setAttribute('theme', newTheme);
 });
 
 export type Theme = 'auto' | 'dark' | 'light';
