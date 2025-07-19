@@ -7,7 +7,7 @@
             <TagSearch ref="tagSearchRef" v-model:search-tags="searchTags" style="position: relative; left: 10px;" />
             <s-scroll-view style="width: 100%;flex: 1 1 0;">
                 <div class="mod-item-list" ref="modListRef">
-                    <ModCard class="mod-item" v-for="(mod, index) in mods" :data-uid="mod.metadata.id.getRef()" :key="index"
+                    <ModCard class="mod-item" v-for="(mod, index) in mods" :data-uid="mod.metadata.id.refImpl" :key="index"
                         :mod-info="mod.getSelf()" :display="true" v-model:clicked="ifModSelected[index]"
                         :class="{
                             'hidden': !isMatch(mod.metadata as ModMetadata),
@@ -33,14 +33,14 @@
                         </button>
                     </div>
                     <div class="tooltip-content">
-                        <h3>{{ hoveredMod.metadata.name.getRef() }}</h3>
-                        <p>描述: {{ hoveredMod.metadata.description.getRef() }}</p>
-                        <p>热键: {{ hoveredMod.metadata.hotkeys.getRef().value.join(', ') }}</p>
-                        <p>标签: {{ hoveredMod.metadata.tags.getRef().value.join(', ') }}</p>
+                        <h3>{{ hoveredMod.metadata.name.refImpl }}</h3>
+                        <p>描述: {{ hoveredMod.metadata.description.refImpl }}</p>
+                        <p>热键: {{ hoveredMod.metadata.hotkeys.refImpl.value.join(', ') }}</p>
+                        <p>标签: {{ hoveredMod.metadata.tags.refImpl.value.join(', ') }}</p>
                         <s-text-field v-model="tempTagInput" label="标签"/>
                         <s-text-field v-model="hoveredMod.metadata.category.value" label="类型"/>
-                        <p>位置: {{ hoveredMod.metadata.location.getRef() }}</p>
-                        <p>Uid: {{ hoveredMod.metadata.id.getRef() }}</p>
+                        <p>位置: {{ hoveredMod.metadata.location.refImpl }}</p>
+                        <p>Uid: {{ hoveredMod.metadata.id.refImpl }}</p>
                         <!-- 这里可以添加更多详细信息 -->
                     </div>
                 </div>

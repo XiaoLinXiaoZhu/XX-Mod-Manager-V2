@@ -74,8 +74,8 @@ export class IPluginLoader {
     static async LoadDisabledPlugins() {
         // 这里要组合起来：从 局部配置 和 全局配置 中获取禁用的插件
         if (currentPage.value === 'modListPage') {
-            IPluginLoader.localDisabledPluginNamesRef = useConfig("disabledPlugins", [] as string[], false).getRef();
-            IPluginLoader.globalDisabledPluginNamesRef = useGlobalConfig("disabledPlugins", [] as string[]).getRef();
+            IPluginLoader.localDisabledPluginNamesRef = useConfig("disabledPlugins", [] as string[], false).refImpl;
+            IPluginLoader.globalDisabledPluginNamesRef = useGlobalConfig("disabledPlugins", [] as string[]).refImpl;
         }
         if (currentPage.value === 'gamePage') {
             // 只加载全局禁用的插件

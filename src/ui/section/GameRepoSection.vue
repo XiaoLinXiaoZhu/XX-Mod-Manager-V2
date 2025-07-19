@@ -8,7 +8,7 @@
           {{ $t('buttons.addNewRepo') }}
         </s-button>
       </div>
-      <div v-for="(repo, index) in repos?.getRef().value" :key="index" class="card horizontal-card-list-item"
+      <div v-for="(repo, index) in repos?.refImpl.value" :key="index" class="card horizontal-card-list-item"
         :id="repo.uid" :style="getImage(repo)">
         <h3 class="font-hongmeng">{{ repo.name }}</h3>
         <s-button class="card-hover OO-button" @click="showEditRepoDialog = true">

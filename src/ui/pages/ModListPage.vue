@@ -90,12 +90,12 @@ const rebind = async () => {
   });
 
   //- 重新绑定语言
-  currentLanguageRef.rebind(ConfigLoader.language.getRef());
+  currentLanguageRef.rebind(ConfigLoader.language.refImpl);
   //- 重新绑定主题
-  currentTheme.rebind(ConfigLoader.theme.getRef());
+  currentTheme.rebind(ConfigLoader.theme.refImpl);
 
   //- 重新加载mod
-  ModLoader.modSourceFoldersRef.rebind(ConfigLoader.modSourceFolders.getRef());
+  ModLoader.modSourceFoldersRef.rebind(ConfigLoader.modSourceFolders.refImpl);
   // debug
   console.log('Mod source folders:', ModLoader.modSourceFoldersRef.value);
   ModLoader.loadMods().then(() => {

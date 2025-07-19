@@ -12,7 +12,7 @@ const getSettingSectionData = () => {
     //-------------------- 语言 ------------------//
     let languageData: SettingBarData = {
         name: 'language',
-        dataRef: ConfigLoader.language.getRef(),
+        dataRef: ConfigLoader.language.refImpl,
         type: 'select',
         displayName: 'Language',
         description: '', t_displayName: {
@@ -47,7 +47,7 @@ const getSettingSectionData = () => {
     //-------------------- 主题 ------------------//
     let themeData: SettingBarData = {
         name: 'theme',
-        dataRef: ConfigLoader.theme.getRef(),
+        dataRef: ConfigLoader.theme.refImpl,
         type: 'select',
         displayName: 'Theme',
         description: '', t_displayName: {
@@ -87,7 +87,7 @@ const getSettingSectionData = () => {
     //-------------------- 是否使用上次使用的预设 ------------------//
     let ifStartWithLastPresetData: SettingBarData = {
         name: 'ifStartWithLastPreset',
-        dataRef: ConfigLoader.ifStartWithLastPreset.getRef(),
+        dataRef: ConfigLoader.ifStartWithLastPreset.refImpl,
         type: 'boolean',
         displayName: 'Start With Last Preset',
         description: 'Whether to start with the last preset used', t_displayName: {
@@ -104,7 +104,7 @@ const getSettingSectionData = () => {
     }    //-------------------- 模组目标文件夹 ------------------//
     let modTargetFolderData: SettingBarData = {
         name: 'modTargetFolder',
-        dataRef: ConfigLoader.modTargetFolder.getRef(),
+        dataRef: ConfigLoader.modTargetFolder.refImpl,
         type: 'dir',
         displayName: 'Mod Target Folder',
         description: 'The folder of the mod target', t_displayName: {
@@ -121,7 +121,7 @@ const getSettingSectionData = () => {
     }    //-------------------- 模组源文件夹 ------------------//
     let modSourceFoldersData: SettingBarDataMulitiDir = {
         name: 'modSourceFolders',
-        dataRef: ConfigLoader.modSourceFolders.getRef(),
+        dataRef: ConfigLoader.modSourceFolders.refImpl,
         type: 'dir:multi', // 现在支持多选文件夹了
         // type: 'dir',
         displayName: 'Mod Source Folders',
@@ -139,7 +139,7 @@ const getSettingSectionData = () => {
     }    //-------------------- 预设文件夹 ------------------//
     let presetFolderData: SettingBarData = {
         name: 'presetFolder',
-        dataRef: ConfigLoader.presetFolder.getRef(),
+        dataRef: ConfigLoader.presetFolder.refImpl,
         type: 'dir',
         displayName: 'Preset Folder',
         description: 'The folder of the preset', t_displayName: {
@@ -181,7 +181,7 @@ const getSettingSectionData = () => {
     }    //-------------------- 打开 firstLoad 页面的按钮 ------------------//
     let openFirstLoadButton: SettingBarData = {
         name: 'openFirstLoad',
-        dataRef: ConfigLoader.firstLoad.getRef(),
+        dataRef: ConfigLoader.firstLoad.refImpl,
         type: 'iconButton',
         displayName: 'Open First Load',
         description: 'Open First Load', t_displayName: {
@@ -206,7 +206,7 @@ const getSettingSectionData = () => {
 
     const ifKeepModNameAsModFolderName: SettingBarData = {
         name: 'ifKeepModNameAsModFolderName',
-        dataRef: ConfigLoader.ifKeepModNameAsModFolderName.getRef(),
+        dataRef: ConfigLoader.ifKeepModNameAsModFolderName.refImpl,
         type: 'boolean',
         displayName: 'Keep Mod Name As Mod Folder Name',
         t_displayName: {
@@ -221,7 +221,7 @@ const getSettingSectionData = () => {
 
     const ifUseTraditionalApply: SettingBarData = {
         name: 'ifUseTraditionalApply',
-        dataRef: ConfigLoader.ifUseTraditionalApply.getRef(),
+        dataRef: ConfigLoader.ifUseTraditionalApply.refImpl,
         type: 'boolean',
         displayName: 'Use Traditional Apply',
         t_displayName: {
@@ -239,9 +239,9 @@ const getSettingSectionData = () => {
             // 2. ifKeepModNameAsModFolderName 需要是 false
 
             if (value) {
-                const modTargetFolder = ConfigLoader.modTargetFolder.getRef().value;
-                const modSourceFolders = ConfigLoader.modSourceFolders.getRef().value;
-                const ifKeepModNameAsModFolderName = ConfigLoader.ifKeepModNameAsModFolderName.getRef().value;
+                const modTargetFolder = ConfigLoader.modTargetFolder.refImpl.value;
+                const modSourceFolders = ConfigLoader.modSourceFolders.refImpl.value;
+                const ifKeepModNameAsModFolderName = ConfigLoader.ifKeepModNameAsModFolderName.refImpl.value;
                 // 检查 modTargetFolder 是否包含在 modSourceFolders 数组中
                 if (!modSourceFolders.includes(modTargetFolder)) {
                     console.log('ifUseTraditionalApply changed:', value, 'modTarget and modSource need to be the same folder');

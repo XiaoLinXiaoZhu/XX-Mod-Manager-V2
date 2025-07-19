@@ -6,10 +6,10 @@
       <div class="placeholder" v-else>Loading preview...</div>
     </template>
     <template #headline>
-      <div id="mod-item-headline">{{ props.modInfo.metadata.name.getRef() || 'Unknown Mod' }}</div>
+      <div id="mod-item-headline">{{ props.modInfo.metadata.name.refImpl || 'Unknown Mod' }}</div>
     </template>
     <template #subhead>
-      <div id="mod-item-subhead">{{ props.modInfo.metadata.category.getRef || 'Unknown Category' }}</div>
+      <div id="mod-item-subhead">{{ props.modInfo.metadata.category.refImpl || 'Unknown Category' }}</div>
     </template>
     <template #text>
 

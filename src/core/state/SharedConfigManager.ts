@@ -4,7 +4,7 @@
 // 1. 直接使用 ComputedRef
 // 2. 通过改变 同步源 来实现跟随 配置的变化
 import { computed, WritableComputedRef, ref, watch } from "vue";
-import { Storage } from "../storage/Storage-old";
+import { Storage } from "../storage/Storage";
 import { I18nLocale } from "@/shared/composables/localHelper";
 import { EventSystem, EventType } from "../event/EventSystem";
 import { ConfigLoader } from "../config/ConfigLoader";
@@ -36,16 +36,16 @@ class SharedConfigManager {
 
         // 重新绑定 watcher
         const languageStorage = source.useStorage('language', 'zh-CN' as I18nLocale);
-        this._refCache.language.value = languageStorage.getRef().value;
-        this.watcherHandlers.language = watch(languageStorage?.getRef(), (newValue) => {
+        this._refCache.language.value = languageStorage.refImpl.value;
+        this.watcherHandlers.language = watch(languageStorage?.refImpl, (newValue) => {
             // debug
             console.log('SharedConfigManager: language changed to', newValue);
             // 更新语言
             this._refCache.language.value = newValue;
         });
         const themeStorage = source.useStorage('theme', 'dark' as Theme);
-        this._refCache.theme.value = themeStorage.getRef().value;
-        this.watcherHandlers.theme = watch(themeStorage?.getRef(), (newValue) => {
+        this._refCache.theme.value = themeStorage.refImpl.value;
+        this.watcherHandlers.theme = watch(themeStorage?.refImpl, (newValue) => {
             // debug
             console.log('SharedConfigManager: theme changed to', newValue);
             // 更新主题
@@ -67,17 +67,21 @@ private buildComputedRef<T>(key: string, defaultValue: T): WritableComputedRef<T
             // debug
             console.log(`SCM[${source.storageName}]: Setting ${key} to`, value);
             // 只调用一次 useStorage，避免创建新的 Ref
-            const storage = source.useStorage(key, defaultValue);
-            if (!isRefObject(storage)) {
-                console.warn(`SCM[${source.storageName}]: ${key} is not a Ref`);
-                // this._refCache[key] = ref(value);
+            const storageValue = source.useStorage(key, defaultValue);
+            if (!isRefObject(storageValue.refImpl)) {
+                console.warn(`SCM[${source.storageName}]: ${key} is not a Ref`,{
+                    "storageValue": storageValue,
+                    "refImpl": storageValue.refImpl,
+                    "value": storageValue.value
+            });
+            // this._refCache[key] = ref(value);
             } else {
                 // debug
                 console.log(`SCM[${source.storageName}]: ${key} is a Ref, updating value`);
             }
-            storage.value = value;
+            storageValue.value = value;
             // 使用已经获取的 storage 引用来检查值
-            console.log(`SCM[${source.storageName}]: ${key} is now`, storage.value);
+            console.log(`SCM[${source.storageName}]: ${key} is now`, storageValue.value);
         }
     });
 }

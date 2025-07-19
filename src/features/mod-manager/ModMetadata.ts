@@ -1,5 +1,5 @@
 import { basename } from "@tauri-apps/api/path";
-import { Storage } from "@/core/storage/Storage-old";
+import { Storage } from "@/core/storage/Storage";
 import { hash256 } from "@/shared/utils/SimpleHash";
 
 export interface ModConfig {

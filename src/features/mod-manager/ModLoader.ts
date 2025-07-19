@@ -45,8 +45,8 @@ export class ModLoader {
         // 收集所有的分类
         const allCategories: string[] = [];
         ModLoader.modsRef.value.forEach(mod => {
-            if (mod.metadata.category && mod.metadata.category.getRef().value) {
-                allCategories.push(mod.metadata.category.getRef().value);
+            if (mod.metadata.category && mod.metadata.category.refImpl.value) {
+                allCategories.push(mod.metadata.category.refImpl.value);
             }
         });
 
@@ -61,8 +61,8 @@ export class ModLoader {
         // 收集所有的标签
         const allTags: string[] = [];
         ModLoader.modsRef.value.forEach(mod => {
-            if (mod.metadata.tags && mod.metadata.tags.getRef().value) {
-                allTags.push(...mod.metadata.tags.getRef().value);
+            if (mod.metadata.tags && mod.metadata.tags.refImpl.value) {
+                allTags.push(...mod.metadata.tags.refImpl.value);
             }
         });
 

@@ -217,7 +217,7 @@ const recommendList = computed(() => {
 
     // 3. categories
     const categories: AutoRecommendItem[] = ModLoader.mods.map(mod => {
-        const category = mod.metadata.category.getRef().value;
+        const category = mod.metadata.category.refImpl.value;
         if (category) {
             return {
                 type: "matchContent",

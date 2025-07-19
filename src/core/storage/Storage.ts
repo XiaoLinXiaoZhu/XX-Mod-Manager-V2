@@ -1,6 +1,7 @@
 import { isFileExists, readFile, writeFile } from "@/shared/services/FileHelper";
 import { Ref, shallowRef } from "vue";
 import {CachedObject} from "@/shared/utils/CachedObject";
+import { isRefObject } from "@/shared/utils/RefHelper";
 
 export class Storage {
     public _strictMode: boolean = true; // 是否开启严格模式
@@ -151,7 +152,19 @@ export class StorageValue<T> {
     private _key: string;
     private _refImpl: Ref<T>;
     
+    // 告诉 Vue 不要对这个对象进行响应式处理
+    public __v_skip = true;
+    
     get refImpl(): Ref<T> {
+        if (!isRefObject(this._refImpl)) {
+            console.error(`[ERROR] StorageValue.refImpl 不是 Ref 对象!`, {
+                "key": this._key,
+                "_refImpl": this._refImpl,
+                "_refImpl类型": typeof this._refImpl
+            });
+            // 尝试修复：重新创建 Ref
+            this._refImpl = shallowRef(this._refImpl as any);
+        }
         return this._refImpl;
     }
 

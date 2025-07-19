@@ -7,7 +7,7 @@ export class CachedObject {
     private inited: boolean = false;
     private checkInit(): void {
         if (!this.inited) {
-            this.caculateCache();
+            this._cache = this.caculateCache();
             this.inited = true;
         }
     }
@@ -19,7 +19,7 @@ export class CachedObject {
 
     // 强制同步，发生较大变更时使用
     public syncCache(): void {
-        this.caculateCache();
+        this._cache = this.caculateCache();
     }
 
     // 差异更新，发生小变更时使用
