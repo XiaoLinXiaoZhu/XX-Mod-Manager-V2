@@ -1,4 +1,4 @@
-import {StorageValue } from "@/core/storage/Storage";
+import {StorageValue } from "@/core/storage/Storage-old";
 
 // provides a way to manage mod hotkeys
 export class ModHotkeyManager {

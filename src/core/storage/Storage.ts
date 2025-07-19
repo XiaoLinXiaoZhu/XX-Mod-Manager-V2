@@ -1,191 +1,177 @@
-// 之前的configloader.ts 有一些地方非常麻烦这里想要优化一下：
-import { readFile, writeFile, isFileExists } from '@/shared/services/FileHelper';
-import { Ref, ref } from 'vue';
-
-export type StorageValue<T> = {
-    value: T;
-    getRef: () => Ref<T>;
-};
+import { isFileExists, readFile, writeFile } from "@/shared/services/FileHelper";
+import { Ref, shallowRef } from "vue";
+import {CachedObject} from "@/shared/utils/CachedObject";
 
 export class Storage {
+    public _strictMode: boolean = true; // 是否开启严格模式
+    public get canSet(): boolean {
+        const canSet = !this._strictMode || (!!this._filePath && this._filePath !== '');
+        if (!canSet) {
+            console.warn(`Storage ${this.storageName} 处于严格模式，且未设置文件路径，无法使用 set 方法`);
+        }
+        return canSet;
+    }
     public storageName: string = '';
-    protected _data: Record<string, any> = {};
-    protected _refCache: Record<string, Ref<any>> = {};
     protected _filePath: string = '';
-    // 严格模式，开启后如果没有配置 _filePath 则无法使用 set，但是仍然可以获得配置的引用以及 get 方法
-    // 主要用于防止在没有加载配置的情况下使用 set 方法
-    public _strictMode: boolean = false;
+    protected _storageValues: Record<string, StorageValue<any>> = {};
 
     constructor(name?: string) {
         if (name) {
             this.storageName = name;
         }
-        // console.log(`Storage ${this.storageName} 初始化`);
     }
 
-    async loadFrom(filePath: string): Promise<void> {
-        console.log(`从 ${filePath} 读取配置`);
-        // 如果之前的 filePath 存在，且不等于当前的 filePath
-        // 则删除之前读取的配置
-        if (this._filePath && this._filePath !== filePath) {
-            // 删除之前的配置
-            // debug
-            console.log(`删除之前的配置 ${this._filePath}`);
-            this._data = {};
+    public mergeData(data: Record<string, any>, force: boolean = true): void {
+        if (force) {
+            this._mergeDataForce(data);
+        } else {
+            this._mergeData(data);
         }
+
+        // sync the cache
+        this._cache.syncCache();
+        this.saveToFile();
+    }
+
+    private _mergeData(data: Record<string, any>): void {
+        // 非强制合并，保留已有的值，只合并新值，或者空值
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                const value = data[key];
+                if (value === undefined || value === null || value === '' || 
+                    (Array.isArray(value) && value.length === 0) || 
+                    (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0)) {
+                    continue; // 跳过空值和空数组/空对象
+                }
+                if (!this._storageValues[key]) {
+                    this._storageValues[key] = new StorageValue(key, value, this);
+                } else {
+                    // 如果已经存在，当前值为空，则更新为新值
+                    const currentValue = this._storageValues[key].value;
+                    if (currentValue === undefined || currentValue === null || currentValue === '' || 
+                        (Array.isArray(currentValue) && currentValue.length === 0) || 
+                        (typeof currentValue === 'object' && !Array.isArray(currentValue) && Object.keys(currentValue).length === 0)) {
+                        this._storageValues[key].value = value;
+                    }
+                }
+            }
+        }
+    }
+
+    private _mergeDataForce(data: Record<string, any>): void {
+        // 强制合并，覆盖已有的值
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                const value = data[key];
+                if (value === undefined || value === null || value === '' || 
+                    (Array.isArray(value) && value.length === 0) || 
+                    (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0)) {
+                    continue; // 跳过空值和空数组/空对象
+                }
+                if (!this._storageValues[key]) {
+                    this._storageValues[key] = new StorageValue(key, value, this);
+                } else {
+                    // 如果已经存在，直接更新值
+                    this._storageValues[key].value = value;
+                }
+            }
+        }
+    }
+
+    public async loadFrom(filePath: string): Promise<void> {
+        console.log(`从 ${filePath} 读取配置`);
         this._filePath = filePath;
         try {
             const fileExists = await isFileExists(filePath);
             if (fileExists) {
                 const rawData = await readFile(filePath, true);
-                // debug
                 console.log(`读取到配置文件 ${filePath} 的内容`, rawData);
                 await this.mergeData(JSON.parse(rawData));
             } else {
-                // 如果文件不存在，则创建一个空的配置文件
-                await writeFile(filePath, JSON.stringify({}), true);
                 console.log(`文件 ${filePath} 不存在，已创建空配置文件`);
+                await writeFile(filePath, JSON.stringify({}), true);
             }
         } catch (e) {
-            console.warn('读取配置失败，使用空对象',e);
+            console.warn('读取配置失败，使用空对象', e);
         }
     }
 
-    async mergeData(data: Record<string, any>, force: boolean = false): Promise<void> {
-        // 处理合并数据
-        // 因为当程序在 loadFrom 之前 调用了 useStorage.set() 方法
-        // 这时候 _data 会被赋值
-        // 如果直接加载配置，会导致 _data 中的值被覆盖
-        // 所以这里需要先合并数据
-        let needSave = false;
-        const newData = JSON.parse(JSON.stringify(data));
-        const oldData = JSON.parse(JSON.stringify(this._data));
-        const ifRefExistThenSave = (key:string,value:any) =>{
-            if (this._refCache[key]) {
-                this._refCache[key].value = value;
-            }
+    public useStorage<T>(key: string, defaultValue: T): StorageValue<T> {
+        if (!this._storageValues[key]) {
+            this._storageValues[key] = new StorageValue(key, defaultValue, this);
         }
-        // 如果 _data 中没有值，则无需合并
-        if (Object.keys(this._data).length === 0) {
-            this._data = data;
-            // 如果 refCache 中有值，则更新 refCache 中的值
-            for (const key in data) {
-                ifRefExistThenSave(key,data[key])
-            }
-            return;
-        }
-
-        // debug
-        // console.log('合并数据', data, this._data);
-
-        if (force) {
-            // 覆盖模式，新旧数据优先保留新数据
-            for (const key in data) {
-                this._data[key] = data[key];
-                ifRefExistThenSave(key,data[key])
-            }
-        } else {
-            // debug
-            console.log("no force");
-            // 非覆盖模式：
-            // 如果不是两个都有值，那么哪个有值选哪个
-            for (const key in data) {
-                if (Array.isArray(this._data[key]) || Array.isArray(data[key])) {
-                    // 安全地获取数组长度，如果不是数组则视为长度 0
-                    const currentLength = Array.isArray(this._data[key]) ? this._data[key].length : 0;
-                    const newLength = Array.isArray(data[key]) ? data[key].length : 0;
-                    
-                    if (currentLength <= 0 || newLength <= 0) {
-                        // 直接合并
-                        this._data[key] = Array.from(new Set([...(Array.isArray(this._data[key]) ? this._data[key] : []), ...(Array.isArray(data[key]) ? data[key] : [])]));
-                        ifRefExistThenSave(key,this._data[key])
-                    } else {
-                        // 合并后去重
-                        this._data[key] = Array.from(new Set([...(Array.isArray(this._data[key]) ? this._data[key] : []), ...(Array.isArray(data[key]) ? data[key] : [])]));
-                        ifRefExistThenSave(key, this._data[key]);
-                    }
-                    continue;
-                }
-                // 常规值处理
-                if (this._data[key] === undefined || this._data[key] === null || this._data[key] === ''){
-                    // 使用data
-                    this._data[key] = data[key];
-                    ifRefExistThenSave(key,data[key]);
-                    continue;
-                }
-                if (data[key] === undefined || data[key] === null || data[key] === ""){
-                    // 不发生变化，忽略传入的值
-                    continue;
-                }
-                // 两个都有值，认为本地的值更新
-            }
-        }
-        console.log('合并数据', newData, oldData, "->", this._data);
-
-        if (needSave) {
-            await this.saveToFile();
-        }
+        return this._storageValues[key] as StorageValue<T>;
     }
 
-    /**
-     * @deprecated 请使用 saveToFile() 代替
-     */
-    async save(): Promise<void> {
-        // 已弃用，推荐使用 saveToFile()
-        await this.saveToFile();
+    private _cache:CachedObject = new CachedObject(this.caculateCache.bind(this));
+    private caculateCache(): Record<string, any> {
+        const cache: Record<string, any> = {};
+        for (const key in this._storageValues) {
+            if (this._storageValues.hasOwnProperty(key)) {
+                cache[key] = this._storageValues[key].value;
+            }
+        }
+        return cache;
+    }
+    public updateValue<T>(key: string, value: T): void {
+        // 更新缓存中的值
+        this._cache.setCache(key, value);
+
+        this.saveToFile();
     }
 
-    async saveToFile(): Promise<void> {
+    public async saveToFile(): Promise<void> {
         if (!this._filePath) {
-            console.warn(`${this.storageName} 没有文件路径，无法保存配置`, new Error());
+            console.warn('没有设置文件路径，无法保存数据');
             return;
         }
-
-        console.log('保存配置', this._filePath, this._data);
-        await writeFile(
-            this._filePath,
-            JSON.stringify(this._data, null, 2),
-            true
-        );
-        console.log(`配置已保存到 ${this._filePath}`);
-        return;
-    }
-        
-
-    public async print() {
-        console.log("ModInfo", this, "\nData", this._data);
-    }
-
-    useStorage<T>(key: string, defaultValue: T): StorageValue<T> {
-        let valueRef = this._refCache[key] || undefined;
-        if (!valueRef) {
-            if (this._data[key] === undefined || this._data[key] === null || this._data[key] === '') {
-                // 如果没有值，且默认值不为空，则使用默认值
-                if (defaultValue !== undefined && defaultValue !== null && defaultValue !== '') {
-                    this._data[key] = defaultValue;
-                }
-            }
-            const storedValue = this._data[key];
-            valueRef = ref<T>(storedValue);
-            this._refCache[key] = valueRef;
+        try {
+            // 使用缓存数据保存
+            await writeFile(this._filePath, JSON.stringify(this._cache.getAllCache(), null, 2), true);
+            console.log(`数据已保存到 ${this._filePath}`);
+        } catch (e) {
+            console.error('保存数据失败', e);
         }
-        console.log(`useStorage from ${this.storageName} \n`, key, this._data[key]);
+    }
 
-        const storage = this;
-        return {
-            get value() {
-                return valueRef!.value;
-            },
-            set value(newValue: T) {
-                if (storage._strictMode && !storage._filePath) {
-                    throw new Error(`Storage ${storage.storageName} is in strict mode, cannot set value without file path.`);
-                }
-                valueRef!.value = newValue;
-                storage._data[key] = newValue;
-                console.log(`Storage ${storage.storageName} set ${key} to`, newValue);
-                storage.saveToFile();
-            },
-            getRef: () => valueRef!,
-        };
+    public print(): void {
+        // 打印当前存储的数据，处理为 object
+        const dataToPrint: Record<string, any> = {};
+        for (const key in this._storageValues) {
+            if (this._storageValues.hasOwnProperty(key)) {
+                dataToPrint[key] = this._storageValues[key].value;
+            }
+        }
+        console.log(`Storage ${this.storageName} 数据:`, JSON.stringify(dataToPrint, null, 2));
     }
 }
+
+export class StorageValue<T> {
+    private parentStorage: Storage;
+    private _key: string;
+    private _refImpl: Ref<T>;
+    
+    get refImpl(): Ref<T> {
+        return this._refImpl;
+    }
+
+    get value(): T {
+        return this._refImpl.value;
+    }
+
+    set value(newValue: T) {
+        if (!this.parentStorage.canSet) {
+            return;
+        }
+        this._refImpl.value = newValue;
+        // update the parent storage if it exists
+        this.parentStorage.updateValue(this._key, newValue);
+    }
+
+    constructor(key: string, value: T, parentStorage: Storage) {
+        // use shallowRef to avoid deep reactivity issues
+        this._refImpl = shallowRef(value);
+        this.parentStorage = parentStorage;
+        this._key = key;
+    }
+};

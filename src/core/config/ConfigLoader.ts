@@ -8,8 +8,6 @@ class SubConfigLoaderClass extends Storage {
 
     constructor() {
         super('local config');
-        this._strictMode = true; // 开启严格模式，确保在未加载配置前无法使用 set 方法
-        // debug
         console.log(`SubConfigLoaderClass 初始化`);
     }
 
@@ -32,8 +30,7 @@ class SubConfigLoaderClass extends Storage {
 
     async clearAllConfigs(): Promise<void> {
         console.log(`清除所有本地配置`);
-        this._data = {};
-        this._refCache = {};
+        this._storageValues = {};
         await this.saveToFile(); // 保存到文件
         return;
     }

@@ -34,10 +34,10 @@ watch(currentLanguageRef, (newLocale) => {
 
 export const setI18nLocale = (locale: I18nLocale) => {
     // debug
-    console.log(`设置语言从 ${i18nInstance.global.locale.value} 到 ${locale}`);
+    console.log(`设置语言从 ${i18nInstance.global.locale.value} 到 ${locale}`   );
     currentLanguageRef.value = locale;
 
-    EventSystem.trigger(EventType.languageChange, locale);
+    // EventSystem.trigger(EventType.languageChange, locale);s
 };
 
 // 暴露它的翻译函数
