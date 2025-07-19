@@ -57,8 +57,6 @@ export const $rt = (key: string, namedValue?: Record<string, any>): ComputedRef<
             return key; // 返回原始 key
         }
         if (namedValue === undefined || namedValue === null) {
-            //debug
-            console.log('🦒❗$rt debug:', currentLanguageRef.value);
             return i18nInstance.global.t(key);
         }
         return i18nInstance.global.t(key, namedValue);
@@ -83,5 +81,5 @@ export function getTranslatedText(text: TranslatedText) {
         console.error('getTranslatedText error: text is empty for current language', currentLanguageRef.value);
     }
     // 返回一个响应式的计算属性
-    return computed(() => "⚙️" + (text[currentLanguageRef.value as I18nLocale] || text['en-US'] || ''));
+    return computed(() => (true ? "" : "⚙️") + (text[currentLanguageRef.value as I18nLocale] || text['en-US'] || ''));
 }

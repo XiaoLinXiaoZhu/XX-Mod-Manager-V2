@@ -241,5 +241,8 @@
   },
   "applyMods": {
     "noModsSelected": "无法应用：没有选中的mod"
+  },
+  "messages": {
+    "noGameRepoSelected": "没有被选中的游戏仓库"
   }
 }

@@ -10,11 +10,6 @@
                 <s-divider></s-divider>
                 <settingBar :data="configData.themeData"></settingBar>
                 <s-divider></s-divider>
-                <settingBar :data="configData.ifStartWithLastPresetData"></settingBar>
-                <s-divider></s-divider>
-                <settingBar :data="configData.ifKeepModNameAsModFolderName"></settingBar>
-                <s-divider></s-divider>
-                <settingBar :data="configData.openFirstLoadButton"></settingBar>
                 <div class="placeholder" style="flex: 1;min-height: 150px;"></div>
             </div>
 
@@ -137,7 +132,7 @@ import LeftIndex from '@/shared/components/leftIndex.vue';
 import settingBar from '@/features/settings/settingBar.vue';
 import { computed, ComputedRef, onMounted, Ref, ref, watch } from 'vue';
 import { openUrlWithDefaultBrowser } from '@/shared/services/FileHelper';
-import getSettingSectionData from './settingSectionData';
+import getSettingSectionData from './globalSettingSectionData';
 import { IPluginLoader, type IPlugin, type IPluginData } from '@/core/plugin/PluginLoader';
 import { EventSystem, EventType } from '@/core/event/EventSystem';
 import { getTranslatedText, $t, currentLanguageRef, $rt } from '@/shared/composables/localHelper';

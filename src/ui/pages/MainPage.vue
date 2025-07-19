@@ -16,9 +16,7 @@
           <div>
             <p>{{ 'element.helpContent' }}</p>
           </div>
-          <div>
-            <GlobalConfigSection />
-          </div>
+          <GlobalConfigSection />
         </SectionSlider>
 
       </div>
@@ -43,15 +41,14 @@ import SectionSlider from '@/shared/components/SectionSlider.vue';
 import { computed, ref, type Ref } from 'vue';
 
 
-import { $rt, $t, currentLanguageRef, getTranslatedText } from '@/shared/composables/localHelper';
+import { $t, currentLanguageRef, getTranslatedText } from '@/shared/composables/localHelper';
 import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
 import GameRepoSection from '@/ui/section/GameRepoSection.vue';
 import { ConfigLoader } from '@/core/config/ConfigLoader';
 import { join } from '@tauri-apps/api/path';
 import router from '@/features/router';
-import { GlobalConfigLoader, useGlobalConfig } from '@/core/config/GlobalConfigLoader';
-import { EventSystem, EventType } from '@/core/event/EventSystem';
-import { sharedConfigManager } from '@/core/state/SharedConfigManager';
+import { useGlobalConfig } from '@/core/config/GlobalConfigLoader';
+import { $t_snack } from '@/shared/composables/use-snack';
 
 const currentSection = ref('Section 1');
 const sections = computed(() => {
@@ -80,6 +77,7 @@ const handleStartClicked = async () => {
       });
     } else {
       console.warn('No game repository selected.');
+      $t_snack('messages.noGameRepoSelected',"error");
     }
   }
 };
