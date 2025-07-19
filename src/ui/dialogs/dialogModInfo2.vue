@@ -202,7 +202,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { defineProps, defineEmits, onMounted, computed, watch, useTemplateRef } from 'vue';
+import { onMounted, computed, watch, useTemplateRef } from 'vue';
 import IManager from '../../electron/IManager';
 import DialogTemplate from './dialogTemplate.vue';
 import horizontalScrollBar from '../components/horizontalScrollBar.vue';
