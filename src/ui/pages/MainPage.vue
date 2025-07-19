@@ -66,11 +66,6 @@ const sections = computed(() => {
 });
 const currentIndex = ref(0);
 
-//每秒打印一次language
-setInterval(() => {
-  console.log('🦒❗ currentLanguageRef:', currentLanguageRef, useGlobalConfig("language", "zh-CN"));
-}, 500);
-
 const gameRepoSectionRef: Ref<InstanceType<typeof GameRepoSection> | null> = ref(null);
 const handleStartClicked = async () => {
   if (gameRepoSectionRef.value) {

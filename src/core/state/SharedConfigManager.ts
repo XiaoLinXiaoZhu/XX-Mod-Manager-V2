@@ -56,7 +56,7 @@ class SharedConfigManager {
 private buildComputedRef<T>(key: string, defaultValue: T): WritableComputedRef<T> {
     return computed({
         get: () => {
-            return this._refCache[key]?.value ?? this.updateSource.value?.useStorage(key, defaultValue).value ?? defaultValue;
+            return this._refCache[key]?.value ?? this.updateSource.value?.useStorage(key, defaultValue).refImpl.value ?? defaultValue;
         },
         set: (value: T) => {
             const source = this.updateSource.value;

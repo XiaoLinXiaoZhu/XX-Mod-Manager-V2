@@ -2,6 +2,7 @@ import { isFileExists, readFile, writeFile } from "@/shared/services/FileHelper"
 import { Ref, shallowRef } from "vue";
 import {CachedObject} from "@/shared/utils/CachedObject";
 import { isRefObject } from "@/shared/utils/RefHelper";
+import { Debouncer } from "@/shared/utils/Debouncer";
 
 export class Storage {
     public _strictMode: boolean = true; // 是否开启严格模式
@@ -15,11 +16,14 @@ export class Storage {
     public storageName: string = '';
     protected _filePath: string = '';
     protected _storageValues: Record<string, StorageValue<any>> = {};
+    private _saveDebouncer: Debouncer; // 防抖器
 
     constructor(name?: string) {
         if (name) {
             this.storageName = name;
         }
+        // 初始化防抖器
+        this._saveDebouncer = new Debouncer(() => this._doSaveToFile(), 300);
     }
 
     public mergeData(data: Record<string, any>, force: boolean = true): void {
@@ -28,10 +32,6 @@ export class Storage {
         } else {
             this._mergeData(data);
         }
-
-        // sync the cache
-        this._cache.syncCache();
-        this.saveToFile();
     }
 
     private _mergeData(data: Record<string, any>): void {
@@ -121,11 +121,22 @@ export class Storage {
         this.saveToFile();
     }
 
-    public async saveToFile(): Promise<void> {
+    public async saveToFile(immediate: boolean = false): Promise<void> {
         if (!this._filePath) {
             console.warn('没有设置文件路径，无法保存数据');
             return;
         }
+
+        // 如果需要立即保存，清除防抖定时器并直接保存
+        if (immediate) {
+            return this._saveDebouncer.invokeImmediate();
+        }
+
+        // 使用防抖机制
+        this._saveDebouncer.invoke();
+    }
+
+    private async _doSaveToFile(): Promise<void> {
         try {
             // 使用缓存数据保存
             await writeFile(this._filePath, JSON.stringify(this._cache.getAllCache(), null, 2), true);
@@ -133,6 +144,21 @@ export class Storage {
         } catch (e) {
             console.error('保存数据失败', e);
         }
+    }
+
+    /**
+     * 设置防抖延迟时间
+     * @param delay 延迟时间（毫秒）
+     */
+    public setSaveDebounceDelay(delay: number): void {
+        this._saveDebouncer.setDelay(delay);
+    }
+
+    /**
+     * 清理防抖定时器，通常在组件销毁时调用
+     */
+    public dispose(): void {
+        this._saveDebouncer.dispose();
     }
 
     public print(): void {

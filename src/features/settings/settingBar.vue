@@ -14,7 +14,7 @@
         <p>{{ data.dataRef }}</p>
     </div>
     <div class="OO-setting-bar" v-else-if="display">
-        <h3 v-if="data.t_displayName">{{ getTranslatedText(data.t_displayName) }}</h3>
+        <h3 v-if="data.t_displayName" @dblclick="console.log('Data:', data,data.dataRef.value)">{{ getTranslatedText(data.t_displayName) }}</h3>
         <h3 v-else>{{ data.displayName }}</h3>
 
         <!-- -boolean -->
@@ -153,7 +153,7 @@
 import markdown from '@/shared/components/markdown.vue';
 import horizontalScrollBar from '@/shared/components/horizontalScrollBar.vue';
 
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { getTranslatedText } from '@/shared/composables/localHelper';
 import type { SettingBarData } from './settingBarConfig';
 import { type FileDialogOption, openFileDialog } from '@/shared/services/FileDialogHelper';
@@ -179,11 +179,14 @@ const flashingButton = (button: EventTarget|null) => {
 };
 
 
-
-
-
-
-
+// 如果是 select 可能存在更新不及时的问题
+if (props.data.type === 'select') {
+    watch(props.data.dataRef, (newValue) => {
+        // debug
+        console.log('Select value changed:', newValue);
+        refresh();
+    });
+}
 
 // 几个文件选取写这里，避免臃肿
 const handleDirectorySelect = async () => {
