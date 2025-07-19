@@ -163,7 +163,7 @@ export class StorageValue<T> {
                 "_refImpl类型": typeof this._refImpl
             });
             // 尝试修复：重新创建 Ref
-            this._refImpl = shallowRef(this._refImpl as any);
+            // this._refImpl = shallowRef(this._refImpl as any);
         }
         return this._refImpl;
     }
