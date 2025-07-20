@@ -27,11 +27,20 @@ export class Storage {
     }
 
     public mergeData(data: Record<string, any>, force: boolean = true): void {
+        // debug
+        const oldData = this.toObject();
         if (force) {
             this._mergeDataForce(data);
         } else {
             this._mergeData(data);
         }
+        const newData = this.toObject();
+        console.log(`Storage ${this.storageName} 数据合并前后对比:`,
+            "\n旧数据:", oldData,
+            "\n传入数据:", data,
+            "\n合并后数据:", newData,
+            );
+
     }
 
     private _mergeData(data: Record<string, any>): void {
@@ -80,7 +89,7 @@ export class Storage {
     }
 
     public async loadFrom(filePath: string): Promise<void> {
-        console.log(`从 ${filePath} 读取配置`);
+        console.log(`从 ${filePath} 读取配置`,new Error());
         this._filePath = filePath;
         try {
             const fileExists = await isFileExists(filePath);
@@ -121,7 +130,7 @@ export class Storage {
         this.saveToFile();
     }
 
-    public async saveToFile(immediate: boolean = false): Promise<void> {
+    public async saveToFile(immediate: boolean = true): Promise<void> {
         if (!this._filePath) {
             console.warn('没有设置文件路径，无法保存数据');
             return;
@@ -161,25 +170,33 @@ export class Storage {
         this._saveDebouncer.dispose();
     }
 
-    public print(): void {
-        // 打印当前存储的数据，处理为 object
-        const dataToPrint: Record<string, any> = {};
+    public toObject(): Record<string, any> {
+        // 返回存储的对象，处理为普通对象
+        const obj: Record<string, any> = {};
         for (const key in this._storageValues) {
             if (this._storageValues.hasOwnProperty(key)) {
-                dataToPrint[key] = this._storageValues[key].value;
+                obj[key] = this._storageValues[key].value;
             }
         }
+        return obj;
+    }
+
+    public print(): void {
+        // 打印当前存储的数据，处理为 object
+        const dataToPrint: Record<string, any> = this.toObject();
         console.log(`Storage ${this.storageName} 数据:`, JSON.stringify(dataToPrint, null, 2));
     }
 }
 
 export class StorageValue<T> {
+    // 告诉 Vue 不要对这个对象进行响应式处理
+    public __v_skip = true;
+
     private parentStorage: Storage;
     private _key: string;
     private _refImpl: Ref<T>;
     
-    // 告诉 Vue 不要对这个对象进行响应式处理
-    public __v_skip = true;
+    
     
     get refImpl(): Ref<T> {
         if (!isRefObject(this._refImpl)) {

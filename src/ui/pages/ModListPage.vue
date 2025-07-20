@@ -41,10 +41,10 @@ import ModCardManagerSection from '@/ui/section/ModCardManagerSection.vue';
 import SectionSelector from '@/shared/components/SectionSelector.vue';
 import SectionSlider from '@/shared/components/SectionSlider.vue';
 
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 
-import { $t, currentLanguageRef, getTranslatedText } from '@/shared/composables/localHelper';
+import { $rt, $t, currentLanguageRef, getTranslatedText } from '@/shared/composables/localHelper';
 import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
 import { ConfigLoader } from '@/core/config/ConfigLoader';
 
@@ -56,21 +56,15 @@ import SettingSection from '@/ui/section/SettingSection.vue';
 
 const currentSection = ref('');
 // const sections = ref([$t('element.section.mod'), $t('element.section.help'), $t('element.section.settings')]);
-const section = ref([
-  getTranslatedText("element.section.mod"),
-  getTranslatedText("element.section.help"),
-  getTranslatedText("element.section.settings")
-])
+const sections = computed(() => [
+  $t("element.section.mod"),
+  $t("element.section.help"),
+  $t("element.section.settings")
+]);
 const currentIndex = ref(0);
 
 
-watch(currentLanguageRef, () => {
-  // 当语言变化时，重新设置 sections
-  sections.value = [$t('element.section.mod'), $t('element.section.help'), $t('element.section.settings')];
-});
-
-
-const rebind = async () => {
+const init = async () => {
   // 重新绑定事件
   // 不管怎么样都是从 globalConfig 中获取 lastUsedGameRepo
   //-==================================================
@@ -88,11 +82,6 @@ const rebind = async () => {
   }).catch((error) => {
     console.error('Failed to load config:', error);
   });
-
-  //- 重新绑定语言
-  currentLanguageRef.rebind(ConfigLoader.language.refImpl);
-  //- 重新绑定主题
-  currentTheme.rebind(ConfigLoader.theme.refImpl);
 
   //- 重新加载mod
   ModLoader.modSourceFoldersRef.rebind(ConfigLoader.modSourceFolders.refImpl);
@@ -112,16 +101,17 @@ EventSystem.on(EventType.initDone, async () => {
 EventSystem.on(EventType.routeChanged, async (changeInfo: { to: string, from: string }) => {
   if (changeInfo.to === 'ModList') {
     // 重新绑定配置
-    rebind();
+    init();
   }
 });
 
 import router from '@/features/router';
 import { path } from '@tauri-apps/api';
-import { currentTheme } from '@/assets/styles/styleController';
 import { ModLoader } from '@/features/mod-manager/ModLoader';
 import { $t_snack } from '@/shared/composables/use-snack';
 import { applyMod } from '@/features/mod-apply/ApplyMod';
+
+
 const handleBackButtonClick = () => {
   // 使用router
   router.back();

@@ -3,7 +3,7 @@ import { ModInfo } from './ModInfo';
 import type {ModConfig} from './ModMetadata';
 import { isDirectoryExists, getDirectoryList } from "@/shared/services/FileHelper";
 // import { join } from "@tauri-apps/api/path";
-import { RebindableRef } from '@/deprecation/RebindableRef';
+import { RebindableRef } from '@/shared/composables/RebindableRef';
 import { $t_snack } from '@/shared/composables/use-snack';
 import { computed, ref } from 'vue';
 import { calculateIndexStructure } from '@/shared/utils/caculate-index';
@@ -45,8 +45,8 @@ export class ModLoader {
         // 收集所有的分类
         const allCategories: string[] = [];
         ModLoader.modsRef.value.forEach(mod => {
-            if (mod.metadata.category && mod.metadata.category.refImpl.value) {
-                allCategories.push(mod.metadata.category.refImpl.value);
+            if (mod.metadata.category && mod.metadata.category.value) {
+                allCategories.push(mod.metadata.category.value);
             }
         });
 
@@ -61,8 +61,8 @@ export class ModLoader {
         // 收集所有的标签
         const allTags: string[] = [];
         ModLoader.modsRef.value.forEach(mod => {
-            if (mod.metadata.tags && mod.metadata.tags.refImpl.value) {
-                allTags.push(...mod.metadata.tags.refImpl.value);
+            if (mod.metadata.tags && mod.metadata.tags.value) {
+                allTags.push(...mod.metadata.tags.value);
             }
         });
 
