@@ -26,7 +26,7 @@ export class Storage {
         this._saveDebouncer = new Debouncer(() => this._doSaveToFile(), 300);
     }
 
-    public mergeData(data: Record<string, any>, force: boolean = true): void {
+    public mergeData(data: Record<string, any>, force: boolean = false): void {
         // debug
         const oldData = this.toObject();
         if (force) {

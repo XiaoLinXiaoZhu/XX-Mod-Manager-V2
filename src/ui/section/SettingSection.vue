@@ -269,6 +269,7 @@ const handlePluginToggle = (pluginName: string) => {
 onMounted(async () => {
     //初始化tab
     selectedPath.value = 'General';
+    t_IndexStructure.value = computeTranslatedIndexStructure();
 });
 
 EventSystem.on(EventType.pluginLoaded, () => {
