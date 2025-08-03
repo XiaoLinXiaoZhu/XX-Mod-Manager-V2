@@ -80,6 +80,7 @@ const getSettingSectionData = () => {
                 return 'dark'; // 如果无效，返回默认主题
             } else {
                 setTheme(value as Theme);
+                GlobalConfigLoader.theme.value = value as Theme;
                 return value; // 返回新的主题
             }
         }

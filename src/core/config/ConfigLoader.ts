@@ -2,7 +2,7 @@ import { join } from '@tauri-apps/api/path';
 import { StorageValue,Storage } from '../storage/Storage';
 import { useGlobalConfig } from './GlobalConfigLoader';
 import { I18nLocale } from '@/shared/types/local';
-import { Theme } from '@/assets/styles/styleController';
+import { setTheme, Theme } from '@/assets/styles/styleController';
 import { LocalHelper } from '@/features/i18n/LocalHelperClass';
 
 class SubConfigLoaderClass extends Storage {
@@ -27,11 +27,19 @@ class SubConfigLoaderClass extends Storage {
             this.presetFolder.value = await join(filePath, 'presets');
         }
 
+        this.refreshStates();
+        return;
+    }
+
+    async refreshStates(): Promise<void> {
+        console.log(`刷新本地配置状态`);
+        // set 一下语言
         const localHelper = new LocalHelper();
         localHelper.setI18nLocale(this.language.value);
 
+        // set 一下主题
+        setTheme(this.theme.value);
 
-        return;
     }
 
     async clearAllConfigs(): Promise<void> {

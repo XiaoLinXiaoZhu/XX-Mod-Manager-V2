@@ -2,7 +2,7 @@
 import { getAppdataDir } from '@/shared/services/FileHelper';
 import { join } from '@tauri-apps/api/path';
 import { Storage } from '../storage/Storage';
-import { Theme } from '@/assets/styles/styleController';
+import { setTheme, Theme } from '@/assets/styles/styleController';
 import { I18nLocale } from '@/shared/types/local';
 import { LocalHelper } from '@/features/i18n/LocalHelperClass';
 
@@ -19,8 +19,18 @@ class GlobalConfigLoaderClass extends Storage {
         console.log(`加载全局配置文件: ${defaultConfigPath}`);
         await this.loadFrom(defaultConfigPath);
 
+        this.refreshStates();
+    }
+
+
+    async refreshStates(): Promise<void> {
+        console.log(`刷新本地配置状态`);
+        // set 一下语言
         const localHelper = new LocalHelper();
         localHelper.setI18nLocale(this.language.value);
+
+        // set 一下主题
+        setTheme(this.theme.value);
     }
 
 

@@ -9,7 +9,6 @@
 
     <template #content>
       <div class="main-content" style="height: 100%; width: 100%;overflow: hidden;">
-        <!-- 主页面有三个主要功能: 查看所有的子配置项，新建新的仓库，打开设置面板 -->
         <SectionSlider :currentSection="currentIndex" class="section-slider">
           <ModCardManagerSection ref="modCardManagerSectionRef" />
           <div>
