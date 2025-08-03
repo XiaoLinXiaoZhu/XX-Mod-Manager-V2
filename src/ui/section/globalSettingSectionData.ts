@@ -1,7 +1,6 @@
 import { SettingBarData } from "@/features/settings/settingBarConfig";
 import { setI18nLocale } from "@/features/i18n";
-import { I18nLocaleList } from "@/shared/types/local";
-import { sharedConfigManager } from "@/core/state/SharedConfigManager";
+import { I18nLocaleList ,type I18nLocale} from "@/shared/types/local";
 import { setTheme, Theme } from "@/assets/styles/styleController";
 import { GlobalConfigLoader } from "@/core/config/GlobalConfigLoader";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
@@ -40,6 +39,7 @@ const getSettingSectionData = () => {
                 return 'en-US'; // 如果无效，返回默认语言
             }
             setI18nLocale(value);
+            GlobalConfigLoader.language.value = value as I18nLocale;
             return value; // 返回新的语言代码
         }
     }    

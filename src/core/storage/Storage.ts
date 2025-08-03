@@ -1,8 +1,8 @@
 import { isFileExists, readFile, writeFile } from "@/shared/services/FileHelper";
 import { Ref, shallowRef } from "vue";
-import {CachedObject} from "@/shared/utils/CachedObject";
+import { CachedObject } from "@/shared/utils/CachedObject";
 import { isRefObject } from "@/shared/utils/RefHelper";
-import { Debouncer } from "@/shared/utils/Debouncer";
+import { debounce } from "@/shared/utils/debouncer";
 
 export class Storage {
     public _strictMode: boolean = true; // 是否开启严格模式
@@ -16,14 +16,12 @@ export class Storage {
     public storageName: string = '';
     protected _filePath: string = '';
     protected _storageValues: Record<string, StorageValue<any>> = {};
-    private _saveDebouncer: Debouncer; // 防抖器
+
 
     constructor(name?: string) {
         if (name) {
             this.storageName = name;
         }
-        // 初始化防抖器
-        this._saveDebouncer = new Debouncer(() => this._doSaveToFile(), 300);
     }
 
     public mergeData(data: Record<string, any>, force: boolean = false): void {
@@ -39,7 +37,7 @@ export class Storage {
             "\n旧数据:", oldData,
             "\n传入数据:", data,
             "\n合并后数据:", newData,
-            );
+        );
 
     }
 
@@ -48,8 +46,8 @@ export class Storage {
         for (const key in data) {
             if (data.hasOwnProperty(key)) {
                 const value = data[key];
-                if (value === undefined || value === null || value === '' || 
-                    (Array.isArray(value) && value.length === 0) || 
+                if (value === undefined || value === null || value === '' ||
+                    (Array.isArray(value) && value.length === 0) ||
                     (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0)) {
                     continue; // 跳过空值和空数组/空对象
                 }
@@ -58,8 +56,8 @@ export class Storage {
                 } else {
                     // 如果已经存在，当前值为空，则更新为新值
                     const currentValue = this._storageValues[key].value;
-                    if (currentValue === undefined || currentValue === null || currentValue === '' || 
-                        (Array.isArray(currentValue) && currentValue.length === 0) || 
+                    if (currentValue === undefined || currentValue === null || currentValue === '' ||
+                        (Array.isArray(currentValue) && currentValue.length === 0) ||
                         (typeof currentValue === 'object' && !Array.isArray(currentValue) && Object.keys(currentValue).length === 0)) {
                         this._storageValues[key].value = value;
                     }
@@ -73,8 +71,8 @@ export class Storage {
         for (const key in data) {
             if (data.hasOwnProperty(key)) {
                 const value = data[key];
-                if (value === undefined || value === null || value === '' || 
-                    (Array.isArray(value) && value.length === 0) || 
+                if (value === undefined || value === null || value === '' ||
+                    (Array.isArray(value) && value.length === 0) ||
                     (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0)) {
                     continue; // 跳过空值和空数组/空对象
                 }
@@ -89,7 +87,7 @@ export class Storage {
     }
 
     public async loadFrom(filePath: string): Promise<void> {
-        console.log(`从 ${filePath} 读取配置`,new Error());
+        console.log(`从 ${filePath} 读取配置`, new Error());
         this._filePath = filePath;
         try {
             const fileExists = await isFileExists(filePath);
@@ -113,7 +111,7 @@ export class Storage {
         return this._storageValues[key] as StorageValue<T>;
     }
 
-    private _cache:CachedObject = new CachedObject(this.caculateCache.bind(this));
+    private _cache: CachedObject = new CachedObject(this.caculateCache.bind(this));
     private caculateCache(): Record<string, any> {
         const cache: Record<string, any> = {};
         for (const key in this._storageValues) {
@@ -130,22 +128,23 @@ export class Storage {
         this.saveToFile();
     }
 
-    public async saveToFile(immediate: boolean = true): Promise<void> {
+    @debounce(300)
+    /**
+     * 保存数据到文件
+     * @param immediate 是否立即保存，默认为 false
+     * 如果为 true，则清除防抖定时器并直接保存
+     * 如果为 false，则使用防抖机制，延迟保存
+     */
+    public async saveToFile(): Promise<void> {
         if (!this._filePath) {
             console.warn('没有设置文件路径，无法保存数据');
             return;
         }
-
-        // 如果需要立即保存，清除防抖定时器并直接保存
-        if (immediate) {
-            return this._saveDebouncer.invokeImmediate();
-        }
-
-        // 使用防抖机制
-        this._saveDebouncer.invoke();
+        this.saveToFileImmediate(); // 立即保存
     }
 
-    private async _doSaveToFile(): Promise<void> {
+
+    private async saveToFileImmediate(): Promise<void> {
         try {
             // 使用缓存数据保存
             await writeFile(this._filePath, JSON.stringify(this._cache.getAllCache(), null, 2), true);
@@ -153,21 +152,6 @@ export class Storage {
         } catch (e) {
             console.error('保存数据失败', e);
         }
-    }
-
-    /**
-     * 设置防抖延迟时间
-     * @param delay 延迟时间（毫秒）
-     */
-    public setSaveDebounceDelay(delay: number): void {
-        this._saveDebouncer.setDelay(delay);
-    }
-
-    /**
-     * 清理防抖定时器，通常在组件销毁时调用
-     */
-    public dispose(): void {
-        this._saveDebouncer.dispose();
     }
 
     public toObject(): Record<string, any> {
@@ -195,9 +179,9 @@ export class StorageValue<T> {
     private parentStorage: Storage;
     private _key: string;
     private _refImpl: Ref<T>;
-    
-    
-    
+
+
+
     get refImpl(): Ref<T> {
         if (!isRefObject(this._refImpl)) {
             console.error(`[ERROR] StorageValue.refImpl 不是 Ref 对象!`, {

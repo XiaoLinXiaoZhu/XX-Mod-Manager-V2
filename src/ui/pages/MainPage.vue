@@ -64,12 +64,6 @@ const sections = computed(() => {
 const currentIndex = ref(0);
 
 
-// 每秒log一下 $rt('element.section.games').value
-setInterval(() => {
-  console.log('Current language:', currentLanguageRef.value, 'getTranslate in RT', $rt('element.section.games').value,
-    'getTranslate in $t', $t('element.section.games'));
-}, 1000);
-
 const gameRepoSectionRef: Ref<InstanceType<typeof GameRepoSection> | null> = ref(null);
 const handleStartClicked = async () => {
   if (gameRepoSectionRef.value) {
