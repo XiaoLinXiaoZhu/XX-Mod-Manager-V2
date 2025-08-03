@@ -52,14 +52,20 @@ export class Storage {
                     continue; // 跳过空值和空数组/空对象
                 }
                 if (!this._storageValues[key]) {
-                    this._storageValues[key] = new StorageValue(key, value, this);
+                    this._storageValues[key] = new StorageValue(key, value, this, false);
                 } else {
-                    // 如果已经存在，当前值为空，则更新为新值
-                    const currentValue = this._storageValues[key].value;
-                    if (currentValue === undefined || currentValue === null || currentValue === '' ||
-                        (Array.isArray(currentValue) && currentValue.length === 0) ||
-                        (typeof currentValue === 'object' && !Array.isArray(currentValue) && Object.keys(currentValue).length === 0)) {
+                    // 如果已经存在，且当前值为默认值，则使用配置文件中的值
+                    if (this._storageValues[key].isDefaultValue) {
                         this._storageValues[key].value = value;
+                        this._storageValues[key].isDefaultValue = false;
+                    } else {
+                        // 如果已经存在，当前值为空，则更新为新值
+                        const currentValue = this._storageValues[key].value;
+                        if (currentValue === undefined || currentValue === null || currentValue === '' ||
+                            (Array.isArray(currentValue) && currentValue.length === 0) ||
+                            (typeof currentValue === 'object' && !Array.isArray(currentValue) && Object.keys(currentValue).length === 0)) {
+                            this._storageValues[key].value = value;
+                        }
                     }
                 }
             }
@@ -77,10 +83,11 @@ export class Storage {
                     continue; // 跳过空值和空数组/空对象
                 }
                 if (!this._storageValues[key]) {
-                    this._storageValues[key] = new StorageValue(key, value, this);
+                    this._storageValues[key] = new StorageValue(key, value, this, false);
                 } else {
                     // 如果已经存在，直接更新值
                     this._storageValues[key].value = value;
+                    this._storageValues[key].isDefaultValue = false;
                 }
             }
         }
@@ -106,7 +113,7 @@ export class Storage {
 
     public useStorage<T>(key: string, defaultValue: T): StorageValue<T> {
         if (!this._storageValues[key]) {
-            this._storageValues[key] = new StorageValue(key, defaultValue, this);
+            this._storageValues[key] = new StorageValue(key, defaultValue, this, true);
         }
         return this._storageValues[key] as StorageValue<T>;
     }
@@ -159,7 +166,10 @@ export class Storage {
         const obj: Record<string, any> = {};
         for (const key in this._storageValues) {
             if (this._storageValues.hasOwnProperty(key)) {
-                obj[key] = this._storageValues[key].value;
+                // 如果是默认值，则不包含在序列化结果中
+                if (!this._storageValues[key].isDefaultValue) {
+                    obj[key] = this._storageValues[key].value;
+                }
             }
         }
         return obj;
@@ -179,7 +189,7 @@ export class StorageValue<T> {
     private parentStorage: Storage;
     private _key: string;
     private _refImpl: Ref<T>;
-
+    public isDefaultValue: boolean;
 
 
     get refImpl(): Ref<T> {
@@ -204,14 +214,17 @@ export class StorageValue<T> {
             return;
         }
         this._refImpl.value = newValue;
+        // 当值被修改时，标记为非默认值
+        this.isDefaultValue = false;
         // update the parent storage if it exists
         this.parentStorage.updateValue(this._key, newValue);
     }
 
-    constructor(key: string, value: T, parentStorage: Storage) {
+    constructor(key: string, value: T, parentStorage: Storage, isDefault: boolean = false) {
         // use shallowRef to avoid deep reactivity issues
         this._refImpl = shallowRef(value);
         this.parentStorage = parentStorage;
         this._key = key;
+        this.isDefaultValue = isDefault;
     }
 };
