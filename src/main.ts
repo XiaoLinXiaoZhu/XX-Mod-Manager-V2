@@ -79,7 +79,7 @@ if (argv.custom_config_folder) {
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './features/router/index';
-import { i18nInstance } from './shared/composables/localHelper';
+import { i18nInstance } from './features/i18n/index.ts';
 
 const vueApp = createApp(App);
 

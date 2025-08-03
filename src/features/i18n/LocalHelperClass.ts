@@ -1,14 +1,14 @@
 import { createI18n } from "vue-i18n";
-import { SingletonDecorator } from "../utils/Singleton";
+import { SingletonDecorator } from "../../shared/utils/Singleton";
 
 import { resolveResource } from '@tauri-apps/api/path'
 
 import en_us from "../../../src-tauri/resources/locals/en-US.json";
 import zh_cn from "../../../src-tauri/resources/locals/zh-CN.json";
-import { readFile } from "../services/FileHelper";
+import { readFile } from "../../shared/services/FileHelper";
 
-import { computed, ComputedRef, Ref, ref, watch } from "vue";
-import { I18nLocale, I18nLocaleList, TranslatedText } from "@/shared/types/local";
+import { computed} from "vue";
+import { I18nLocale, TranslatedText } from "@/shared/types/local";
 
 
 @SingletonDecorator

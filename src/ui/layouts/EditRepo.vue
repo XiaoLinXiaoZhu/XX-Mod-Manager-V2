@@ -69,7 +69,7 @@ import { ref, onMounted,watch } from 'vue';
 import { type repo } from '@/features/repository/Repo';
 import { EmptyImage, getImage, releaseImage, writeImageFromBase64, writeImageFromUrl, type ImageUrl } from '@/shared/services/ImageHelper';
 import { FileDialogOption, openFileDialog } from '@/shared/services/FileDialogHelper';
-import { $t } from '@/shared/composables/localHelper';
+import { $t } from '@/features/i18n';
 import { $t_snack, snack } from '@/shared/composables/use-snack';
 import { basename, isAbsolute, join } from '@tauri-apps/api/path';
 import { showDirectoryInExplorer } from '@/shared/services/FileHelper';

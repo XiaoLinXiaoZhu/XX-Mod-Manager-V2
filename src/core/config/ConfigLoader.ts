@@ -3,6 +3,7 @@ import { StorageValue,Storage } from '../storage/Storage';
 import { useGlobalConfig } from './GlobalConfigLoader';
 import { I18nLocale } from '@/shared/types/local';
 import { Theme } from '@/assets/styles/styleController';
+import { LocalHelper } from '@/features/i18n/LocalHelperClass';
 
 class SubConfigLoaderClass extends Storage {
 
@@ -25,6 +26,11 @@ class SubConfigLoaderClass extends Storage {
         if (!this.presetFolder.value || this.presetFolder.value === '') {
             this.presetFolder.value = await join(filePath, 'presets');
         }
+
+        const localHelper = new LocalHelper();
+        localHelper.setI18nLocale(this.language.value);
+
+
         return;
     }
 

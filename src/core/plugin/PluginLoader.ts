@@ -1,6 +1,6 @@
 //-===================== 插件 =====================
 import { snack } from "../../shared/composables/use-snack";
-import { $t, getTranslatedText } from "../../shared/composables/localHelper";
+import { $t, getTranslatedText } from "../../features/i18n";
 
 import { ToolsCanUsedInPlugin } from './ToolsCanUsedInPlugin';
 import { appDataDir } from "@tauri-apps/api/path";

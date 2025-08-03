@@ -24,7 +24,10 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    // 启用实验性装饰器
+    "experimentalDecorators": true
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "updateUpdater.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]

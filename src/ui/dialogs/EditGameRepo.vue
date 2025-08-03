@@ -31,7 +31,7 @@ import editRepo from '@/ui/layouts/EditRepo.vue';
 import { type repo, repos } from '@/features/repository/Repo';
 import { snack } from '@/shared/composables/use-snack';
 
-import { $t } from '@/shared/composables/localHelper';
+import { $t } from '@/features/i18n';
 const showEditRepoDialog = defineModel<boolean>("visible", {
     type: Boolean,
     default: false,

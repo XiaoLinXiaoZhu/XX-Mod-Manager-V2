@@ -44,7 +44,7 @@ import SectionSlider from '@/shared/components/SectionSlider.vue';
 import { computed, ref, watch } from 'vue';
 
 
-import { $rt, $t, currentLanguageRef, getTranslatedText } from '@/shared/composables/localHelper';
+import { $rt, $t, currentLanguageRef, getTranslatedText } from '@/features/i18n';
 import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
 import { ConfigLoader } from '@/core/config/ConfigLoader';
 

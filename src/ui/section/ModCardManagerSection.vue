@@ -57,7 +57,7 @@ import { ModInfo } from '@/features/mod-manager/ModInfo';
 import { ref, computed, nextTick, watch } from 'vue';
 import ModCard from '@/shared/components/modCard.vue';
 import { SearchTag } from '@/shared/types/search-tag';
-import { currentLanguageRef } from '@/shared/composables/localHelper';
+import { currentLanguageRef } from '@/features/i18n';
 import { ModMetadata } from '@/features/mod-manager/ModMetadata';
 
 const tagSearchRef = ref<InstanceType<typeof TagSearch> | null>(null);

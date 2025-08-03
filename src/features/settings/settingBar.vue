@@ -154,7 +154,7 @@ import markdown from '@/shared/components/markdown.vue';
 import horizontalScrollBar from '@/shared/components/horizontalScrollBar.vue';
 
 import { ref, onMounted, watch } from 'vue';
-import { getTranslatedText } from '@/shared/composables/localHelper';
+import { getTranslatedText } from '@/features/i18n';
 import type { SettingBarData } from './settingBarConfig';
 import { type FileDialogOption, openFileDialog } from '@/shared/services/FileDialogHelper';
 

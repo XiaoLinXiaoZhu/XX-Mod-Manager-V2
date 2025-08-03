@@ -135,7 +135,7 @@ import { openUrlWithDefaultBrowser } from '@/shared/services/FileHelper';
 import getSettingSectionData from './globalSettingSectionData';
 import { IPluginLoader, type IPlugin, type IPluginData } from '@/core/plugin/PluginLoader';
 import { EventSystem, EventType } from '@/core/event/EventSystem';
-import { getTranslatedText, $t, currentLanguageRef, $rt } from '@/shared/composables/localHelper';
+import { getTranslatedText, $t, currentLanguageRef, $rt } from '@/features/i18n';
 
 let configData = getSettingSectionData();
 

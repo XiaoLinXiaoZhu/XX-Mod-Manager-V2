@@ -48,7 +48,7 @@
 import { type repo, repos, getRepos } from '@/features/repository/Repo';
 import HorizontalCardList from '@/shared/components/HorizontalCardList.vue';
 import { ref, onMounted, computed } from 'vue';
-import { $t } from '@/shared/composables/localHelper';
+import { $t } from '@/features/i18n';
 import { EventSystem, EventType } from '@/core/event/EventSystem';
 import CreateGameRepo from '@/ui/dialogs/CreateGameRepo.vue';
 import EditGameRepo from '@/ui/dialogs/EditGameRepo.vue';

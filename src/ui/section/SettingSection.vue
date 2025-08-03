@@ -170,7 +170,7 @@ import getSettingSectionData from './settingSectionData';
 import { IPluginLoader, type IPlugin, type IPluginData } from '@/core/plugin/PluginLoader';
 import { EventSystem, EventType } from '@/core/event/EventSystem';
 import { ConfigLoader } from '@/core/config/ConfigLoader';
-import { getTranslatedText, $t, currentLanguageRef } from '@/shared/composables/localHelper';
+import { getTranslatedText, $t, currentLanguageRef } from '@/features/i18n';
 import markdown from '@/shared/components/markdown.vue';
 
 let configData = getSettingSectionData();

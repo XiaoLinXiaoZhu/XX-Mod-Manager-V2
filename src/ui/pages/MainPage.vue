@@ -41,7 +41,7 @@ import SectionSlider from '@/shared/components/SectionSlider.vue';
 import { computed, ref, type Ref } from 'vue';
 
 
-import { $t,$rt, currentLanguageRef, getTranslatedText } from '@/shared/composables/localHelper';
+import { $t,$rt, currentLanguageRef, getTranslatedText } from '@/features/i18n';
 import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
 import GameRepoSection from '@/ui/section/GameRepoSection.vue';
 import { ConfigLoader } from '@/core/config/ConfigLoader';
