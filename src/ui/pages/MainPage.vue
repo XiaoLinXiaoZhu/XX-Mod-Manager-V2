@@ -41,7 +41,7 @@ import SectionSlider from '@/shared/components/SectionSlider.vue';
 import { computed, ref, type Ref } from 'vue';
 
 
-import { $t, currentLanguageRef, getTranslatedText } from '@/shared/composables/localHelper';
+import { $t,$rt, currentLanguageRef, getTranslatedText } from '@/shared/composables/localHelper';
 import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
 import GameRepoSection from '@/ui/section/GameRepoSection.vue';
 import { ConfigLoader } from '@/core/config/ConfigLoader';
@@ -54,14 +54,21 @@ const currentSection = ref('Section 1');
 const sections = computed(() => {
   // debug language
   const result = [
-    $t('element.section.games'),
-    $t('element.section.help'),
-    $t('element.section.settings')
+    $rt('element.section.games').value,
+    $rt('element.section.help').value,
+    $rt('element.section.settings').value
   ];
-  console.log('Section get Current language:', currentLanguageRef.value , result);
+  console.log('Section get Current language:', currentLanguageRef.value , result,$rt('element.section.games').value);
   return result;
 });
 const currentIndex = ref(0);
+
+
+// 每秒log一下 $rt('element.section.games').value
+setInterval(() => {
+  console.log('Current language:', currentLanguageRef.value, 'getTranslate in RT', $rt('element.section.games').value,
+    'getTranslate in $t', $t('element.section.games'));
+}, 1000);
 
 const gameRepoSectionRef: Ref<InstanceType<typeof GameRepoSection> | null> = ref(null);
 const handleStartClicked = async () => {

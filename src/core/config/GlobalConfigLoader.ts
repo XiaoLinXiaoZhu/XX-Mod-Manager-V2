@@ -3,7 +3,7 @@ import { getAppdataDir } from '@/shared/services/FileHelper';
 import { join } from '@tauri-apps/api/path';
 import { Storage } from '../storage/Storage';
 import { Theme } from '@/assets/styles/styleController';
-import { I18nLocale } from '@/shared/composables/localHelper';
+import { I18nLocale } from '@/shared/types/local';
 
 class GlobalConfigLoaderClass extends Storage {
     constructor() {

@@ -1,7 +1,7 @@
 import { join } from '@tauri-apps/api/path';
 import { StorageValue,Storage } from '../storage/Storage';
 import { useGlobalConfig } from './GlobalConfigLoader';
-import { I18nLocale } from '@/shared/composables/localHelper';
+import { I18nLocale } from '@/shared/types/local';
 import { Theme } from '@/assets/styles/styleController';
 
 class SubConfigLoaderClass extends Storage {

@@ -1,4 +1,4 @@
-import { TranslatedText } from "@/shared/composables/localHelper";
+import { TranslatedText } from "@/shared/types/local";
 import { type SettingBarData } from "@/features/settings/settingBarConfig";
 import { ToolsCanUsedInPlugin } from './ToolsCanUsedInPlugin';
 

@@ -1,5 +1,6 @@
 import { SettingBarData } from "@/features/settings/settingBarConfig";
-import { setI18nLocale, I18nLocaleList } from "@/shared/composables/localHelper";
+import { setI18nLocale } from "@/shared/composables/localHelper";
+import { I18nLocaleList } from "@/shared/types/local";
 import { sharedConfigManager } from "@/core/state/SharedConfigManager";
 import { setTheme, Theme } from "@/assets/styles/styleController";
 import { GlobalConfigLoader } from "@/core/config/GlobalConfigLoader";

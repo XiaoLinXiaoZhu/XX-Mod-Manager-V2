@@ -1,15 +1,14 @@
 import { createI18n } from "vue-i18n";
 import en_us from "../../../src-tauri/resources/locals/en-US.json";
 import zh_cn from "../../../src-tauri/resources/locals/zh-CN.json";
-import { EventType,EventSystem } from "@/core/event/EventSystem";
 import { computed, ComputedRef, Ref, ref, watch } from "vue";
-
+import {type I18nLocale, type TranslatedText,I18nLocaleList } from "@/shared/types/local";
 import "@/assets/styles/styleController";
 import { sharedConfigManager } from "@/core/state/SharedConfigManager";
 
 export const i18nInstance = createI18n({
     locale: "en-US", // set locale
-    fallbackLocale: "zh-CN", // set fallback locale
+    fallbackLocale: "en-US", // set fallback locale
     legacy: false, // you must set `false`, to use Composition API
     messages: {
         "en-US": en_us,
@@ -17,8 +16,8 @@ export const i18nInstance = createI18n({
     },
 });
 
-export type I18nLocale = "en-US" | "zh-CN";
-export const I18nLocaleList: I18nLocale[] = ["en-US", "zh-CN"]; // 支持的语言列表
+
+
 export const currentLanguageRef = sharedConfigManager.language;
 
 watch(currentLanguageRef, (newLocale) => {
@@ -57,15 +56,22 @@ export const $rt = (key: string, namedValue?: Record<string, any>): ComputedRef<
             return key; // 返回原始 key
         }
         if (namedValue === undefined || namedValue === null) {
+            // debug
+            console.log(`获取翻译: ${key}，当前语言: ${currentLanguageRef.value}`);
+            // 返回当前语言的翻译
             return i18nInstance.global.t(key);
         }
+        // debug
+        console.log(`获取翻译: ${key}，当前语言: ${currentLanguageRef.value}，带参数:`, namedValue);
+        // 返回当前语言的翻译，带参数
+        // 这里的 namedValue 是一个对象，包含了需要替换的变量
         return i18nInstance.global.t(key, namedValue);
     });
 };
 
 
 //-==== 一个简单的翻译
-export type TranslatedText = Record<I18nLocale, string>;
+
 /** @function
  * @desc 获取当前语言的翻译文本，响应式
  * @param {TranslatedText} text

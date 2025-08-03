@@ -1,5 +1,6 @@
 import { SettingBarData, SettingBarDataMulitiDir } from "@/features/settings/settingBarConfig";
-import { setI18nLocale, I18nLocaleList } from "@/shared/composables/localHelper";
+import { setI18nLocale } from "@/shared/composables/localHelper";
+import { I18nLocaleList } from "@/shared/types/local";
 import { ref } from 'vue';
 import { ConfigLoader } from "@/core/config/ConfigLoader";
 import { Theme, setTheme } from "@/assets/styles/styleController";

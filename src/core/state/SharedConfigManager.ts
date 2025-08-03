@@ -2,7 +2,7 @@
 // 使用 RebindableRef 来实现状态的响应式绑定
 // 通过 rebind 方法来切换不同的配置源
 import { Storage } from "../storage/Storage";
-import { I18nLocale } from "@/shared/composables/localHelper";
+import { I18nLocale } from "@/shared/types/local";
 import { EventSystem, EventType } from "../event/EventSystem";
 import { ConfigLoader } from "../config/ConfigLoader";
 import { GlobalConfigLoader } from "../config/GlobalConfigLoader";
