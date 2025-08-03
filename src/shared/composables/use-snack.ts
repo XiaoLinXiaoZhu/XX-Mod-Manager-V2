@@ -1,5 +1,6 @@
 import { Snackbar } from "sober";
-import { $t,currentLanguageRef,TranslatedText } from "./localHelper";
+import { $t,currentLanguageRef } from "./localHelper";
+import { type TranslatedText } from "@/shared/types/local";
 
 /** @enum
  * @desc 用于标记 Snack 的类型
