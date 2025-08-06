@@ -11,7 +11,7 @@ import { ref, Ref } from "vue";
 // 从类型定义文件导入类型
 import type { IPlugin, IPluginData, ToolsConUsedInPluginType } from './PluginTypes';
 import { join } from "@tauri-apps/api/path";
-import { createDirectory, getDirectoryList, getFullPath, isDirectoryExists } from "../../shared/services/FileHelper";
+import { globalServiceContainer } from "../../shared/services/ServiceContainer";
 import { EventSystem, EventType } from "../event/EventSystem";
 import { loadExternScript } from "../../shared/services/LoadExternScript";
 import { currentPage } from "../XXMMState";
@@ -33,18 +33,18 @@ export class IPluginLoader {
     public static pluginLoadFolders: Array<() => Promise<string>> = [
         async () => {
             // 本地插件
-            if (!await isDirectoryExists('plugins')) {
-                await createDirectory('plugins');
+            if (!await globalServiceContainer.fs.checkDirectoryExists('plugins')) {
+                await globalServiceContainer.fs.createDirectory('plugins');
             }
-            const localPluginPath = await getFullPath('plugins');
+            const localPluginPath = await globalServiceContainer.fs.getFullPath('plugins');
             console.log(`Local plugin path: ${localPluginPath}`);
             return localPluginPath;
         },
         async () => {
             // 全局插件
             const globalPluginPath = await join(await appDataDir(), 'plugins');
-            if (!await isDirectoryExists(globalPluginPath)) {
-                await createDirectory(globalPluginPath);
+            if (!await globalServiceContainer.fs.checkDirectoryExists(globalPluginPath)) {
+                await globalServiceContainer.fs.createDirectory(globalPluginPath);
             }
             console.log(`User data path: ${globalPluginPath}`);
             return globalPluginPath;
@@ -319,9 +319,9 @@ export class IPluginLoader {
      * @returns {Promise<void>}
      */
     static async LoadPluginsFromFolder(enviroment: any, folder: string) {        // 检查插件文件夹是否存在
-        if (!await isDirectoryExists(folder)) {
+        if (!await globalServiceContainer.fs.checkDirectoryExists(folder)) {
             // 不存在就创建
-            await createDirectory(folder);
+            await globalServiceContainer.fs.createDirectory(folder);
             // ❗️插件文件夹不存在，已创建：{folder}
             // ❗️Plugin folder does not exist, created: {folder}
             const tt = $t('plugin.error.folderNotExist', { folder });
@@ -329,7 +329,7 @@ export class IPluginLoader {
             snack(tt, "error");
             return;
         }
-        const files = await getDirectoryList(folder);
+        const files = await globalServiceContainer.fs.listDirectory(folder);
         //debug
         console.log(`Loading plugins from folder: ${folder}`, files);
         // 使用 for...of + await，确保插件按顺序加载且 await 生效

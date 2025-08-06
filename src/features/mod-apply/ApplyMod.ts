@@ -4,7 +4,7 @@
 
 import { ConfigLoader } from "@/core/config/ConfigLoader";
 import { createSymlinkBatch } from "@/shared/services/CreateSymlinkBatch";
-import { deleteDirectory, getDirectoryList, isDirectoryExists, isSymlinkSupported } from "@/shared/services/FileHelper";
+import { globalServiceContainer } from "@/shared/services/ServiceContainer";
 import { basename, dirname } from "@tauri-apps/api/path";
 
 import { ModInfo } from "../mod-manager/ModInfo";
@@ -38,12 +38,12 @@ async function applyModBySymlink(allMods: ModInfo[], selectedMods: ModInfo[], di
     }
     
     // 首先, 检查文件夹是否存在
-    if (!await isDirectoryExists(distFolder)) {
+    if (!await globalServiceContainer.fs.checkDirectoryExists(distFolder)) {
         console.warn(`Directory does not exist: ${distFolder}`);
         return;
     }
     // 检查是否支持符号链接
-    if (!await isSymlinkSupported(distFolder)) {
+    if (!await globalServiceContainer.fs.isSymlinkSupported(distFolder)) {
         console.warn(`Symlink is not supported in ${distFolder}`);
         return;
     }
@@ -53,14 +53,14 @@ async function applyModBySymlink(allMods: ModInfo[], selectedMods: ModInfo[], di
     const allModNames = await pathsToNames(allModPaths);
 
 
-    const existingFiles = await getDirectoryList(distFolder);
+    const existingFiles = await globalServiceContainer.fs.listDirectory(distFolder);
     const folderNeedRemove: string[] = [];
     const selectedModPathsToCreate: string[] = [...selectedModPaths];
     
     await Promise.all(
         existingFiles.map(async (filePath) => {
             // 1. 如果不是文件夹，则跳过
-            if (!await isDirectoryExists(filePath)) {
+            if (!await globalServiceContainer.fs.checkDirectoryExists(filePath)) {
                 return;
             }
             // 2. 如果该文件名在 selectedModNames 中存在，则跳过
@@ -92,7 +92,7 @@ async function applyModBySymlink(allMods: ModInfo[], selectedMods: ModInfo[], di
     await Promise.all(
         folderNeedRemove.map(async (folderPath) => {
             try {
-                await deleteDirectory(folderPath);
+                await globalServiceContainer.fs.deleteDirectory(folderPath);
             } catch (error) {
                 console.error(`Failed to remove folder ${folderPath}`, error);
             }
@@ -121,7 +121,7 @@ async function applyModTraditionally(allMods: ModInfo[], selectedMods: ModInfo[]
     }
 
     // 首先, 检查文件夹是否存在
-    if (!await isDirectoryExists(distFolder)) {
+    if (!await globalServiceContainer.fs.checkDirectoryExists(distFolder)) {
         console.warn(`Directory does not exist: ${distFolder}`);
         return;
     }
@@ -136,7 +136,7 @@ async function applyModTraditionally(allMods: ModInfo[], selectedMods: ModInfo[]
             const isSelected = selectedModIds.includes(mod.metadata.id.value);
             
             // 1. 如果mod路径不存在，跳过
-            if (!await isDirectoryExists(modPath)) {
+            if (!await globalServiceContainer.fs.checkDirectoryExists(modPath)) {
                 return;
             }
             

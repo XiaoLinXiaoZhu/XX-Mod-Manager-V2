@@ -1,5 +1,5 @@
 // 之前的configloader.ts 有一些地方非常麻烦这里想要优化一下：
-import { getAppdataDir } from '@/shared/services/FileHelper';
+import { globalServiceContainer } from '@/shared/services/ServiceContainer';
 import { join } from '@tauri-apps/api/path';
 import { Storage } from '../storage/Storage';
 import { setTheme, Theme } from '@/assets/styles/styleController';
@@ -13,7 +13,7 @@ class GlobalConfigLoaderClass extends Storage {
         console.log(`GlobalConfigLoaderClass 初始化`);
     }
     async loadDefaultConfig(): Promise<void> {
-        const appPath = await getAppdataDir();
+        const appPath = await globalServiceContainer.fs.getAppdataDir();
         const defaultConfigPath = await join(appPath, 'config.json');
         // debug
         console.log(`加载全局配置文件: ${defaultConfigPath}`);

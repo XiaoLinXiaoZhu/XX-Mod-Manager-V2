@@ -1,5 +1,5 @@
 import { join } from "@tauri-apps/api/path";
-import { isFileExists } from "@/shared/services/FileHelper";
+import { globalServiceContainer } from "@/shared/services/ServiceContainer";
 import { ModMetadata } from "@/features/mod-manager/ModMetadata";
 import { ModPreviewManager } from "@/features/mod-manager/ModPreviewManager";
 import { ModFileOperator } from "@/features/mod-manager/ModFileOperator";
@@ -34,7 +34,7 @@ export class ModInfo {
         const modInfo = new ModInfo(config);
         const configFile = await join(location, 'mod.json');
 
-        if (!await isFileExists(configFile)) {
+        if (!await globalServiceContainer.fs.checkFileExists(configFile)) {
             modInfo.newMod = true;
         }
         

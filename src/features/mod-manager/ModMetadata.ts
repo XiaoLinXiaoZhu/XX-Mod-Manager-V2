@@ -1,5 +1,6 @@
 import { basename } from "@tauri-apps/api/path";
-import { Storage } from "@/core/storage/Storage";
+import { Storage } from "@xlxz/utils";
+import { globalServiceContainer } from "@/shared/services/ServiceContainer";
 import { hash256 } from "@/shared/utils/SimpleHash";
 
 export interface ModConfig {
@@ -28,7 +29,7 @@ export class ModMetadata extends Storage {
     // }
 
     constructor(private _config: ModConfig) {
-        super("ModMetadata" + ++ModMetadata.counter);
+        super(globalServiceContainer.fs, `ModMetadata${ModMetadata.counter++}`);
     }
     public getConfig(): ModConfig {
         return this._config;

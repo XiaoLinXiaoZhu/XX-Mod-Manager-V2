@@ -1,15 +1,15 @@
 import { IFileSystemBase } from '@xlxz/utils';
 
 // 扩展文件系统接口
+// IFileSystemBase 已经包含了基础的文件操作、目录操作、路径处理等功能
+// 这里只添加 FileHelper.ts 中额外的功能
 export interface IFileSystem extends IFileSystemBase {
   // 二进制文件操作
   readBinaryFile(path: string, ifCreate?: boolean): Promise<Uint8Array>;
   writeBinaryFile(path: string, data: Uint8Array, ifCreate?: boolean): Promise<void>;
   
-  // 目录列表和路径操作
-  getDirectoryList(path: string): Promise<string[]>;
+  // 路径操作的扩展（FileHelper 中的额外功能）
   getFullPath(path: string): Promise<string>;
-  joinPath(basePath: string, relativePath: string): Promise<string>;
   hasParentDirectory(path: string): Promise<boolean>;
   
   // 符号链接操作

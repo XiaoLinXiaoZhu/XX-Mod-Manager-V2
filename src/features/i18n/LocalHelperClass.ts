@@ -5,7 +5,7 @@ import { resolveResource } from '@tauri-apps/api/path'
 
 import en_us from "../../../src-tauri/resources/locals/en-US.json";
 import zh_cn from "../../../src-tauri/resources/locals/zh-CN.json";
-import { readFile } from "../../shared/services/FileHelper";
+import { globalServiceContainer } from "../../shared/services/ServiceContainer";
 
 import { computed} from "vue";
 import { I18nLocale, TranslatedText } from "@/shared/types/local";
@@ -39,8 +39,8 @@ export class LocalHelper {
         const zh_cnPath = await resolveResource("locals/zh-CN.json");
 
         // read the files
-        const en_usContent = await readFile(en_usPath, false);
-        const zh_cnContent = await readFile(zh_cnPath, false);
+        const en_usContent = await globalServiceContainer.fs.readFile(en_usPath, false);
+        const zh_cnContent = await globalServiceContainer.fs.readFile(zh_cnPath, false);
 
         // set the messages
         this.i18nInstance.global.setLocaleMessage("en-US", JSON.parse(en_usContent));

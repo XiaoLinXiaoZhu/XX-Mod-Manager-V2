@@ -50,24 +50,6 @@ export class RustFileSystem implements IFileSystem {
         }
     }
 
-    async isFileExists(path: string): Promise<boolean> {
-        try {
-            return await invoke<boolean>('is_file_exists', { pathStr: path });
-        } catch (error) {
-            console.error('Error checking if file exists:', error);
-            return false;
-        }
-    }
-
-    async isDirectoryExists(path: string): Promise<boolean> {
-        try {
-            return await invoke<boolean>('is_directory_exists', { pathStr: path });
-        } catch (error) {
-            console.error('Error checking if directory exists:', error);
-            return false;
-        }
-    }
-
     // 扩展的文件系统功能
     async readBinaryFile(path: string, ifCreate: boolean = false): Promise<Uint8Array> {
         try {
@@ -143,7 +125,7 @@ export class RustFileSystem implements IFileSystem {
         }
     }
 
-    async getDirectoryList(path: string): Promise<string[]> {
+    async listDirectory(path: string): Promise<string[]> {
         try {
             return await invoke<string[]>('get_directory_list', { pathStr: path });
         } catch (error) {
@@ -284,6 +266,15 @@ export class RustFileSystem implements IFileSystem {
             return await invoke<boolean>('is_file_exists', { pathStr: path });
         } catch (error) {
             console.error('Error checking if file exists:', error);
+            return false;
+        }
+    }
+
+    async checkDirectoryExists(path: string): Promise<boolean> {
+        try {
+            return await invoke<boolean>('is_directory_exists', { pathStr: path });
+        } catch (error) {
+            console.error('Error checking if directory exists:', error);
             return false;
         }
     }

@@ -6,7 +6,7 @@
 import { isAbsolute } from "@tauri-apps/api/path";
 import { useGlobalConfig } from "@/core/config/GlobalConfigLoader";
 import type { StorageValue } from "@/core/storage/Storage";
-import { createDirectory, isDirectoryExists } from "@/shared/services/FileHelper";
+import { globalServiceContainer } from "@/shared/services/ServiceContainer";
 
 export type repo = {
     /**
@@ -62,11 +62,11 @@ const checkRepo = async (repo: repo): Promise<boolean> => {
         console.warn('Repo configLocation is not absolute:', repo);
         flag = false;
     }
-    if (!await isDirectoryExists(repo.configLocation)) {
+    if (!await globalServiceContainer.fs.checkDirectoryExists(repo.configLocation)) {
         // 确保configLocation存在，如果不存在则尝试创建
         console.warn('Repo configLocation does not exist, creating:', repo.configLocation);
         try {
-            await createDirectory(repo.configLocation);
+            await globalServiceContainer.fs.createDirectory(repo.configLocation);
         } catch (error) {
             console.error('Error creating repo directory:', error);
             flag = false; // 如果创建失败，设置标志为false

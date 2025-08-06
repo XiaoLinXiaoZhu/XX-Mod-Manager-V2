@@ -1,5 +1,5 @@
 import { dirname, join } from "@tauri-apps/api/path";
-import { renameDirectory, isFileExists } from "@/shared/services/FileHelper";
+import { globalServiceContainer } from "@/shared/services/ServiceContainer";
 import type { ModMetadata } from "./ModMetadata";
 
 export class ModFileOperator {
@@ -9,15 +9,15 @@ export class ModFileOperator {
         const parentDir = await dirname(this._metadata.location.value);
         const newPath = await join(parentDir, newName);
         
-        if (await isFileExists(newPath)) return false;
+        if (await globalServiceContainer.fs.checkFileExists(newPath)) return false;
         
-        await renameDirectory(this._metadata.location.value, newPath);
+        await globalServiceContainer.fs.renameDirectory(this._metadata.location.value, newPath);
         this._metadata.location.value = newPath;
         return true;
     }
 
     public async changeLocation(newLocation: string) {
-        await renameDirectory(this._metadata.location.value, newLocation);
+        await globalServiceContainer.fs.renameDirectory(this._metadata.location.value, newLocation);
         this._metadata.location.value = newLocation;
     }
 }

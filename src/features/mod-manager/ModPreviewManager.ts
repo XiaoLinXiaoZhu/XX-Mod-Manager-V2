@@ -1,5 +1,5 @@
 import { join, basename } from "@tauri-apps/api/path";
-import { isFileExists, getDirectoryList, copyFile } from "@/shared/services/FileHelper";
+import { globalServiceContainer } from "@/shared/services/ServiceContainer";
 import { EmptyImage, getImage, releaseImage, writeImageFromBase64, type ImageUrl, type Base64DataUrl } from "@/shared/services/ImageHelper";
 import { ref, computed, type Ref } from "vue";
 import type { ModMetadata } from "./ModMetadata";
@@ -27,10 +27,10 @@ export class ModPreviewManager {
         
         for (const imagePath of defaultImagePaths) {
             const path = await join(this._metadata.location.value, imagePath);
-            if (await isFileExists(path)) return imagePath;
+            if (await globalServiceContainer.fs.checkFileExists(path)) return imagePath;
         }
 
-        const files = await getDirectoryList(this._metadata.location.value);
+        const files = await globalServiceContainer.fs.listDirectory(this._metadata.location.value);
         for (const file of files) {
             const ext = file.split('.').pop();
             if (ext && ['png','jpg','jpeg','webp','gif','bmp'].includes(ext)) {
@@ -42,7 +42,7 @@ export class ModPreviewManager {
 
     public async getPreviewPath() {
         const checkExists = async (path: string) => 
-            await isFileExists(await join(this._metadata.location.value, path));
+            await globalServiceContainer.fs.checkFileExists(await join(this._metadata.location.value, path));
 
         if (this._metadata.preview.value && await checkExists(this._metadata.preview.value)) {
             return await join(this._metadata.location.value, this._metadata.preview.value);
@@ -70,7 +70,7 @@ export class ModPreviewManager {
     }
 
     public async setPreviewByPath(previewPath: string) {
-        if (!await isFileExists(previewPath)) return;
+        if (!await globalServiceContainer.fs.checkFileExists(previewPath)) return;
         
         const ext = previewPath.split('.').pop() || "";
         if (!['png','jpg','jpeg','webp','gif','bmp'].includes(ext)) return;
@@ -79,7 +79,7 @@ export class ModPreviewManager {
         const newFileName = `preview.${ext}`;
         const newPath = await join(this._metadata.location.value, newFileName);
         
-        await copyFile(previewPath, newPath);
+        await globalServiceContainer.fs.copyFile(previewPath, newPath);
         this._metadata.preview.value = newFileName;
 
         releaseImage(currentPath);

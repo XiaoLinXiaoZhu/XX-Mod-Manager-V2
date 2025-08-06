@@ -1,5 +1,5 @@
 import { Storage } from "@/core/storage/Storage";
-import { getDirectoryList, getFullPath, isFileExists } from "@/shared/services/FileHelper";
+import { globalServiceContainer } from "@/shared/services/ServiceContainer";
 import { hash256 } from "@/shared/utils/SimpleHash";
 import { isAbsolute } from "@tauri-apps/api/path";
 
@@ -55,7 +55,7 @@ class ModPreset extends Storage {
             if (await isAbsolute(preset.location.value)) {
                 preset.location.value = filePath;
             } else {
-                preset.location.value = await getFullPath(filePath);
+                preset.location.value = await globalServiceContainer.fs.getFullPath(filePath);
             }
         } catch (error) {
             console.error("Error resolving file path:", error);
@@ -120,9 +120,9 @@ class ModPresetLoader {
     private async getPresetFiles(directory: string): Promise<string[]> {
         const files: string[] = [];
         // 读取目录下的所有文件
-        const filePaths = await getDirectoryList(directory);
+        const filePaths = await globalServiceContainer.fs.listDirectory(directory);
         for (const filePath of filePaths) {
-            if (await isFileExists(filePath) && filePath.endsWith(".json")) {
+            if (await globalServiceContainer.fs.checkFileExists(filePath) && filePath.endsWith(".json")) {
                 files.push(filePath);
             }
         }

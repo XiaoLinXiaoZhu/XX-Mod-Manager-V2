@@ -32,7 +32,7 @@
                 </div>
                 <div class="OO-setting-bar">
                     <h3> {{ $t('firstLoad.thanks') }} </h3>
-                    <s-button class="OO-button-box" @click="openUrlWithDefaultBrowser('https://github.com/soliddanii')">
+                    <s-button class="OO-button-box" @click="globalServiceContainer.fs.openUrlWithDefaultBrowser('https://github.com/soliddanii')">
                         soliddanii
                     </s-button>
                 </div>
@@ -41,7 +41,7 @@
                     <h3> {{ $t('github') }} </h3>
                     <s-icon-button type="filled" slot="start" class="OO-icon-button"
                         style="border: 5px solid  var(--s-color-surface-container-high);transform: scale(1);left: 15px;"
-                        @click="openUrlWithDefaultBrowser('https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager')">
+                        @click="globalServiceContainer.fs.openUrlWithDefaultBrowser('https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager')">
                         <s-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
                                 <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                             </svg></s-icon>
@@ -51,7 +51,7 @@
                     <h3> {{ $t('gamebanana') }} </h3>
                     <s-icon-button type="filled" slot="start" class="OO-icon-button"
                         style="border: 5px solid  var(--s-color-surface-container-high);transform: scale(1);left: 15px;"
-                        @click="openUrlWithDefaultBrowser('https://gamebanana.com/tools/17889')">
+                        @click="globalServiceContainer.fs.openUrlWithDefaultBrowser('https://gamebanana.com/tools/17889')">
                         <s-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
                                 <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                             </svg></s-icon>
@@ -61,7 +61,7 @@
                     <h3> {{ $t('caimogu') }} </h3>
                     <s-icon-button type="filled" slot="start" class="OO-icon-button"
                         style="border: 5px solid  var(--s-color-surface-container-high);transform: scale(1);left: 15px;"
-                        @click="openUrlWithDefaultBrowser('https://www.caimogu.cc/post/1408504.html')">
+                        @click="globalServiceContainer.fs.openUrlWithDefaultBrowser('https://www.caimogu.cc/post/1408504.html')">>
                         <s-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
                                 <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                             </svg></s-icon>
@@ -131,7 +131,7 @@
 import LeftIndex from '@/shared/components/leftIndex.vue';
 import settingBar from '@/features/settings/settingBar.vue';
 import { computed, ComputedRef, onMounted, Ref, ref, watch } from 'vue';
-import { openUrlWithDefaultBrowser } from '@/shared/services/FileHelper';
+import { globalServiceContainer } from '@/shared/services/ServiceContainer';
 import getSettingSectionData from './globalSettingSectionData';
 import { IPluginLoader, type IPlugin, type IPluginData } from '@/core/plugin/PluginLoader';
 import { EventSystem, EventType } from '@/core/event/EventSystem';

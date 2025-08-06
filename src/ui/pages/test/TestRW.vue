@@ -14,7 +14,7 @@
 //debug
 import { onMounted, ref } from 'vue';
 import RouteList from '@/features/router/RouteList.vue';
-import {readFile, writeFile} from '@/shared/services/FileHelper';
+import { globalServiceContainer } from '@/shared/services/ServiceContainer';
 import { loadImage,writeImageFromUrl } from '@/shared/services/ImageHelper';
 
 console.log("TestRW loaded");
@@ -23,12 +23,12 @@ const content = ref('');
 const filePath = ref('test.txt');
 
 const handleTestRead = async () => {
-    const result = await readFile(filePath.value);
+    const result = await globalServiceContainer.fs.readFile(filePath.value);
     content.value = result as string;
 };
 
 const handleTestWrite = async () => {
-    const result = await writeFile(filePath.value, content.value);
+    const result = await globalServiceContainer.fs.writeFile(filePath.value, content.value);
     console.log("write result", result);
 };
 

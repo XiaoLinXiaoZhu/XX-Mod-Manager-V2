@@ -1,7 +1,7 @@
 // 加载 Mod 并导出几个公共的变量
 import { ModInfo } from './ModInfo';
 import type {ModConfig} from './ModMetadata';
-import { isDirectoryExists, getDirectoryList } from "@/shared/services/FileHelper";
+import { globalServiceContainer } from "@/shared/services/ServiceContainer";
 // import { join } from "@tauri-apps/api/path";
 import { RebindableRef } from '@/shared/composables/RebindableRef';
 import { $t_snack } from '@/shared/composables/use-snack';
@@ -16,7 +16,7 @@ export class ModLoader {
             console.warn('ModLoader.addModSourceFolder: folder is empty');
             return;
         }
-        if (!await isDirectoryExists(folder)) {
+        if (!await globalServiceContainer.fs.checkDirectoryExists(folder)) {
             throw new Error(`ModLoader.addModSourceFolder: folder does not exist: ${folder}`);
         }
         if (!this.modSourceFoldersRef.value.includes(folder))
@@ -111,12 +111,12 @@ export class ModLoader {
 
         // 读取所有的 mod 文件夹
         await Promise.all(this.modSourceFoldersRef.value.map(async folder => {
-            let mods = await getDirectoryList(folder);
+            let mods = await globalServiceContainer.fs.listDirectory(folder);
             // 过滤掉非目录的文件
             await Promise.all(mods.map(async mod => {
                 // debug
                 // console.log('ModLoader.loadMods: mod', mod);
-                if (await isDirectoryExists(mod)) {
+                if (await globalServiceContainer.fs.checkDirectoryExists(mod)) {
                     // let modInfo = new ModInfo(mod);
                     // 这里需要使用异步加载
                     let modInfo = await ModInfo.createMod(mod, defaultConfig);
@@ -140,7 +140,7 @@ export class ModLoader {
         if (modPath === undefined || modPath === null || modPath === '') {
             throw new Error('ModLoader.loadMod: modPath is empty');
         }
-        if (!await isDirectoryExists(modPath)) {
+        if (!await globalServiceContainer.fs.checkDirectoryExists(modPath)) {
             throw new Error(`ModLoader.loadMod: modPath does not exist: ${modPath}`);
         }
         // let modInfo = new ModInfo(modPath);
