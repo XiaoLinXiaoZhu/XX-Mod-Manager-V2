@@ -6,14 +6,6 @@ export interface IFileSystem extends IFileSystemBase {
   readBinaryFile(path: string, ifCreate?: boolean): Promise<Uint8Array>;
   writeBinaryFile(path: string, data: Uint8Array, ifCreate?: boolean): Promise<void>;
   
-  // 文件/目录操作
-  renameFile(oldPath: string, newPath: string): Promise<void>;
-  renameDirectory(oldPath: string, newPath: string): Promise<void>;
-  moveFile(oldPath: string, newPath: string): Promise<void>;
-  moveDirectory(oldPath: string, newPath: string): Promise<void>;
-  copyFile(oldPath: string, newPath: string): Promise<void>;
-  copyDirectory(oldPath: string, newPath: string): Promise<void>;
-  
   // 目录列表和路径操作
   getDirectoryList(path: string): Promise<string[]>;
   getFullPath(path: string): Promise<string>;
@@ -38,5 +30,5 @@ export interface IFileSystem extends IFileSystemBase {
   
   // 系统目录
   getAppdataDir(): Promise<string>;
-  getConfigFolder(): Promise<string>;
+  getConfigDir(): Promise<string>;
 }

@@ -269,7 +269,7 @@ export class RustFileSystem implements IFileSystem {
         }
     }
 
-    async getConfigFolder(): Promise<string> {
+    async getConfigDir(): Promise<string> {
         try {
             return await invoke<string>('get_appdata_dir');
         } catch (error) {

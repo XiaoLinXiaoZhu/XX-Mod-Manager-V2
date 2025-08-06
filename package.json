@@ -22,7 +22,7 @@
     "@tauri-apps/plugin-process": "~2.3.0",
     "@tauri-apps/plugin-shell": "~2.3.0",
     "@types/node": "^22.16.5",
-    "@xlxz/utils": "^1.0.4",
+    "@xlxz/utils": "^1.0.5",
     "animejs": "^4.0.2",
     "axios": "^1.10.0",
     "crypto": "^1.0.1",
