@@ -44,7 +44,7 @@ import { computed, ref, type Ref } from 'vue';
 import { $t,$rt, currentLanguageRef, getTranslatedText } from '@/features/i18n';
 import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
 import GameRepoSection from '@/ui/section/GameRepoSection.vue';
-import { ConfigLoader } from '@/core/config/ConfigLoader';
+import { SubConfig } from '@/core/config/ConfigLoader';
 import { join } from '@tauri-apps/api/path';
 import router from '@/features/router';
 import { useGlobalConfig } from '@/core/config/GlobalConfigLoader';

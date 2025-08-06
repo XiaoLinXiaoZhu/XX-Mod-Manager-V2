@@ -45,7 +45,7 @@ import { computed, ref, watch } from 'vue';
 
 import { $rt, $t, currentLanguageRef, getTranslatedText } from '@/features/i18n';
 import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
-import { ConfigLoader } from '@/core/config/ConfigLoader';
+import { SubConfig } from '@/core/config/ConfigLoader';
 
 
 import { useGlobalConfig } from '@/core/config/GlobalConfigLoader';
@@ -76,14 +76,14 @@ const init = async () => {
     throw new Error('No last used game repo found in global config.');
   }
 
-  await ConfigLoader.loadFrom(await path.join(lastUsedGameRepo.value, 'config.json')).then(() => {
+  await SubConfig.loadFrom(await path.join(lastUsedGameRepo.value, 'config.json')).then(() => {
     console.log('Config loaded successfully from:', lastUsedGameRepo.value);
   }).catch((error) => {
     console.error('Failed to load config:', error);
   });
 
   //- 重新加载mod
-  ModLoader.modSourceFoldersRef.rebind(ConfigLoader.modSourceFolders.refImpl);
+  ModLoader.modSourceFoldersRef.rebind(SubConfig.modSourceFolders);
   // debug
   console.log('Mod source folders:', ModLoader.modSourceFoldersRef.value);
   ModLoader.loadMods().then(() => {
@@ -127,8 +127,8 @@ const handleApplyButtonClicked = () => {
     });
     console.log('Selected Mods:', selectedMods);
 
-    const distFolder = ConfigLoader.modTargetFolder.value;
-    const ifUseTraditionalApply = ConfigLoader.ifUseTraditionalApply.value;
+    const distFolder = SubConfig.modTargetFolder.value;
+    const ifUseTraditionalApply = SubConfig.ifUseTraditionalApply.value;
     
     applyMod( ModLoader.mods, selectedMods, distFolder, !ifUseTraditionalApply)
       .then(() => {

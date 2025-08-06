@@ -2,7 +2,7 @@
 // 1. 传统模式： 通过在游戏文件夹名称前添加 disable_ 前缀来禁用Mod
 // 2. 新模式：通过创建 软链接 来实现Mod的应用
 
-import { ConfigLoader } from "@/core/config/ConfigLoader";
+import { SubConfig } from "@/core/config/ConfigLoader";
 import { createSymlinkBatch } from "@/shared/services/CreateSymlinkBatch";
 import { globalServiceContainer } from "@/shared/services/ServiceContainer";
 import { basename, dirname } from "@tauri-apps/api/path";
@@ -114,7 +114,7 @@ async function applyModTraditionally(allMods: ModInfo[], selectedMods: ModInfo[]
         return;
     }
     // 且需要保证 “保持mod名称和文件夹名称一致”，因为这种方式是通过在文件夹名称前添加 disable_ 前缀来禁用Mod的
-    if (ConfigLoader.ifKeepModNameAsModFolderName.value) {
+    if (SubConfig.ifKeepModNameAsModFolderName.value) {
         console.warn("Using traditional apply method, but keepModNameAsModFolderName is enabled. This may cause issues.");
         $t_snack('applyMods.traditionalError_keepModNameAsFolderName', "error");
         return;

@@ -7,7 +7,7 @@
             <TagSearch ref="tagSearchRef" v-model:search-tags="searchTags" style="position: relative; left: 10px;" />
             <s-scroll-view style="width: 100%;flex: 1 1 0;">
                 <div class="mod-item-list" ref="modListRef">
-                    <ModCard class="mod-item" v-for="(mod, index) in mods" :data-uid="mod.metadata.id.refImpl" :key="index"
+                    <ModCard class="mod-item" v-for="(mod, index) in mods" :data-uid="mod.metadata.id" :key="index"
                         :mod-info="mod.getSelf()" :display="true" v-model:clicked="ifModSelected[index]"
                         :class="{
                             'hidden': !isMatch(mod.metadata as ModMetadata),

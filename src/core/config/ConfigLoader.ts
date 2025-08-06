@@ -1,20 +1,36 @@
 import { join } from '@tauri-apps/api/path';
 // import { StorageValue,Storage } from '../storage/Storage';
-import { Storage } from '@xlxz/utils';
+import { Storage, StorageClass, StorageProperty } from '@xlxz/utils';
+import { globalServiceContainer } from '@/shared/services/ServiceContainer';
 import { I18nLocale } from '@/shared/types/local';
 import { setTheme, Theme } from '@/assets/styles/styleController';
 import { LocalHelper } from '@/features/i18n/LocalHelperClass';
+import { type Ref, ref } from 'vue';
 
-class SubConfigLoaderClass extends Storage {
+const SubConfigStorage = new Storage(globalServiceContainer.fs, 'local config');
+
+@StorageClass(SubConfigStorage)
+class SubConfigLoaderClass {
+    @StorageProperty('language') language: Ref<I18nLocale> = ref('zh-CN' as I18nLocale);
+    @StorageProperty('theme') theme: Ref<Theme> = ref('dark' as Theme);
+    @StorageProperty('ifStartWithLastPreset') ifStartWithLastPreset: Ref<boolean> = ref(false);
+    @StorageProperty('modSourceFolders') modSourceFolders: Ref<string[]> = ref([] as string[]);
+    @StorageProperty('modTargetFolder') modTargetFolder: Ref<string> = ref('');
+    @StorageProperty('presetFolder') presetFolder: Ref<string> = ref('');
+    @StorageProperty('ifUseTraditionalApply') ifUseTraditionalApply: Ref<boolean> = ref(false);
+    @StorageProperty('ifKeepModNameAsModFolderName') ifKeepModNameAsModFolderName: Ref<boolean> = ref(false);
+    @StorageProperty('firstLoad') firstLoad: Ref<boolean> = ref(true);
+    @StorageProperty('disabledPlugins') disabledPlugins: Ref<string[]> = ref([] as string[]);
+
+
 
     constructor() {
-        super('local config');
         console.log(`SubConfigLoaderClass 初始化`);
     }
 
     async loadFrom(filePath: string): Promise<void> {
         console.log(`从 ${filePath} 读取本地配置`);
-        await super.loadFrom(filePath);
+        await SubConfigStorage.loadFrom(filePath);
         // 特殊配置一下 presetFolder
         // 如果 presetFolder 没有设置，则使用 filePath 下的 presets 文件夹
         if (!this.presetFolder.value || this.presetFolder.value === '') {
@@ -33,26 +49,18 @@ class SubConfigLoaderClass extends Storage {
 
         // set 一下主题
         setTheme(this.theme.value);
-
     }
 
-    //-------------------- 语言 ------------------//
-    language = this.useConfig('language', 'zh-CN' as I18nLocale, true);
-    theme = this.useConfig('theme', 'dark' as Theme, true);
-    //-------------------- 是否使用上次使用的预设 ------------------//
-    ifStartWithLastPreset = this.useConfig('ifStartWithLastPreset', false);
+    async clearAllConfigs(): Promise<void> {
+        SubConfigStorage.reset();
+    }
 
-    modSourceFolders = this.useConfig('modSourceFolders', [] as string[]);
-    modTargetFolder = this.useConfig('modTargetFolder', '');
-    presetFolder = this.useConfig('presetFolder', '');
-
-    ifUseTraditionalApply = this.useConfig('ifUseTraditionalApply', false);
-    ifKeepModNameAsModFolderName = this.useConfig('ifKeepModNameAsModFolderName', false);
-    
-    //-------------------- 新手引导 ------------------//
-    firstLoad = this.useConfig('firstLoad', true, true);
-
+    async print(): Promise<void> {
+        const configData = await SubConfigStorage.toObject();
+        console.log('=== SubConfig 数据 ===');
+        console.log(JSON.stringify(configData, null, 2));
+    }
 }
 
-export const ConfigLoader = new SubConfigLoaderClass();
-export const useConfig = ConfigLoader.useConfig.bind(ConfigLoader);
+export const SubConfig = new SubConfigLoaderClass();
+export const useConfig = SubConfigStorage.useStorage.bind(SubConfigStorage);

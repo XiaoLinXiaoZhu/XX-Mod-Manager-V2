@@ -2,7 +2,7 @@ import { SettingBarData, SettingBarDataMulitiDir } from "@/features/settings/set
 import { setI18nLocale } from "@/features/i18n";
 import { I18nLocaleList } from "@/shared/types/local";
 import { ref } from 'vue';
-import { ConfigLoader } from "@/core/config/ConfigLoader";
+import { SubConfig } from "@/core/config/ConfigLoader";
 import { Theme, setTheme } from "@/assets/styles/styleController";
 import router from "@/features/router";
 import { t_snack } from "@/shared/composables/use-snack";
@@ -13,7 +13,7 @@ const getSettingSectionData = () => {
     //-------------------- 语言 ------------------//
     let languageData: SettingBarData = {
         name: 'language',
-        dataRef: ConfigLoader.language.refImpl,
+        dataRef: SubConfig.language,
         type: 'select',
         displayName: 'Language',
         description: '', t_displayName: {
@@ -48,7 +48,7 @@ const getSettingSectionData = () => {
     //-------------------- 主题 ------------------//
     let themeData: SettingBarData = {
         name: 'theme',
-        dataRef: ConfigLoader.theme.refImpl,
+        dataRef: SubConfig.theme,
         type: 'select',
         displayName: 'Theme',
         description: '', t_displayName: {
@@ -88,7 +88,7 @@ const getSettingSectionData = () => {
     //-------------------- 是否使用上次使用的预设 ------------------//
     let ifStartWithLastPresetData: SettingBarData = {
         name: 'ifStartWithLastPreset',
-        dataRef: ConfigLoader.ifStartWithLastPreset.refImpl,
+        dataRef: SubConfig.ifStartWithLastPreset,
         type: 'boolean',
         displayName: 'Start With Last Preset',
         description: 'Whether to start with the last preset used', t_displayName: {
@@ -105,7 +105,7 @@ const getSettingSectionData = () => {
     }    //-------------------- 模组目标文件夹 ------------------//
     let modTargetFolderData: SettingBarData = {
         name: 'modTargetFolder',
-        dataRef: ConfigLoader.modTargetFolder.refImpl,
+        dataRef: SubConfig.modTargetFolder,
         type: 'dir',
         displayName: 'Mod Target Folder',
         description: 'The folder of the mod target', t_displayName: {
@@ -117,12 +117,12 @@ const getSettingSectionData = () => {
             "en-US": 'Mod target directory is the location where modLoader reads mod, usually the Mods folder'
         },
         onChange: (value) => {
-            ConfigLoader.modTargetFolder.value = value; // 更新 dataRef 的值
+            SubConfig.modTargetFolder.value = value; // 更新 dataRef 的值
         }
     }    //-------------------- 模组源文件夹 ------------------//
     let modSourceFoldersData: SettingBarDataMulitiDir = {
         name: 'modSourceFolders',
-        dataRef: ConfigLoader.modSourceFolders.refImpl,
+        dataRef: SubConfig.modSourceFolders,
         type: 'dir:multi', // 现在支持多选文件夹了
         // type: 'dir',
         displayName: 'Mod Source Folders',
@@ -135,12 +135,12 @@ const getSettingSectionData = () => {
             "en-US": 'Mod Source directory is the location where the program stores mod. When the mod is enabled, a link will be created from here to the mod target directory.'
         },
         onChange: (value) => {
-            ConfigLoader.modSourceFolders.value = value
+            SubConfig.modSourceFolders.value = value
         }
     }    //-------------------- 预设文件夹 ------------------//
     let presetFolderData: SettingBarData = {
         name: 'presetFolder',
-        dataRef: ConfigLoader.presetFolder.refImpl,
+        dataRef: SubConfig.presetFolder,
         type: 'dir',
         displayName: 'Preset Folder',
         description: 'The folder of the preset', t_displayName: {
@@ -174,15 +174,17 @@ const getSettingSectionData = () => {
             "en-US": 'Init All Data'
         },
         callback: () => {
-            ConfigLoader.clearAllConfigs().then(() => {
-                // ! 这里应该要求用户重启程序
+            // 使用 clearAllConfigs 方法重置所有配置为默认值
+            SubConfig.clearAllConfigs().then(() => {
                 console.log('All data initialized successfully');
+                // 重新应用状态
+                SubConfig.refreshStates();
             });
         }
     }    //-------------------- 打开 firstLoad 页面的按钮 ------------------//
     let openFirstLoadButton: SettingBarData = {
         name: 'openFirstLoad',
-        dataRef: ConfigLoader.firstLoad.refImpl,
+        dataRef: SubConfig.firstLoad,
         type: 'iconButton',
         displayName: 'Open First Load',
         description: 'Open First Load', t_displayName: {
@@ -207,7 +209,7 @@ const getSettingSectionData = () => {
 
     const ifKeepModNameAsModFolderName: SettingBarData = {
         name: 'ifKeepModNameAsModFolderName',
-        dataRef: ConfigLoader.ifKeepModNameAsModFolderName.refImpl,
+        dataRef: SubConfig.ifKeepModNameAsModFolderName,
         type: 'boolean',
         displayName: 'Keep Mod Name As Mod Folder Name',
         t_displayName: {
@@ -222,7 +224,7 @@ const getSettingSectionData = () => {
 
     const ifUseTraditionalApply: SettingBarData = {
         name: 'ifUseTraditionalApply',
-        dataRef: ConfigLoader.ifUseTraditionalApply.refImpl,
+        dataRef: SubConfig.ifUseTraditionalApply,
         type: 'boolean',
         displayName: 'Use Traditional Apply',
         t_displayName: {
@@ -240,9 +242,9 @@ const getSettingSectionData = () => {
             // 2. ifKeepModNameAsModFolderName 需要是 false
 
             if (value) {
-                const modTargetFolder = ConfigLoader.modTargetFolder.refImpl.value;
-                const modSourceFolders = ConfigLoader.modSourceFolders.refImpl.value;
-                const ifKeepModNameAsModFolderName = ConfigLoader.ifKeepModNameAsModFolderName.refImpl.value;
+                const modTargetFolder = SubConfig.modTargetFolder.value;
+                const modSourceFolders = SubConfig.modSourceFolders.value;
+                const ifKeepModNameAsModFolderName = SubConfig.ifKeepModNameAsModFolderName.value;
                 // 检查 modTargetFolder 是否包含在 modSourceFolders 数组中
                 if (!modSourceFolders.includes(modTargetFolder)) {
                     console.log('ifUseTraditionalApply changed:', value, 'modTarget and modSource need to be the same folder');

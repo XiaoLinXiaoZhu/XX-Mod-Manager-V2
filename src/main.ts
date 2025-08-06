@@ -1,8 +1,8 @@
 // 这是 Tauri 应用的入口文件
 // 这里会初始化 Vue 应用，设置路由和国际化等
 import 'sober';
-import { GlobalConfigLoader, useGlobalConfig } from './core/config/GlobalConfigLoader';
-import { ConfigLoader } from './core/config/ConfigLoader';
+import { GlobalConfig, useGlobalConfig } from '@/core/config/GlobalConfigLoader';
+import { SubConfig } from './core/config/ConfigLoader';
 
 import { getArgv, type Argv } from './shared/utils/Argv';
 import * as path from '@tauri-apps/api/path';
@@ -67,10 +67,10 @@ console.log('XXMM Start With Argv:', argv);
 
 if (argv.custom_config_folder) {
     // 全局配置从这里加载
-    await GlobalConfigLoader.loadFrom(await path.resolve(".\\"));
+    await GlobalConfig.loadFrom(await path.resolve(".\\"));
 } else {
     // 全局配置从默认路径加载
-    await GlobalConfigLoader.loadDefaultConfig();
+    await GlobalConfig.loadDefaultConfig();
 }
 
 //-===============================
@@ -99,11 +99,11 @@ if (argv.repo) {
         // 找到名称对应的仓库
         const repo = repos.value.find(r => r.name === argv.repo);
         if (repo) {
-            const lastUsedGameRepo = useGlobalConfig('lastUsedGameRepo', '');
+            const lastUsedGameRepo = GlobalConfig.lastUsedGameRepo;
             lastUsedGameRepo.value = repo.configLocation;
 
             // 加载仓库配置
-            ConfigLoader.loadFrom(repo.configLocation).then(() => {
+            SubConfig.loadFrom(repo.configLocation).then(() => {
                 // 跳转到 modList 页面
                 router.push({ name: 'modList' });
             }).catch((err) => {
@@ -124,7 +124,7 @@ EventSystem.trigger(EventType.initDone);
 
 //- updatecheck
 import { checkForUpdates } from './features/updater/UpdateChecker';
-const ifCheckUpdatesOnStart = useGlobalConfig('checkUpdatesOnStart', false);
+const ifCheckUpdatesOnStart = GlobalConfig.checkUpdatesOnStart;
 EventSystem.on(EventType.wakeUp, async () => {
 // debug
 console.log('MainPage: 监听到唤醒事件，检查更新');

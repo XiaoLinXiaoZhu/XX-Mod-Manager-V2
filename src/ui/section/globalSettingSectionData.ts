@@ -2,7 +2,7 @@ import { SettingBarData } from "@/features/settings/settingBarConfig";
 import { setI18nLocale } from "@/features/i18n";
 import { I18nLocaleList ,type I18nLocale} from "@/shared/types/local";
 import { setTheme, Theme } from "@/assets/styles/styleController";
-import { GlobalConfigLoader } from "@/core/config/GlobalConfigLoader";
+import { GlobalConfig } from "@/core/config/GlobalConfigLoader";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { ref } from "vue";
 
@@ -11,7 +11,7 @@ const getSettingSectionData = () => {
     //-------------------- 语言 ------------------//
     let languageData: SettingBarData = {
         name: 'language',
-        dataRef: GlobalConfigLoader.language.refImpl,
+        dataRef: GlobalConfig.language,
         type: 'select',
         displayName: 'Language',
         description: '', t_displayName: {
@@ -39,7 +39,7 @@ const getSettingSectionData = () => {
                 return 'en-US'; // 如果无效，返回默认语言
             }
             setI18nLocale(value);
-            GlobalConfigLoader.language.value = value as I18nLocale;
+            GlobalConfig.language.value = value as I18nLocale;
             return value; // 返回新的语言代码
         }
     }    
@@ -47,7 +47,7 @@ const getSettingSectionData = () => {
     //-------------------- 主题 ------------------//
     let themeData: SettingBarData = {
         name: 'theme',
-        dataRef: GlobalConfigLoader.theme.refImpl,
+        dataRef: GlobalConfig.theme,
         type: 'select',
         displayName: 'Theme',
         description: '', t_displayName: {
@@ -80,7 +80,7 @@ const getSettingSectionData = () => {
                 return 'dark'; // 如果无效，返回默认主题
             } else {
                 setTheme(value as Theme);
-                GlobalConfigLoader.theme.value = value as Theme;
+                GlobalConfig.theme.value = value as Theme;
                 return value; // 返回新的主题
             }
         }

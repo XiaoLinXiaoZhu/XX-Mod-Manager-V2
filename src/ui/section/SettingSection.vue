@@ -31,7 +31,7 @@
                 <settingBar :data="configData.ifUseTraditionalApply"></settingBar>
 
                 <s-divider></s-divider>
-                <s-button class="OO-color-gradient" @click="ConfigLoader.print()">
+                <s-button class="OO-color-gradient" @click="() => SubConfig.print()">
                     {{ $t('setting.showDetail') }} </s-button>
                 <s-divider></s-divider>
                 <settingBar :data="configData.initAllDataButton"></settingBar>
@@ -169,7 +169,7 @@ import { globalServiceContainer } from '@/shared/services/ServiceContainer';
 import getSettingSectionData from './settingSectionData';
 import { IPluginLoader, type IPlugin, type IPluginData } from '@/core/plugin/PluginLoader';
 import { EventSystem, EventType } from '@/core/event/EventSystem';
-import { ConfigLoader } from '@/core/config/ConfigLoader';
+import { SubConfig } from '@/core/config/ConfigLoader';
 import { getTranslatedText, $t, currentLanguageRef } from '@/features/i18n';
 import markdown from '@/shared/components/markdown.vue';
 

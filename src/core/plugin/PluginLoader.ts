@@ -4,8 +4,8 @@ import { $t, getTranslatedText } from "../../features/i18n";
 
 import { ToolsCanUsedInPlugin } from './ToolsCanUsedInPlugin';
 import { appDataDir } from "@tauri-apps/api/path";
-import { useConfig } from "../config/ConfigLoader";
-import { useGlobalConfig } from "../config/GlobalConfigLoader";
+import { SubConfig, useConfig } from "@/core/config/ConfigLoader";
+import { useGlobalConfig, GlobalConfig } from "../config/GlobalConfigLoader";
 import { ref, Ref } from "vue";
 
 // 从类型定义文件导入类型
@@ -74,12 +74,13 @@ export class IPluginLoader {
     static async LoadDisabledPlugins() {
         // 这里要组合起来：从 局部配置 和 全局配置 中获取禁用的插件
         if (currentPage.value === 'modListPage') {
-            IPluginLoader.localDisabledPluginNamesRef = useConfig("disabledPlugins", [] as string[], false).refImpl;
-            IPluginLoader.globalDisabledPluginNamesRef = useGlobalConfig("disabledPlugins", [] as string[]).refImpl;
+            // IPluginLoader.localDisabledPluginNamesRef = useConfig("disabledPlugins", [] as string[], false).refImpl;
+            IPluginLoader.localDisabledPluginNamesRef = SubConfig.disabledPlugins;
+            IPluginLoader.globalDisabledPluginNamesRef = GlobalConfig.disabledPlugins;
         }
         if (currentPage.value === 'gamePage') {
             // 只加载全局禁用的插件
-            IPluginLoader.globalDisabledPluginNamesRef.value = useGlobalConfig('disabledPlugins', []).value;
+            IPluginLoader.globalDisabledPluginNamesRef.value = GlobalConfig.disabledPlugins.value;
         }
         // debug
         console.log('disabledPluginNames:', IPluginLoader.localDisabledPluginNamesRef.value, IPluginLoader.globalDisabledPluginNamesRef.value);
