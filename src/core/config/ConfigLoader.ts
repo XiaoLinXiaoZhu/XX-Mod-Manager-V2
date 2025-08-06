@@ -1,6 +1,6 @@
 import { join } from '@tauri-apps/api/path';
-import { StorageValue,Storage } from '../storage/Storage';
-import { useGlobalConfig } from './GlobalConfigLoader';
+// import { StorageValue,Storage } from '../storage/Storage';
+import { Storage } from '@xlxz/utils';
 import { I18nLocale } from '@/shared/types/local';
 import { setTheme, Theme } from '@/assets/styles/styleController';
 import { LocalHelper } from '@/features/i18n/LocalHelperClass';
@@ -10,12 +10,6 @@ class SubConfigLoaderClass extends Storage {
     constructor() {
         super('local config');
         console.log(`SubConfigLoaderClass 初始化`);
-    }
-
-    // useConfig 方法,当没有获取的值时，先尝试从 GlobalConfigLoader 中获取,如果它也没有，则返回默认值
-    useConfig<T>(key: string, defaultValue: T, useGlobal: boolean = false): StorageValue<T> {
-        const result = useGlobal ? this.useStorage(key, useGlobalConfig(key, "" as any).value || defaultValue) : this.useStorage(key, defaultValue);
-        return result;
     }
 
     async loadFrom(filePath: string): Promise<void> {
@@ -40,13 +34,6 @@ class SubConfigLoaderClass extends Storage {
         // set 一下主题
         setTheme(this.theme.value);
 
-    }
-
-    async clearAllConfigs(): Promise<void> {
-        console.log(`清除所有本地配置`);
-        this._storageValues = {};
-        await this.saveToFile(); // 保存到文件
-        return;
     }
 
     //-------------------- 语言 ------------------//
