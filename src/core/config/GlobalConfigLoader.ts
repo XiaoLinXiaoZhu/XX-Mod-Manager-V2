@@ -2,11 +2,12 @@
 import { globalServiceContainer } from '@/shared/services/ServiceContainer';
 import { join } from '@tauri-apps/api/path';
 // import { Storage } from '../storage/Storage';
-import { Storage, StorageProperty,StorageClass } from '@xlxz/utils';
+import { Storage, StorageProperty, StorageClass } from '@xlxz/utils';
 import { setTheme, type Theme } from '@/assets/styles/styleController';
 import { type I18nLocale } from '@/shared/types/local';
 import { LocalHelper } from '@/features/i18n/LocalHelperClass';
 import { ref } from 'vue';
+import { EventSystem, EventType } from '../event/EventSystem';
 
 const globalConfigStorage = new Storage(globalServiceContainer.fs, 'global config');
 
@@ -28,6 +29,15 @@ class GlobalConfigClass {
 
     constructor() {
         console.log(`GlobalConfigClass 初始化`);
+
+        // 监听路由变化事件，刷新状态
+        EventSystem.on(EventType.routeChanged, (changeInfo: { to: string, from: string }) => {
+            if (changeInfo.to === 'Main') {
+                // debug
+                console.log('GlobalConfigClass: 监听到路由变化事件，刷新状态');
+                this.refreshStates();
+            }
+        });
     }
 
     async loadFrom(filePath: string): Promise<void> {

@@ -77,6 +77,7 @@ router.afterEach((to, from) => {
   setTimeout(() => {
     EventSystem.trigger(EventType.routeChanged, { to: to.name, from: from.name  });
     // debug
+    console.log('EventSystem: routeChanged triggered', { to: to.name, from: from.name });
   },200);
 })
 

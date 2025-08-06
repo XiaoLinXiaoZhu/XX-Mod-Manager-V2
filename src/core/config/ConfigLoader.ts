@@ -6,6 +6,7 @@ import { I18nLocale } from '@/shared/types/local';
 import { setTheme, Theme } from '@/assets/styles/styleController';
 import { LocalHelper } from '@/features/i18n/LocalHelperClass';
 import { type Ref, ref } from 'vue';
+import { EventSystem, EventType } from '../event/EventSystem';
 
 const SubConfigStorage = new Storage(globalServiceContainer.fs, 'local config');
 
@@ -26,6 +27,15 @@ class SubConfigLoaderClass {
 
     constructor() {
         console.log(`SubConfigLoaderClass 初始化`);
+
+        EventSystem.on(EventType.routeChanged, (changeInfo: { to: string, from: string }) => {
+            // 如果是到 ModList 则 刷新状态
+            if (changeInfo.to === 'ModList') {
+                // debug
+                console.log('SubConfigLoaderClass: 监听到路由变化事件，刷新状态');
+                this.refreshStates();
+            }
+        });
     }
 
     async loadFrom(filePath: string): Promise<void> {
