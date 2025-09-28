@@ -1,31 +1,31 @@
 /**
- * 模块层主入口
+ * Module 层主入口
  * 提供无状态的业务函数工具箱
  */
 
-// Mod 管理模块
-export * from './mod-management';
-
-// 配置管理模块
+// 配置管理
 export * from './config-management';
 
-// 事件管理模块
+// 事件管理
 export * from './event-management';
 
-// 插件管理模块
-export * from './plugin-management';
-
-// 国际化模块
+// 国际化
 export * from './i18n';
 
-// 更新器模块
-export * from './updater';
+// Mod 管理
+export * from './mod-management';
 
-// 仓库管理模块
+// 通知
+export * from './notification';
+
+// 插件管理
+export * from './plugin-management';
+
+// 仓库
 export * from './repository';
 
-// 路由模块
+// 路由
 export * from './router';
 
-// 通知模块
-export * from './notification';
+// 更新器
+export * from './updater';

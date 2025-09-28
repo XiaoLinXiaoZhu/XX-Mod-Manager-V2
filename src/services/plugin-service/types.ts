@@ -1,62 +1,20 @@
 /**
  * 插件服务类型定义
- * 定义插件管理相关的类型和接口
+ * 定义插件服务层的状态管理和事件类型
  */
 
-// 插件状态
-export enum PluginStatus {
-  DISABLED = 'disabled',
-  ENABLED = 'enabled',
-  LOADING = 'loading',
-  ERROR = 'error',
-  UNLOADED = 'unloaded'
-}
+import type { 
+  PluginInfo, 
+  PluginLoadOptions,
+  PluginLoadResult,
+  PluginStatistics,
+  PluginSearchOptions,
+  PluginSearchResult
+} from '@/modules/plugin-management';
 
-// 插件类型
-export enum PluginType {
-  CORE = 'core',
-  FEATURE = 'feature',
-  THEME = 'theme',
-  LANGUAGE = 'language',
-  UTILITY = 'utility'
-}
-
-// 插件信息
-export interface PluginInfo {
-  id: string;
-  name: string;
-  version: string;
-  description?: string;
-  author?: string;
-  type: PluginType;
-  status: PluginStatus;
-  dependencies: string[];
-  conflicts: string[];
-  loadOrder: number;
-  enabled: boolean;
-  configurable: boolean;
-  filePath: string;
-  loadTime?: number;
-  error?: string;
-}
-
-// 插件配置
-export interface PluginConfig {
-  id: string;
-  enabled: boolean;
-  settings: Record<string, unknown>;
-  loadOrder: number;
-}
-
-// 插件加载选项
-export interface PluginLoadOptions {
-  validate?: boolean;
-  checkDependencies?: boolean;
-  checkConflicts?: boolean;
-  loadOrder?: 'auto' | 'manual';
-}
-
-// 插件服务状态
+/**
+ * 插件服务状态
+ */
 export interface PluginServiceState {
   plugins: Map<string, PluginInfo>;
   enabledPlugins: Set<string>;
@@ -67,102 +25,82 @@ export interface PluginServiceState {
   lastUpdated: string;
 }
 
-// 插件服务选项
+/**
+ * 插件服务选项
+ */
 export interface PluginServiceOptions {
   autoLoad: boolean;
   validateOnLoad: boolean;
   checkDependencies: boolean;
   checkConflicts: boolean;
-  maxLoadTime: number;
-  pluginDirectory: string;
+  logLevel: 'debug' | 'info' | 'warn' | 'error';
+  enableEvents: boolean;
+  enableLogging: boolean;
 }
 
-// 插件事件类型
+/**
+ * 插件服务事件类型
+ */
 export enum PluginServiceEventType {
   PLUGIN_LOADED = 'plugin:loaded',
   PLUGIN_UNLOADED = 'plugin:unloaded',
   PLUGIN_ENABLED = 'plugin:enabled',
   PLUGIN_DISABLED = 'plugin:disabled',
   PLUGIN_ERROR = 'plugin:error',
-  PLUGIN_CONFIG_CHANGED = 'plugin:config_changed'
+  PLUGIN_VALIDATION_FAILED = 'plugin:validation_failed',
+  PLUGIN_DEPENDENCY_ERROR = 'plugin:dependency_error',
+  PLUGIN_CONFLICT_ERROR = 'plugin:conflict_error'
 }
 
-// 插件事件数据
+/**
+ * 插件事件数据
+ */
 export interface PluginEventData {
   pluginId: string;
   pluginInfo?: PluginInfo;
   error?: string;
   timestamp: string;
-}
-
-// 插件验证结果
-export interface PluginValidationResult {
-  isValid: boolean;
-  errors: string[];
-  warnings: string[];
-  dependencies: string[];
-  conflicts: string[];
-}
-
-// 插件加载结果
-export interface PluginLoadResult {
-  success: boolean;
-  pluginId: string;
-  error?: string;
   loadTime?: number;
 }
 
-// 插件统计信息
-export interface PluginStatistics {
-  totalPlugins: number;
-  enabledPlugins: number;
-  disabledPlugins: number;
-  loadingPlugins: number;
-  errorPlugins: number;
-  averageLoadTime: number;
-  lastLoadTime: string;
+/**
+ * 插件服务接口
+ */
+export interface IPluginService {
+  // 生命周期管理
+  initialize(): Promise<{ success: boolean; error?: string }>;
+  destroy(): Promise<void>;
+
+  // 插件管理
+  loadPlugin(pluginId: string, options?: PluginLoadOptions): Promise<{ success: boolean; data?: PluginLoadResult; error?: string }>;
+  unloadPlugin(pluginId: string): Promise<{ success: boolean; data?: PluginLoadResult; error?: string }>;
+  enablePlugin(pluginId: string): Promise<{ success: boolean; error?: string }>;
+  disablePlugin(pluginId: string): Promise<{ success: boolean; error?: string }>;
+
+  // 插件查询
+  getPlugin(pluginId: string): PluginInfo | undefined;
+  getAllPlugins(): PluginInfo[];
+  searchPlugins(options?: PluginSearchOptions): PluginSearchResult;
+  getStatistics(): PluginStatistics;
+
+  // 状态管理
+  getState(): PluginServiceState;
+  subscribe(listener: (state: PluginServiceState) => void): () => void;
+
+  // 事件管理
+  on(event: PluginServiceEventType, listener: (data: PluginEventData) => void): void;
+  off(event: PluginServiceEventType, listener: (data: PluginEventData) => void): void;
 }
 
-// 插件搜索选项
-export interface PluginSearchOptions {
-  query?: string;
-  type?: PluginType;
-  status?: PluginStatus;
-  enabled?: boolean;
-  limit?: number;
-  offset?: number;
-}
-
-// 插件搜索结果
-export interface PluginSearchResult {
-  plugins: PluginInfo[];
-  total: number;
-  hasMore: boolean;
-  query: string;
-}
-
-// 插件依赖图
-export interface PluginDependencyGraph {
-  nodes: Map<string, PluginInfo>;
-  edges: Map<string, string[]>;
-  cycles: string[][];
-}
-
-// 插件错误
-export interface PluginError {
-  code: string;
-  message: string;
-  pluginId: string;
-  details?: Record<string, unknown>;
-  timestamp: string;
-}
-
-// 默认插件服务选项
+/**
+ * 默认插件服务选项
+ */
 export const DEFAULT_PLUGIN_SERVICE_OPTIONS: PluginServiceOptions = {
   autoLoad: true,
   validateOnLoad: true,
   checkDependencies: true,
   checkConflicts: true,
-  maxLoadTime: 5000,
-  pluginDirectory: './plugins'
+  logLevel: 'info',
+  enableEvents: true,
+  enableLogging: true
 };

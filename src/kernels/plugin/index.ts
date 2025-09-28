@@ -15,3 +15,9 @@ export {
   loadPlugins,
   checkPluginCompatibility
 } from './plugin-loader';
+
+// 导出结果类型
+export type { 
+  PluginLoadResult,
+  PluginValidationResult
+} from './plugin-loader';
