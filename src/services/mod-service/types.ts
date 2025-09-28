@@ -11,6 +11,13 @@ export interface ModServiceState {
   loading: boolean;
   error: string | null;
   lastOperation: ModOperationResult | null;
+  sourceFolders: string[];
+  categoryIndex: { [category: string]: { count: number; mods: string[] } };
+  tagIndex: { [tag: string]: { count: number; mods: string[] } };
+  selectedMods: string[];
+  searchQuery: string;
+  filterCategory: string | null;
+  filterTags: string[];
 }
 
 // Mod 服务配置

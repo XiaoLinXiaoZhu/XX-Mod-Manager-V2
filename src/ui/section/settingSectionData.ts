@@ -1,10 +1,9 @@
-import { SettingBarData, SettingBarDataMulitiDir } from "@/features/settings/settingBarConfig";
-import { setI18nLocale } from "@/features/i18n";
+import { SettingBarData, SettingBarDataMulitiDir, router } from "@/compat/legacy-bridge";
+import { setI18nLocale } from "@/compat/legacy-bridge";
 import { I18nLocaleList } from "@/shared/types/local";
 import { ref } from 'vue';
-import { SubConfig } from "@/core/config/ConfigLoader";
+import { SubConfig } from "@/compat/legacy-bridge";
 import { Theme, setTheme } from "@/assets/styles/styleController";
-import router from "@/features/router";
 import { t_snack } from "@/shared/composables/use-snack";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 

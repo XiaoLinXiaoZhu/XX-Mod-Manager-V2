@@ -222,4 +222,75 @@ export class TauriFileSystem implements ExtendedFileSystem {
     console.warn('File watching not implemented yet');
     return () => {};
   }
+
+  /**
+   * 创建符号链接
+   */
+  async createSymlink(from: string, to: string): Promise<void> {
+    try {
+      await invoke('create_symlink', { from, to });
+    } catch (error) {
+      throw new KernelError(
+        `Failed to create symlink from ${from} to ${to}`,
+        'SYMLINK_CREATE_ERROR',
+        { from, to, error: error instanceof Error ? error.message : String(error) }
+      );
+    }
+  }
+
+  /**
+   * 检查是否支持符号链接
+   */
+  async isSymlinkSupported(path: string): Promise<boolean> {
+    try {
+      const result = await invoke<boolean>('is_symlink_supported', { path });
+      return result;
+    } catch (error) {
+      console.warn(`Failed to check symlink support for ${path}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * 检查符号链接是否存在
+   */
+  async checkSymlinkExists(path: string): Promise<boolean> {
+    try {
+      const result = await invoke<boolean>('check_symlink_exists', { path });
+      return result;
+    } catch (error) {
+      console.warn(`Failed to check symlink existence for ${path}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * 删除符号链接
+   */
+  async removeSymlink(path: string): Promise<void> {
+    try {
+      await invoke('remove_symlink', { path });
+    } catch (error) {
+      throw new KernelError(
+        `Failed to remove symlink: ${path}`,
+        'SYMLINK_REMOVE_ERROR',
+        { path, error: error instanceof Error ? error.message : String(error) }
+      );
+    }
+  }
+
+  /**
+   * 重命名目录
+   */
+  async renameDirectory(from: string, to: string): Promise<void> {
+    try {
+      await invoke('rename_directory', { from, to });
+    } catch (error) {
+      throw new KernelError(
+        `Failed to rename directory from ${from} to ${to}`,
+        'DIRECTORY_RENAME_ERROR',
+        { from, to, error: error instanceof Error ? error.message : String(error) }
+      );
+    }
+  }
 }

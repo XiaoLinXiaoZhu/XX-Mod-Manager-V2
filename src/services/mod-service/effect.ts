@@ -19,13 +19,17 @@ import {
   loadMods, 
   detectModConflicts, 
   filterMods, 
-  sortMods 
-} from '@/modules/mod-management';
-import { 
-  applyMod, 
-  removeMod, 
-  isModApplied, 
-  createModBackup 
+  sortMods,
+  applyModBySymlink,
+  applyModTraditionally,
+  removeModBySymlink,
+  removeModTraditionally,
+  applyModsBatch,
+  addSourceFolder,
+  removeSourceFolder,
+  validateAllSourceFolders,
+  calculateCategoryIndex,
+  calculateTagIndex
 } from '@/modules/mod-management';
 import { 
   TauriFileSystem, 
@@ -354,4 +358,231 @@ export async function refreshModEffect(
       error: kernelError
     };
   }
+}
+
+/**
+ * 应用 Mod（软链接模式）
+ */
+export async function applyModBySymlinkEffect(
+  mod: ModInfo,
+  targetDir: string,
+  fileSystem: TauriFileSystem,
+  options: ModApplyOptions = {}
+): Promise<Result<ModOperationResult, KernelError>> {
+  try {
+    const result = await applyModBySymlink(mod, targetDir, fileSystem, options);
+    
+    if (result.success) {
+      return {
+        success: true,
+        data: result.data
+      };
+    } else {
+      return {
+        success: false,
+        error: result.error
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: new KernelError(
+        `Failed to apply mod by symlink: ${mod.name}`,
+        'MOD_APPLY_SYMLINK_EFFECT_ERROR',
+        { 
+          modId: mod.id, 
+          modName: mod.name, 
+          targetDir,
+          error: error instanceof Error ? error.message : String(error) 
+        }
+      )
+    };
+  }
+}
+
+/**
+ * 应用 Mod（传统模式）
+ */
+export async function applyModTraditionallyEffect(
+  mod: ModInfo,
+  targetDir: string,
+  fileSystem: TauriFileSystem,
+  options: ModApplyOptions = {}
+): Promise<Result<ModOperationResult, KernelError>> {
+  try {
+    const result = await applyModTraditionally(mod, targetDir, fileSystem, options);
+    
+    if (result.success) {
+      return {
+        success: true,
+        data: result.data
+      };
+    } else {
+      return {
+        success: false,
+        error: result.error
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: new KernelError(
+        `Failed to apply mod traditionally: ${mod.name}`,
+        'MOD_APPLY_TRADITIONAL_EFFECT_ERROR',
+        { 
+          modId: mod.id, 
+          modName: mod.name, 
+          targetDir,
+          error: error instanceof Error ? error.message : String(error) 
+        }
+      )
+    };
+  }
+}
+
+/**
+ * 批量应用 Mods
+ */
+export async function applyModsBatchEffect(
+  mods: ModInfo[],
+  targetDir: string,
+  fileSystem: TauriFileSystem,
+  useSymlink: boolean = true,
+  options: ModApplyOptions = {}
+): Promise<Result<ModOperationResult[], KernelError>> {
+  try {
+    const result = await applyModsBatch(mods, targetDir, fileSystem, useSymlink, options);
+    
+    if (result.success) {
+      return {
+        success: true,
+        data: result.data
+      };
+    } else {
+      return {
+        success: false,
+        error: result.error
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: new KernelError(
+        'Failed to apply mods batch',
+        'MODS_BATCH_APPLY_EFFECT_ERROR',
+        { 
+          modCount: mods.length,
+          targetDir,
+          useSymlink,
+          error: error instanceof Error ? error.message : String(error) 
+        }
+      )
+    };
+  }
+}
+
+/**
+ * 添加源文件夹
+ */
+export async function addSourceFolderEffect(
+  path: string,
+  existingFolders: string[],
+  fileSystem: TauriFileSystem
+): Promise<Result<string[], KernelError>> {
+  try {
+    // 转换现有文件夹为ModSourceFolder格式
+    const sourceFolders = existingFolders.map(folderPath => ({
+      path: folderPath,
+      name: folderPath.split('/').pop() || folderPath,
+      isValid: true,
+      modCount: 0
+    }));
+
+    const result = await addSourceFolder(path, sourceFolders, fileSystem);
+    
+    if (result.success) {
+      const updatedFolders = [...existingFolders, result.data.path];
+      return {
+        success: true,
+        data: updatedFolders
+      };
+    } else {
+      return {
+        success: false,
+        error: result.error
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: new KernelError(
+        `Failed to add source folder: ${path}`,
+        'ADD_SOURCE_FOLDER_EFFECT_ERROR',
+        { 
+          path,
+          error: error instanceof Error ? error.message : String(error) 
+        }
+      )
+    };
+  }
+}
+
+/**
+ * 移除源文件夹
+ */
+export function removeSourceFolderEffect(
+  path: string,
+  existingFolders: string[]
+): Result<string[], KernelError> {
+  try {
+    const result = removeSourceFolder(path, existingFolders.map(folderPath => ({
+      path: folderPath,
+      name: folderPath.split('/').pop() || folderPath,
+      isValid: true,
+      modCount: 0
+    })));
+    
+    if (result.success) {
+      const updatedFolders = result.data.map(folder => folder.path);
+      return {
+        success: true,
+        data: updatedFolders
+      };
+    } else {
+      return {
+        success: false,
+        error: result.error
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: new KernelError(
+        `Failed to remove source folder: ${path}`,
+        'REMOVE_SOURCE_FOLDER_EFFECT_ERROR',
+        { 
+          path,
+          error: error instanceof Error ? error.message : String(error) 
+        }
+      )
+    };
+  }
+}
+
+/**
+ * 计算索引结构
+ */
+export function calculateIndexStructuresEffect(
+  mods: ModInfo[]
+): {
+  categoryIndex: { [category: string]: { count: number; mods: string[] } };
+  tagIndex: { [tag: string]: { count: number; mods: string[] } };
+} {
+  const categoryIndex = calculateCategoryIndex(mods);
+  const tagIndex = calculateTagIndex(mods);
+
+  return {
+    categoryIndex,
+    tagIndex
+  };
 }

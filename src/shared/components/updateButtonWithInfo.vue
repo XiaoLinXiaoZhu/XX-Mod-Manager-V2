@@ -20,9 +20,8 @@
 </template>
 
 <script setup lang="ts">
-import { checkForUpdates } from '@/features/updater/UpdateChecker';
-import { versionData } from '@/features/updater/VersionInfo';
-import { $t } from '@/features/i18n';
+import { checkForUpdates, versionData } from '@/compat/legacy-bridge';
+import { $t } from '@/compat/legacy-bridge';
 import { $t_snack } from '@/shared/composables/use-snack';
 
 const handleCheckUpdate = async () => {

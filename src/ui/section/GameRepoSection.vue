@@ -45,11 +45,11 @@
 </template>
 
 <script setup lang="ts">
-import { type repo, repos, getRepos } from '@/features/repository/Repo';
+import { type repo, repos, getRepos } from '@/compat/legacy-bridge';
 import HorizontalCardList from '@/shared/components/HorizontalCardList.vue';
 import { ref, onMounted, computed } from 'vue';
-import { $t } from '@/features/i18n';
-import { EventSystem, EventType } from '@/core/event/EventSystem';
+import { $t } from '@/compat/legacy-bridge';
+import { EventSystem, EventType } from '@/compat/legacy-bridge';
 import CreateGameRepo from '@/ui/dialogs/CreateGameRepo.vue';
 import EditGameRepo from '@/ui/dialogs/EditGameRepo.vue';
 import { loadImage } from '@/shared/services/ImageHelper';

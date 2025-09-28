@@ -23,11 +23,6 @@ export * from './validation';
 
 // 通用类型
 export * from './types';
-export type { EventSystem, EventListener, EventListenerOptions, EventListenerInfo } from './event-system';
-
-// 状态管理
-export { ReactiveStore } from './state-manager';
-export type { StateManager, StateStore, StateSubscriber, StateUpdater, StateChangeInfo, StateManagerOptions, StateSelector, StateComparator } from './state-manager';
 
 // 配置存储
 export * from './config-storage';

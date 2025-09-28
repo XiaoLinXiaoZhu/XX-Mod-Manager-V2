@@ -10,9 +10,9 @@ export * from './types';
 export * from './config-manager';
 
 // 创建默认配置服务实例
-import { createConfigService, DEFAULT_CONFIG_SERVICE_CONFIG } from './config-manager';
+import { createConfigService, DEFAULT_CONFIG_SERVICE_OPTIONS } from './config-manager';
 
 /**
  * 默认配置服务实例
  */
-export const defaultConfigService = createConfigService(DEFAULT_CONFIG_SERVICE_CONFIG);
+export const defaultConfigService = createConfigService(DEFAULT_CONFIG_SERVICE_OPTIONS);

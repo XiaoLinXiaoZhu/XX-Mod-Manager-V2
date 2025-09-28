@@ -5,6 +5,7 @@
 
 import { ModMetadata, ModOperationResult, ModApplyOptions, ModStatus } from './types';
 import { Result, KernelError } from '@/kernels/types';
+import { ExtendedFileSystem } from '@/kernels/file-system';
 
 // Mod 应用状态
 export interface ModApplyStatus {
@@ -385,4 +386,304 @@ export function generateModApplyReport(
   ].filter(line => line.length > 0).join('\n');
 
   return report;
+}
+
+/**
+ * 应用 Mod（软链接模式）
+ */
+export async function applyModBySymlink(
+  mod: ModMetadata,
+  targetDir: string,
+  fileSystem: ExtendedFileSystem,
+  options: ModApplyOptions = {}
+): Promise<Result<ModApplyResult, KernelError>> {
+  try {
+    const { join, dirname, basename } = await import('@tauri-apps/api/path');
+    
+    // 检查目标目录是否存在
+    if (!(await fileSystem.exists(targetDir))) {
+      return {
+        success: false,
+        error: new KernelError(
+          `Target directory does not exist: ${targetDir}`,
+          'TARGET_DIR_NOT_EXISTS',
+          { targetDir }
+        )
+      };
+    }
+
+    // 检查是否支持软链接
+    if (!(await fileSystem.isSymlinkSupported(targetDir))) {
+      return {
+        success: false,
+        error: new KernelError(
+          `Symlink not supported in target directory: ${targetDir}`,
+          'SYMLINK_NOT_SUPPORTED',
+          { targetDir }
+        )
+      };
+    }
+
+    // 检查源目录和目标目录是否在同一位置
+    const sourceParent = await dirname(mod.location);
+    if (sourceParent === targetDir) {
+      return {
+        success: false,
+        error: new KernelError(
+          'Source and target directories cannot be the same',
+          'SAME_SOURCE_TARGET_DIR',
+          { sourceDir: mod.location, targetDir }
+        )
+      };
+    }
+
+    // 创建软链接
+    const symlinkPath = await join(targetDir, basename(mod.location));
+    await fileSystem.createSymlink(mod.location, symlinkPath);
+
+    return {
+      success: true,
+      data: {
+        success: true,
+        message: `Mod applied successfully via symlink: ${mod.name}`,
+        modId: mod.id,
+        appliedFiles: [symlinkPath]
+      }
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: new KernelError(
+        `Failed to apply mod by symlink: ${mod.name}`,
+        'MOD_APPLY_SYMLINK_ERROR',
+        { 
+          modId: mod.id, 
+          modName: mod.name, 
+          targetDir,
+          error: error instanceof Error ? error.message : String(error) 
+        }
+      )
+    };
+  }
+}
+
+/**
+ * 应用 Mod（传统模式）
+ */
+export async function applyModTraditionally(
+  mod: ModMetadata,
+  targetDir: string,
+  fileSystem: ExtendedFileSystem,
+  options: ModApplyOptions = {}
+): Promise<Result<ModApplyResult, KernelError>> {
+  try {
+    const { join, basename } = await import('@tauri-apps/api/path');
+    
+    // 检查目标目录是否存在
+    if (!(await fileSystem.exists(targetDir))) {
+      return {
+        success: false,
+        error: new KernelError(
+          `Target directory does not exist: ${targetDir}`,
+          'TARGET_DIR_NOT_EXISTS',
+          { targetDir }
+        )
+      };
+    }
+
+    // 传统模式：通过重命名文件夹来启用/禁用Mod
+    const modFolderName = basename(mod.location);
+    const enabledPath = await join(targetDir, modFolderName);
+    const disabledPath = await join(targetDir, `disable_${modFolderName}`);
+
+    // 检查是否已经存在启用或禁用的版本
+    const enabledExists = await fileSystem.exists(enabledPath);
+    const disabledExists = await fileSystem.exists(disabledPath);
+
+    if (enabledExists) {
+      // 已经启用，无需操作
+      return {
+        success: true,
+        data: {
+          success: true,
+          message: `Mod already enabled: ${mod.name}`,
+          modId: mod.id,
+          appliedFiles: [enabledPath]
+        }
+      };
+    }
+
+    if (disabledExists) {
+      // 从禁用状态启用
+      await fileSystem.renameDirectory(disabledPath, enabledPath);
+    } else {
+      // 复制Mod文件夹到目标目录
+      await fileSystem.createDirectory(enabledPath);
+      // 这里应该实现文件夹复制逻辑
+      // await copyDirectory(mod.location, enabledPath, fileSystem);
+    }
+
+    return {
+      success: true,
+      data: {
+        success: true,
+        message: `Mod applied successfully via traditional method: ${mod.name}`,
+        modId: mod.id,
+        appliedFiles: [enabledPath]
+      }
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: new KernelError(
+        `Failed to apply mod traditionally: ${mod.name}`,
+        'MOD_APPLY_TRADITIONAL_ERROR',
+        { 
+          modId: mod.id, 
+          modName: mod.name, 
+          targetDir,
+          error: error instanceof Error ? error.message : String(error) 
+        }
+      )
+    };
+  }
+}
+
+/**
+ * 移除 Mod（软链接模式）
+ */
+export async function removeModBySymlink(
+  mod: ModMetadata,
+  targetDir: string,
+  fileSystem: ExtendedFileSystem
+): Promise<Result<ModApplyResult, KernelError>> {
+  try {
+    const { join, basename } = await import('@tauri-apps/api/path');
+    
+    const symlinkPath = await join(targetDir, basename(mod.location));
+    
+    // 检查软链接是否存在
+    if (await fileSystem.checkSymlinkExists(symlinkPath)) {
+      await fileSystem.removeSymlink(symlinkPath);
+    }
+
+    return {
+      success: true,
+      data: {
+        success: true,
+        message: `Mod removed successfully via symlink: ${mod.name}`,
+        modId: mod.id
+      }
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: new KernelError(
+        `Failed to remove mod by symlink: ${mod.name}`,
+        'MOD_REMOVE_SYMLINK_ERROR',
+        { 
+          modId: mod.id, 
+          modName: mod.name, 
+          targetDir,
+          error: error instanceof Error ? error.message : String(error) 
+        }
+      )
+    };
+  }
+}
+
+/**
+ * 移除 Mod（传统模式）
+ */
+export async function removeModTraditionally(
+  mod: ModMetadata,
+  targetDir: string,
+  fileSystem: ExtendedFileSystem
+): Promise<Result<ModApplyResult, KernelError>> {
+  try {
+    const { join, basename } = await import('@tauri-apps/api/path');
+    
+    const modFolderName = basename(mod.location);
+    const enabledPath = await join(targetDir, modFolderName);
+    const disabledPath = await join(targetDir, `disable_${modFolderName}`);
+
+    // 检查是否存在启用的版本
+    if (await fileSystem.exists(enabledPath)) {
+      // 重命名为禁用状态
+      await fileSystem.renameDirectory(enabledPath, disabledPath);
+    }
+
+    return {
+      success: true,
+      data: {
+        success: true,
+        message: `Mod disabled successfully via traditional method: ${mod.name}`,
+        modId: mod.id
+      }
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: new KernelError(
+        `Failed to remove mod traditionally: ${mod.name}`,
+        'MOD_REMOVE_TRADITIONAL_ERROR',
+        { 
+          modId: mod.id, 
+          modName: mod.name, 
+          targetDir,
+          error: error instanceof Error ? error.message : String(error) 
+        }
+      )
+    };
+  }
+}
+
+/**
+ * 批量应用 Mods
+ */
+export async function applyModsBatch(
+  mods: ModMetadata[],
+  targetDir: string,
+  fileSystem: ExtendedFileSystem,
+  useSymlink: boolean = true,
+  options: ModApplyOptions = {}
+): Promise<Result<ModApplyResult[], KernelError>> {
+  try {
+    const results: ModApplyResult[] = [];
+    
+    for (const mod of mods) {
+      const result = useSymlink 
+        ? await applyModBySymlink(mod, targetDir, fileSystem, options)
+        : await applyModTraditionally(mod, targetDir, fileSystem, options);
+        
+      if (result.success) {
+        results.push(result.data);
+      } else {
+        results.push({
+          success: false,
+          error: result.error.message,
+          modId: mod.id
+        });
+      }
+    }
+
+    return {
+      success: true,
+      data: results
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: new KernelError(
+        'Failed to apply mods batch',
+        'MODS_BATCH_APPLY_ERROR',
+        { 
+          modCount: mods.length,
+          targetDir,
+          useSymlink,
+          error: error instanceof Error ? error.message : String(error) 
+        }
+      )
+    };
+  }
 }

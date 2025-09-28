@@ -4,9 +4,9 @@
  */
 
 import { ReactiveStore } from '@/kernels';
-import { AppState, AppConfig, AppServiceEvent, AppService as IAppService } from './types';
+import type { AppState, AppConfig, AppService as IAppService } from './types';
+import { AppServiceEvent } from './types';
 import { DEFAULT_APP_CONFIG, mergeAppConfig } from './config';
-import { defaultEventSystem } from '@/kernels';
 
 /**
  * 应用服务实现类
@@ -121,7 +121,7 @@ export class AppService implements IAppService {
   /**
    * 设置当前页面
    */
-  setCurrentPage(page: string): void {
+  setCurrentPage(page: 'gamePage' | 'modListPage' | 'main'): void {
     this.updateState({ currentPage: page });
     this.emit(AppServiceEvent.PAGE_CHANGED, page);
   }
@@ -207,18 +207,8 @@ export class AppService implements IAppService {
    * 设置事件监听器
    */
   private setupEventListeners(): void {
-    // 监听内核事件
-    defaultEventSystem.on('app:start', () => {
-      this.initialize();
-    });
-
-    defaultEventSystem.on('app:ready', () => {
-      this.ready();
-    });
-
-    defaultEventSystem.on('error:occurred', (error: Error) => {
-      this.setError(error.message);
-    });
+    // 这里可以添加事件监听器
+    // 目前暂时留空，因为事件系统会在外部设置
   }
 }
 

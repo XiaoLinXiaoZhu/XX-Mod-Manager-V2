@@ -8,7 +8,7 @@ export interface AppState {
   isInitialized: boolean;
   isLoading: boolean;
   error: string | null;
-  currentPage: string;
+  currentPage: 'gamePage' | 'modListPage' | 'main';
   theme: 'light' | 'dark' | 'auto';
   language: string;
 }

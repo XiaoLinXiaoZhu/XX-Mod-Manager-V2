@@ -4,7 +4,7 @@
  */
 
 import { TranslatedText } from '@/shared/types/local';
-import { SettingBarData } from '@/features/settings/settingBarConfig';
+import { SettingBarData } from '@/compat/legacy-bridge';
 
 /**
  * 插件作用域

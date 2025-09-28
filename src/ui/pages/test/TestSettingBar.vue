@@ -11,8 +11,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import settingBar from '@/features/settings/settingBar.vue';
-import { type SettingBarData } from '@/features/settings/settingBarConfig';
+import { settingBar, type SettingBarData } from '@/compat/legacy-bridge';
 
 const selectFolder :SettingBarData = {
     type: 'dir',

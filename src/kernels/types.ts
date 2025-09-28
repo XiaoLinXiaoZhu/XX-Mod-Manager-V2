@@ -61,4 +61,8 @@ export class KernelError extends Error {
     super(message);
     this.name = 'KernelError';
   }
+  
+  get details() {
+    return this.context;
+  }
 }

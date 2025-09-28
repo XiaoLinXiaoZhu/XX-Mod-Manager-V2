@@ -1,5 +1,5 @@
 import { Snackbar } from "sober";
-import { $t,currentLanguageRef } from "../../features/i18n";
+import { $t,currentLanguageRef } from "../../compat/legacy-bridge";
 import { type TranslatedText } from "@/shared/types/local";
 
 /** @enum

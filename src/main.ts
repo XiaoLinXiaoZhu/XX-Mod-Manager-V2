@@ -1,8 +1,8 @@
 // 这是 Tauri 应用的入口文件
 // 这里会初始化 Vue 应用，设置路由和国际化等
 import 'sober';
-import { GlobalConfig, useGlobalConfig } from '@/core/config/GlobalConfigLoader';
-import { SubConfig } from './core/config/ConfigLoader';
+import { GlobalConfig, useGlobalConfig } from '@/compat/legacy-bridge';
+import { SubConfig } from '@/compat/legacy-bridge';
 
 import { getArgv, type Argv } from './shared/utils/Argv';
 import * as path from '@tauri-apps/api/path';
@@ -13,7 +13,7 @@ import { $t_snack } from './shared/composables/use-snack';
 //-===============================
 //-🔧 添加事件钩子
 //-===============================
-import { EventSystem, EventType } from './core/event/EventSystem';
+import { EventSystem, EventType } from './compat/legacy-bridge';
 
 //- 禁用 tab 切换焦点
 document.addEventListener('keydown', (e) => {
@@ -79,7 +79,7 @@ if (argv.custom_config_folder) {
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './features/router/index';
-import { i18nInstance } from './features/i18n/index.ts';
+import { i18nInstance } from './compat/legacy-bridge';
 
 const vueApp = createApp(App);
 

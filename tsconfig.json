@@ -44,6 +44,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true,
 
     // 启用实验性装饰器
     "experimentalDecorators": true,

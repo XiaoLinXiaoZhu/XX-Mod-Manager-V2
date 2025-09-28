@@ -5,7 +5,7 @@
 
 import { ModInfo } from '@/modules/mod-management';
 import { ModServiceState } from './types';
-import { EventEmitter } from '@/kernels';
+import { EventEmitter, ReactiveStore } from '@/kernels';
 import { searchModsEffect, detectConflictsEffect } from './effect';
 
 /**

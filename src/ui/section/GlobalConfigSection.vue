@@ -129,13 +129,13 @@
 <script setup lang="ts">
 // import leftMenu from '../components/leftMenu.vue';
 import LeftIndex from '@/shared/components/leftIndex.vue';
-import settingBar from '@/features/settings/settingBar.vue';
+import { settingBar } from '@/compat/legacy-bridge';
 import { computed, ComputedRef, onMounted, Ref, ref, watch } from 'vue';
 import { globalServiceContainer } from '@/shared/services/ServiceContainer';
 import getSettingSectionData from './globalSettingSectionData';
-import { IPluginLoader, type IPlugin, type IPluginData } from '@/core/plugin/PluginLoader';
-import { EventSystem, EventType } from '@/core/event/EventSystem';
-import { getTranslatedText, $t, currentLanguageRef, $rt } from '@/features/i18n';
+import { IPluginLoader, type IPlugin, type IPluginData } from '@/compat/legacy-bridge';
+import { EventSystem, EventType } from '@/compat/legacy-bridge';
+import { getTranslatedText, $t, currentLanguageRef, $rt } from '@/compat/legacy-bridge';
 
 let configData = getSettingSectionData();
 

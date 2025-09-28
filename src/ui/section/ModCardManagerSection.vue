@@ -22,13 +22,11 @@
 import LeftIndex from '@/shared/components/leftIndex.vue';
 import TagSearch from '@/shared/components/TagSearch.vue';
 
-import { ModLoader } from '@/features/mod-manager/ModLoader';
-import { ModInfo } from '@/features/mod-manager/ModInfo';
+import { ModLoader, ModInfo, ModMetadata } from '@/compat/legacy-bridge';
 import { ref, computed, nextTick, watch } from 'vue';
 import ModCard from '@/shared/components/modCard.vue';
 import { SearchTag } from '@/shared/types/search-tag';
-import { currentLanguageRef } from '@/features/i18n';
-import { ModMetadata } from '@/features/mod-manager/ModMetadata';
+import { currentLanguageRef } from '@/compat/legacy-bridge';
 
 const tagSearchRef = ref<InstanceType<typeof TagSearch> | null>(null);
 const searchTags = ref<SearchTag[]>([] as SearchTag[]);

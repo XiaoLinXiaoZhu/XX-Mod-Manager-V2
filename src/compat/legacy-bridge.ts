@@ -1,47 +1,45 @@
 /**
- * 旧代码兼容桥接层
+ * 旧代码兼容桥接层主入口
  * 提供旧架构代码的兼容接口，逐步迁移到新架构
+ * 
+ * 此文件仅作为重新导出入口，具体实现分散在各个专门的桥接文件中
  */
 
-import { createUiService, DEFAULT_UI_SERVICE_CONFIG, DEFAULT_UI_SERVICE_OPTIONS } from '@/services';
-import { EventEmitter } from '@/kernels';
+// 状态管理兼容接口
+export * from './state-bridge';
 
-// 创建全局事件系统实例
-const globalEventSystem = new EventEmitter();
+// 事件系统兼容接口
+export * from './event-bridge';
 
-// 创建全局 UI 服务实例
-const globalUiService = createUiService(
-  DEFAULT_UI_SERVICE_CONFIG,
-  DEFAULT_UI_SERVICE_OPTIONS,
-  globalEventSystem
-);
+// 配置系统兼容接口
+export * from './config-bridge';
 
-/**
- * 兼容的通知函数
- * 替代 $t_snack
- */
-export function $t_snack(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info'): void {
-  globalUiService.showNotification(message, type);
-}
+// 国际化系统兼容接口
+export * from './i18n-bridge';
 
-/**
- * 兼容的路由函数
- * 替代直接的路由操作
- */
-export function navigateToRoute(route: string): void {
-  globalUiService.navigateToRoute(route);
-}
+// 插件系统兼容接口
+export * from './plugin-bridge';
 
-/**
- * 获取全局 UI 服务实例
- */
-export function getGlobalUiService() {
-  return globalUiService;
-}
+// 文件系统兼容接口
+export * from './filesystem-bridge';
 
-/**
- * 获取全局事件系统实例
- */
-export function getGlobalEventSystem() {
-  return globalEventSystem;
-}
+// 通知系统兼容接口
+export * from './notification-bridge';
+
+// Mod 管理兼容接口
+export * from './mod-bridge';
+
+// 路由功能兼容接口
+export * from './router-bridge';
+
+// 仓库功能兼容接口
+export * from './repository-bridge';
+
+// 更新器功能兼容接口
+export * from './updater-bridge';
+
+// 设置功能兼容接口
+export * from './settings-bridge';
+
+// Mod 应用功能兼容接口
+export * from './mod-apply-bridge';

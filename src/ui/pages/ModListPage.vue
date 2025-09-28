@@ -43,13 +43,13 @@ import SectionSlider from '@/shared/components/SectionSlider.vue';
 import { computed, ref, watch } from 'vue';
 
 
-import { $rt, $t, currentLanguageRef, getTranslatedText } from '@/features/i18n';
+import { $rt, $t, currentLanguageRef, getTranslatedText } from '@/compat/legacy-bridge';
 import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
-import { SubConfig } from '@/core/config/ConfigLoader';
+import { SubConfig } from '@/compat/legacy-bridge';
 
 
-import { useGlobalConfig } from '@/core/config/GlobalConfigLoader';
-import { EventSystem, EventType } from '@/core/event/EventSystem';
+import { useGlobalConfig } from '@/compat/legacy-bridge';
+import { EventSystem, EventType } from '@/compat/legacy-bridge';
 import SettingSection from '@/ui/section/SettingSection.vue';
 
 
@@ -104,11 +104,9 @@ EventSystem.on(EventType.routeChanged, async (changeInfo: { to: string, from: st
   }
 });
 
-import router from '@/features/router';
+import { router, ModLoader, applyMod } from '@/compat/legacy-bridge';
 import { path } from '@tauri-apps/api';
-import { ModLoader } from '@/features/mod-manager/ModLoader';
 import { $t_snack } from '@/shared/composables/use-snack';
-import { applyMod } from '@/features/mod-apply/ApplyMod';
 
 
 const handleBackButtonClick = () => {

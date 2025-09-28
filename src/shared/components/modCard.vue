@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { ModInfo } from '@/features/mod-manager/ModInfo';
+import { ModInfo } from '@/compat/legacy-bridge';
 import ToggleableCardElement from './ToggleableCardElement.vue';
 
 const props = defineProps<{

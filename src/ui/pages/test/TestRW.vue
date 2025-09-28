@@ -13,7 +13,7 @@
 <script setup lang="ts">
 //debug
 import { onMounted, ref } from 'vue';
-import RouteList from '@/features/router/RouteList.vue';
+import { RouteList } from '@/compat/legacy-bridge';
 import { globalServiceContainer } from '@/shared/services/ServiceContainer';
 import { loadImage,writeImageFromUrl } from '@/shared/services/ImageHelper';
 

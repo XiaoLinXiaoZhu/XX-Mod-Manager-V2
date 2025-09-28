@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import RouteList from '@/features/router/RouteList.vue';
+import { RouteList } from '@/compat/legacy-bridge';
 import DialogTemplate from '@/ui/dialogs/dialogTemplate.vue';
 const ifShow = ref(false);
 

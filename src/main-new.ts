@@ -43,8 +43,8 @@ import {
 
 // 临时导入旧系统（将在后续迁移中移除）
 import router from './features/router/index';
-import { i18nInstance } from './features/i18n/index.ts';
-import { GlobalConfig } from '@/core/config/GlobalConfigLoader';
+import { i18nInstance } from './compat/legacy-bridge';
+import { GlobalConfig } from '@/compat/legacy-bridge';
 
 // 使用兼容层替代旧的通知系统
 import { $t_snack } from './compat/legacy-bridge';

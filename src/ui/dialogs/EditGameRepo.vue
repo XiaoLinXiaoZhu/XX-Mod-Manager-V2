@@ -28,10 +28,10 @@
 import { onMounted, ref, type Ref } from 'vue';
 import dialogTemplate from '@/ui/dialogs/dialogTemplate.vue';
 import editRepo from '@/ui/layouts/EditRepo.vue';
-import { type repo, repos } from '@/features/repository/Repo';
+import { type repo, repos } from '@/compat/legacy-bridge';
 import { snack } from '@/shared/composables/use-snack';
 
-import { $t } from '@/features/i18n';
+import { $t } from '@/compat/legacy-bridge';
 const showEditRepoDialog = defineModel<boolean>("visible", {
     type: Boolean,
     default: false,

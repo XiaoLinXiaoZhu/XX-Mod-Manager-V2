@@ -39,6 +39,11 @@ export interface ExtendedFileSystem extends FileSystem {
   copyFile(from: string, to: string): Promise<void>;
   moveFile(from: string, to: string): Promise<void>;
   watchFile(path: string, callback: (event: FileChangeEvent) => void): () => void;
+  createSymlink(from: string, to: string): Promise<void>;
+  isSymlinkSupported(path: string): Promise<boolean>;
+  checkSymlinkExists(path: string): Promise<boolean>;
+  removeSymlink(path: string): Promise<void>;
+  renameDirectory(from: string, to: string): Promise<void>;
 }
 
 // 文件变化事件

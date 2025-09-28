@@ -1,8 +1,8 @@
-import { SettingBarData } from "@/features/settings/settingBarConfig";
-import { setI18nLocale } from "@/features/i18n";
+import { SettingBarData } from "@/compat/legacy-bridge";
+import { setI18nLocale } from "@/compat/legacy-bridge";
 import { I18nLocaleList ,type I18nLocale} from "@/shared/types/local";
 import { setTheme, Theme } from "@/assets/styles/styleController";
-import { GlobalConfig } from "@/core/config/GlobalConfigLoader";
+import { GlobalConfig } from "@/compat/legacy-bridge";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { ref } from "vue";
 

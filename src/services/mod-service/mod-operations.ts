@@ -5,7 +5,7 @@
 
 import { ModInfo, ModStatus, ModOperationResult } from '@/modules/mod-management';
 import { ModServiceState, ModServiceConfig, ModServiceEvent } from './types';
-import { TauriFileSystem, EventEmitter } from '@/kernels';
+import { TauriFileSystem, EventEmitter, ReactiveStore } from '@/kernels';
 import { 
   applyModEffect, 
   removeModEffect, 

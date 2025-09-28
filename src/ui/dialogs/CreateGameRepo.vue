@@ -27,8 +27,8 @@
 import { ref ,type Ref} from 'vue';
 import dialogTemplate from './dialogTemplate.vue';
 import EditRepo from '../layouts/EditRepo.vue';
-import { type repo,repos,getRepos } from '@/features/repository/Repo';
-import { EventSystem, EventType } from '@/core/event/EventSystem';
+import { type repo,repos,getRepos } from '@/compat/legacy-bridge';
+import { EventSystem, EventType } from '@/compat/legacy-bridge';
 import { path } from '@tauri-apps/api';
 const showAddRepoDialog = defineModel<boolean>("visible", {
     type: Boolean,

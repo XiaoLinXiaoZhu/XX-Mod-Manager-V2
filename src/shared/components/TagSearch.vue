@@ -34,10 +34,9 @@
 
 import { computed, ref } from 'vue';
 import { SearchTag, TagType } from '@/shared/types/search-tag';
-import { ModLoader } from '@/features/mod-manager/ModLoader';
+import { ModLoader, ModMetadata } from '@/compat/legacy-bridge';
 import { AutoRecommendItem } from '../types/auto-recommend';
 import AutoRecommend from './AutoRecommend.vue';
-import { ModMetadata } from '@/features/mod-manager/ModMetadata';
 
 
 const searchTags = defineModel<SearchTag[]>('searchTags', {

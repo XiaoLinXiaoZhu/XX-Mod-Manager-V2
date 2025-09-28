@@ -41,13 +41,13 @@ import SectionSlider from '@/shared/components/SectionSlider.vue';
 import { computed, ref, type Ref } from 'vue';
 
 
-import { $t,$rt, currentLanguageRef, getTranslatedText } from '@/features/i18n';
+import { $t,$rt, currentLanguageRef, getTranslatedText } from '@/compat/legacy-bridge';
 import UpdateButtonWithInfo from '@/shared/components/updateButtonWithInfo.vue';
 import GameRepoSection from '@/ui/section/GameRepoSection.vue';
-import { SubConfig } from '@/core/config/ConfigLoader';
+import { SubConfig } from '@/compat/legacy-bridge';
 import { join } from '@tauri-apps/api/path';
-import router from '@/features/router';
-import { useGlobalConfig } from '@/core/config/GlobalConfigLoader';
+import { router } from '@/compat/legacy-bridge';
+import { useGlobalConfig } from '@/compat/legacy-bridge';
 import { $t_snack } from '@/shared/composables/use-snack';
 
 const currentSection = ref('Section 1');

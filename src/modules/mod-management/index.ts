@@ -23,3 +23,9 @@ export * from './mod-hotkey';
 
 // Mod 应用
 export * from './mod-apply';
+
+// 源文件夹管理
+export * from './mod-source-manager';
+
+// 索引管理
+export * from './mod-index-manager';
