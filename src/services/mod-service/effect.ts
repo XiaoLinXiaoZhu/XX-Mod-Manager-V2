@@ -4,28 +4,33 @@
  */
 
 import type { ModInfo, ModStatus, ModOperationResult, ModLoadOptions, ModApplyOptions, ModSearchOptions } from '@/modules/mod-management';
-import type { ModServiceConfig, ModServiceEvent } from './types';
+import type { ModServiceConfig } from './types';
+import { ModServiceEvent } from './types';
 import { 
   loadMods, 
   detectModConflicts, 
   filterMods, 
   sortMods,
-  applyModBySymlink,
-  applyModTraditionally,
-  removeModBySymlink,
-  removeModTraditionally,
-  applyModsBatch,
   addSourceFolder,
   removeSourceFolder,
-  validateAllSourceFolders,
   calculateCategoryIndex,
   calculateTagIndex
 } from '@/modules/mod-management';
 import { 
+  applyMod,
+  removeMod,
+  isModApplied,
+  createModBackup
+} from '@/modules/mod-management/mod-file-operator';
+import { 
+  validateAllSourceFolders
+} from '@/modules/mod-management/mod-source-manager';
+import { 
   TauriFileSystem, 
   EventEmitter 
 } from '@/kernels';
-import type { Result, KernelError } from '@/kernels/types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 
 /**
  * 加载 Mod 列表
@@ -85,7 +90,7 @@ export async function applyModEffect(
 ): Promise<Result<ModOperationResult, KernelError>> {
   try {
     // 检查是否已应用
-    const isAppliedResult = await isModApplied(mod, config.modTargetFolder, fileSystem);
+    const isAppliedResult = await isModApplied(modMetadata, config.modTargetFolder, fileSystem);
     if (isAppliedResult.success && isAppliedResult.data) {
       return {
         success: true,
@@ -101,7 +106,7 @@ export async function applyModEffect(
     if (options.backup) {
       const backupDir = await fileSystem.getConfigDir();
       const backupPath = `${backupDir}/mod_backups/${mod.id}`;
-      await createModBackup(mod, backupPath, fileSystem);
+      await createModBackup(modMetadata, backupPath, fileSystem);
     }
 
     // 应用 Mod
@@ -111,7 +116,7 @@ export async function applyModEffect(
       dryRun: options.dryRun
     };
 
-    const result = await applyMod(mod, config.modTargetFolder, applyOptions, fileSystem);
+    const result = await applyMod(modMetadata, config.modTargetFolder, applyOptions, fileSystem);
     
     if (result.success) {
       // 发射事件
@@ -145,7 +150,7 @@ export async function removeModEffect(
   eventSystem: EventEmitter
 ): Promise<Result<ModOperationResult, KernelError>> {
   try {
-    const result = await removeMod(mod, config.modTargetFolder, fileSystem);
+    const result = await removeMod(modMetadata, config.modTargetFolder, fileSystem);
     
     if (result.success) {
       // 发射事件
@@ -213,10 +218,10 @@ export function searchModsEffect(
 ): ModInfo[] {
   try {
     const filters = {
-      status: options.status,
-      category: options.category,
-      tags: options.tags,
-      searchQuery: options.query
+      status: options.status || undefined,
+      category: options.category || undefined,
+      tags: options.tags || undefined,
+      searchQuery: options.query || undefined
     };
 
     let filteredMods = filterMods(mods, filters);
@@ -311,7 +316,7 @@ export async function refreshModEffect(
       validateMetadata: true,
       checkConflicts: false,
       loadPreview: true
-    });
+    }, eventSystem);
 
     if (!loadResult.success) {
       return {

@@ -157,7 +157,7 @@ export class UiService implements IUiService {
         notificationState: newNotificationState
       }));
 
-    this.eventSystem.emit(UiServiceEvent.ALL_NOTIFICATIONS_CLEARED);
+    this.eventSystem.emit(UiServiceEvent.ALL_NOTIFICATIONS_CLEARED, {});
   }
 
   /**

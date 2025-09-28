@@ -5,7 +5,7 @@
 
 import { ModServiceEvent } from './types';
 import type { ModServiceState } from './types';
-import { ModMetadata } from '@/modules/mod-management';
+import type { ModMetadata } from '@/modules/mod-management';
 import type { ModInfo } from '@/modules/mod-management';
 import { 
   calculateCategoryIndex, 
@@ -338,7 +338,7 @@ export class ModStateManager {
    * 重置状态
    */
   reset(): void {
-    this.stateStore.updateState({
+    this.stateStore.updateState(() => ({
       mods: [],
       loading: false,
       error: null,
@@ -350,6 +350,6 @@ export class ModStateManager {
       searchQuery: '',
       filterCategory: null,
       filterTags: []
-    });
+    }));
   }
 }

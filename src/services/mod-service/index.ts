@@ -7,7 +7,7 @@ import { ReactiveStore } from '@/kernels';
 
 import { ModStatus } from '@/modules/mod-management';
 import type { ModInfo, ModOperationResult } from '@/modules/mod-management';
-import { ModService as IModService } from './types';
+import type { ModService as IModService } from './types';
 import { ModServiceEvent } from './types';
 import type { ModServiceState, ModServiceConfig, ModServiceOptions } from './types';
 import { loadModsEffect, addModToListEffect } from './effect';
@@ -46,11 +46,18 @@ export class ModService implements IModService {
     this.eventSystem = eventSystem;
     
     // 初始化状态
-    this.stateStore = new ReactiveStore<ModServiceState>('mod-service', {
+    this.stateStore = new ReactiveStore<ModServiceState>('mod-service', { 
       mods: [],
       loading: false,
       error: null,
-      lastOperation: null
+      lastOperation: null,
+      sourceFolders: [],
+      categoryIndex: {},
+      tagIndex: {},
+      selectedMods: [],
+      searchQuery: '',
+      filterCategory: null,
+      filterTags: []
     });
 
     // 初始化子组件

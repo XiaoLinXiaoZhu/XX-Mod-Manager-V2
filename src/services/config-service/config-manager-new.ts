@@ -5,7 +5,8 @@
 
 import { DEFAULT_GLOBAL_CONFIG, DEFAULT_LOCAL_CONFIG, DEFAULT_CONFIG_SERVICE_OPTIONS } from './types';
 import type { ConfigType, ConfigValue, GlobalConfig, LocalConfig, RepositoryConfig, ConfigServiceState, ConfigServiceOptions, ConfigLoadOptions, ConfigSaveOptions, ConfigValidationResult, ConfigServiceEventType, ConfigStatistics } from './types';
-import type { Result, KernelError } from '@/kernels/types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 import { EventEmitter } from '@/kernels/event-system';
 import { ConfigLoader } from './config-loader';
 import { ConfigSaver } from './config-saver';
@@ -279,16 +280,16 @@ export class ConfigService {
    * 事件管理
    */
   on(event: string, listener: (...args: any[]) => void): () => void {
-    this.eventEmitter.on(event, listener);
-    return () => this.eventEmitter.off(event, listener);
+    const listenerId = this.eventEmitter.on(event, listener);
+    return () => this.eventEmitter.off(event, listenerId);
   }
 
-  off(event: string, listener: (...args: any[]) => void): void {
-    this.eventEmitter.off(event, listener);
+  off(event: string, listenerId: string): void {
+    this.eventEmitter.off(event, listenerId);
   }
 
-  emit(event: string, ...args: any[]): void {
-    this.eventEmitter.emit(event, ...args);
+  emit(event: string, data: any): void {
+    this.eventEmitter.emit(event, data);
   }
 }
 

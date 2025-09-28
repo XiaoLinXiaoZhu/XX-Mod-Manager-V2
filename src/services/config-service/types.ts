@@ -93,6 +93,7 @@ export interface ConfigSaveOptions {
   backup?: boolean;
   validate?: boolean;
   notify?: boolean;
+  source?: string;
 }
 
 // 配置验证结果
@@ -108,7 +109,9 @@ export interface ConfigChangeEvent {
   key: string;
   oldValue: ConfigValue;
   newValue: ConfigValue;
+  value: ConfigValue;
   timestamp: string;
+  source?: string;
 }
 
 // 配置服务事件类型
@@ -137,6 +140,7 @@ export interface ConfigStatistics {
   lastLoadTime: string;
   lastSaveTime: string;
   errorCount: number;
+  changeHistoryLength: number;
 }
 
 // 默认配置值
