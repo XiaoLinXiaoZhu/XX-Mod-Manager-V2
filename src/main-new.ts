@@ -6,13 +6,22 @@
 import 'sober';
 import { createApp } from 'vue';
 import App from './App.vue';
-import router from './features/router/index';
-import { i18nInstance } from './features/i18n/index.ts';
-
 // 导入新架构的组件
-import { defaultFileSystem, defaultEventSystem } from '@/kernels';
-import { defaultModService, defaultAppService } from '@/services';
-import { EventType } from '@/kernels';
+import { TauriFileSystem, EventEmitter, EventType } from '@/kernels';
+import { 
+  createModService, 
+  createAppService, 
+  createConfigService, 
+  createPluginService,
+  createUiService,
+  DEFAULT_MOD_SERVICE_CONFIG,
+  DEFAULT_MOD_SERVICE_OPTIONS,
+  DEFAULT_APP_CONFIG,
+  DEFAULT_CONFIG_SERVICE_CONFIG,
+  DEFAULT_PLUGIN_SERVICE_CONFIG,
+  DEFAULT_UI_SERVICE_CONFIG,
+  DEFAULT_UI_SERVICE_OPTIONS
+} from '@/services';
 
 // 导入 Tauri API
 import { listen } from '@tauri-apps/api/event';
@@ -20,11 +29,25 @@ import { invoke } from '@tauri-apps/api/core';
 import { getArgv, type Argv } from './shared/utils/Argv';
 import * as path from '@tauri-apps/api/path';
 
-// 导入现有的配置系统（临时）
-import { GlobalConfig, useGlobalConfig } from '@/core/config/GlobalConfigLoader';
-import { SubConfig } from './core/config/ConfigLoader';
-import { repos, getRepos } from './features/repository/Repo.ts';
-import { $t_snack } from './shared/composables/use-snack';
+// 导入新架构的模块
+import { 
+  getLocalizationValue, 
+  createLanguagePack
+} from '@/modules/i18n';
+import { 
+  validateRepositoryConfig
+} from '@/modules/repository';
+import { 
+  validateVersionInfo
+} from '@/modules/updater';
+
+// 临时导入旧系统（将在后续迁移中移除）
+import router from './features/router/index';
+import { i18nInstance } from './features/i18n/index.ts';
+import { GlobalConfig } from '@/core/config/GlobalConfigLoader';
+
+// 使用兼容层替代旧的通知系统
+import { $t_snack } from './compat/legacy-bridge';
 
 /**
  * 应用初始化类
@@ -33,6 +56,35 @@ import { $t_snack } from './shared/composables/use-snack';
 class AppInitializer {
   private isInitialized = false;
   private argv: Argv | null = null;
+  
+  // Kernel 层实例
+  private fileSystem: TauriFileSystem;
+  private eventSystem: EventEmitter;
+  
+  // Service 层实例
+  private modService: any;
+  private appService: any;
+  private configService: any;
+  private pluginService: any;
+  private uiService: any;
+
+  constructor() {
+    // 创建 Kernel 层实例
+    this.fileSystem = new TauriFileSystem();
+    this.eventSystem = new EventEmitter();
+    
+    // 创建 Service 层实例
+    this.modService = createModService(
+      DEFAULT_MOD_SERVICE_CONFIG, 
+      DEFAULT_MOD_SERVICE_OPTIONS, 
+      this.fileSystem, 
+      this.eventSystem
+    );
+    this.appService = createAppService(DEFAULT_APP_CONFIG);
+    this.configService = createConfigService(DEFAULT_CONFIG_SERVICE_CONFIG);
+    this.pluginService = createPluginService(DEFAULT_PLUGIN_SERVICE_CONFIG);
+    this.uiService = createUiService(DEFAULT_UI_SERVICE_CONFIG, DEFAULT_UI_SERVICE_OPTIONS, this.eventSystem);
+  }
 
   /**
    * 初始化应用
@@ -70,7 +122,7 @@ class AppInitializer {
       this.isInitialized = true;
 
       // 9. 发射初始化完成事件
-      defaultEventSystem.emit(EventType.APP_READY);
+      this.eventSystem.emit(EventType.APP_READY, { timestamp: new Date().toISOString() });
 
       console.log('✅ XX-Mod-Manager V2.0 initialized successfully!');
     } catch (error) {
@@ -111,26 +163,42 @@ class AppInitializer {
    * 初始化服务层
    */
   private async initializeServices(): Promise<void> {
+    // 初始化配置服务
+    const configInitResult = await this.configService.initialize();
+    if (!configInitResult.success) {
+      throw new Error(`Failed to initialize config service: ${configInitResult.error.message}`);
+    }
+
+    // 从新架构的配置服务获取配置
+    const modSourceFolders = (this.configService.getConfigValue('modSourceFolders', 'global') as string[]) || [];
+    const modTargetFolder = (this.configService.getConfigValue('modTargetFolder', 'global') as string) || '';
+    const keepModNameAsModFolderName = (this.configService.getConfigValue('ifKeepModNameAsModFolderName', 'global') as boolean) || false;
+    const traditionalApply = (this.configService.getConfigValue('ifUseTraditionalApply', 'global') as boolean) || false;
+
     // 配置 Mod 服务
     const modServiceConfig = {
-      modSourceFolders: GlobalConfig.modSourceFolders.value,
-      modTargetFolder: GlobalConfig.modTargetFolder.value,
-      keepModNameAsModFolderName: GlobalConfig.ifKeepModNameAsModFolderName.value,
-      traditionalApply: GlobalConfig.ifUseTraditionalApply.value
+      modSourceFolders,
+      modTargetFolder,
+      keepModNameAsModFolderName,
+      traditionalApply
     };
 
-    defaultModService.updateConfig(modServiceConfig);
+    this.modService.updateConfig(modServiceConfig);
+
+    // 获取应用版本信息
+    const versionResult = validateVersionInfo({ version: '2.0.0', build: '1', commit: 'unknown' });
+    const version = versionResult.success ? versionResult.data.version : '2.0.0';
 
     // 配置应用服务
     const appServiceConfig = {
-      version: '2.0.0',
-      environment: 'development', // 这里应该从环境变量获取
+      version,
+      environment: 'development' as const, // 这里应该从环境变量获取
       debug: true,
       autoUpdate: true,
-      checkUpdatesOnStart: GlobalConfig.checkUpdatesOnStart.value
+      checkUpdatesOnStart: (this.configService.getConfigValue('checkUpdatesOnStart', 'global') as boolean) || true
     };
 
-    defaultAppService.updateConfig(appServiceConfig);
+    this.appService.updateConfig(appServiceConfig);
 
     console.log('🎯 Services initialized');
   }
@@ -166,12 +234,22 @@ class AppInitializer {
     // 监听 Tauri 事件
     listen('wake-up', (event) => {
       console.log('wakeUp event received', event);
-      defaultEventSystem.emit(EventType.APP_READY);
+      this.eventSystem.emit(EventType.APP_READY, { source: 'wake-up', event });
     });
 
     // 监听应用服务事件
-    defaultAppService.on('app:ready', () => {
-      $t_snack("message.hello", "success");
+    this.appService.on('app:ready', () => {
+      // 使用新架构的国际化模块
+      const languagePackResult = createLanguagePack('zh-CN', 'Chinese', '中文', {});
+      if (languagePackResult.success) {
+        const message = getLocalizationValue(
+          'message.hello',
+          languagePackResult.data
+        );
+        if (message.success) {
+          $t_snack(message.data, "success");
+        }
+      }
     });
 
     console.log('👂 Event listeners set up');
@@ -198,30 +276,45 @@ class AppInitializer {
     }
 
     try {
-      // 确保仓库列表已加载
-      await getRepos();
+      // 使用新架构的仓库模块
+      // 这里应该从配置服务获取仓库列表
+      const repoConfigs = (this.configService.getConfigValue('lastUsedGameRepo', 'global') as string[]) || [];
       
-      if (repos && repos.value.length > 0) {
-        // 找到名称对应的仓库
-        const repo = repos.value.find(r => r.name === this.argv!.repo);
-        if (repo) {
-          const lastUsedGameRepo = GlobalConfig.lastUsedGameRepo;
-          lastUsedGameRepo.value = repo.configLocation;
-
-          // 加载仓库配置
-          await SubConfig.loadFrom(repo.configLocation);
+      if (repoConfigs.length > 0) {
+        // 查找指定的仓库配置
+        const repoConfigPath = repoConfigs.find((path: string) => path.includes(this.argv!.repo!));
+        
+        if (repoConfigPath) {
+      // 使用新架构的仓库模块验证配置
+      const repoConfigResult = validateRepositoryConfig({ path: repoConfigPath } as any);
           
-          // 跳转到 modList 页面
-          router.push({ name: 'modList' });
-          
-          console.log(`📁 Switched to repository: ${repo.name}`);
+          if (repoConfigResult.success) {
+            // 更新配置服务中的当前仓库
+            await this.configService.setConfigValue('lastUsedGameRepo', repoConfigPath, 'global');
+            
+            // 跳转到 modList 页面
+            router.push({ name: 'modList' });
+            
+            console.log(`📁 Switched to repository: ${this.argv.repo}`);
+          } else {
+            console.warn('Failed to validate repository config:', repoConfigResult.error.message);
+          }
         } else {
           console.warn('未找到指定的仓库:', this.argv.repo);
         }
       }
     } catch (error) {
       console.error('加载仓库配置失败:', error);
-      $t_snack('message.loadRepoConfigFailed', 'error');
+      const languagePackResult = createLanguagePack('zh-CN', 'Chinese', '中文', {});
+      if (languagePackResult.success) {
+        const errorMessage = getLocalizationValue(
+          'message.loadRepoConfigFailed',
+          languagePackResult.data
+        );
+        if (errorMessage.success) {
+          $t_snack(errorMessage.data, 'error');
+        }
+      }
     }
   }
 
@@ -232,8 +325,11 @@ class AppInitializer {
     return {
       isInitialized: this.isInitialized,
       argv: this.argv,
-      modService: defaultModService.getState(),
-      appService: defaultAppService.getState()
+      modService: this.modService.getState(),
+      appService: this.appService.getState(),
+      configService: this.configService.getState(),
+      pluginService: this.pluginService.getState(),
+      uiService: this.uiService.getState()
     };
   }
 }
@@ -251,7 +347,7 @@ appInitializer.initialize()
   });
 
 // 导出给调试使用
-export { appInitializer, defaultModService, defaultAppService };
+export { appInitializer };
 
 // 通知 Tauri 主窗口准备就绪
 invoke('main_window_ready');

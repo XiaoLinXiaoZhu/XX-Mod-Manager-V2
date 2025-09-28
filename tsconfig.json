@@ -5,11 +5,12 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
+    
+    /* 路径别名配置 - 符合项目规范 */
     "paths": {
-      "@locals/*": ["./src-tauri/resources/locals/*"],
-      "@/components/*": ["./src/components/*"],
       "@/*": ["./src/*"],
-      "@assets/*": ["./src/assets/*"],
+      "@locals/*": ["./src-tauri/resources/locals/*"],
+      "@assets/*": ["./src/assets/*"]
     },
 
     /* Bundler mode */
@@ -20,16 +21,35 @@
     "noEmit": true,
     "jsx": "preserve",
 
-    /* Linting */
+    /* 严格类型检查 - 符合项目规范要求 */
     "strict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    
+    /* 代码质量检查 */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+
+    /* 模块解析增强 */
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
 
     // 启用实验性装饰器
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "exclude": ["node_modules", "dist", "src-tauri/target"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

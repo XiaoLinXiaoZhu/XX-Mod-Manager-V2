@@ -7,7 +7,22 @@
 export * from './file-system';
 
 // 事件系统
-export { EventEmitter, EventType, eventSystem } from './event-system';
+export { EventEmitter, EventType } from './event-system';
+
+// 状态管理
+export * from './state-manager';
+
+// 配置存储
+export * from './config-storage';
+
+// 插件系统
+export * from './plugin';
+
+// 验证工具
+export * from './validation';
+
+// 通用类型
+export * from './types';
 export type { EventSystem, EventListener, EventListenerOptions, EventListenerInfo } from './event-system';
 
 // 状态管理
@@ -17,19 +32,8 @@ export type { StateManager, StateStore, StateSubscriber, StateUpdater, StateChan
 // 配置存储
 export * from './config-storage';
 
+// 验证器
+export * from './validation';
+
 // 通用类型
 export * from './types';
-
-// 创建默认实例
-import { fileSystem } from './file-system';
-import { eventSystem } from './event-system';
-
-/**
- * 默认文件系统实例
- */
-export const defaultFileSystem = fileSystem;
-
-/**
- * 默认事件系统实例
- */
-export const defaultEventSystem = eventSystem;

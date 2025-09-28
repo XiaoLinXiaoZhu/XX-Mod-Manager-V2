@@ -6,6 +6,9 @@
 // 类型导出
 export * from './types';
 
+// 配置加载器
+export * from './config-loader';
+
 // 全局配置管理
 export * from './global-config';
 

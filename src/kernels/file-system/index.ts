@@ -13,7 +13,3 @@ export type {
   ExtendedFileSystem 
 } from './types';
 
-// 创建默认的文件系统实例
-import { TauriFileSystem } from './tauri-file-system';
-
-export const fileSystem = new TauriFileSystem();

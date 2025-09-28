@@ -12,7 +12,6 @@ import {
   ModSearchOptions 
 } from '@/modules/mod-management';
 import { 
-  ModServiceState, 
   ModServiceConfig, 
   ModServiceEvent 
 } from './types';
@@ -29,8 +28,8 @@ import {
   createModBackup 
 } from '@/modules/mod-management';
 import { 
-  defaultFileSystem, 
-  defaultEventSystem 
+  TauriFileSystem, 
+  EventEmitter 
 } from '@/kernels';
 import { Result, KernelError } from '@/kernels/types';
 
@@ -39,6 +38,8 @@ import { Result, KernelError } from '@/kernels/types';
  */
 export async function loadModsEffect(
   config: ModServiceConfig,
+  fileSystem: TauriFileSystem,
+  eventSystem: EventEmitter,
   options: ModLoadOptions = {}
 ): Promise<Result<ModInfo[], KernelError>> {
   try {
@@ -58,7 +59,7 @@ export async function loadModsEffect(
     
     if (result.success) {
       // 发射事件
-      defaultEventSystem.emit(ModServiceEvent.MODS_LOADED, result.data);
+      eventSystem.emit(ModServiceEvent.MODS_LOADED, result.data);
     }
     
     return result;
@@ -69,7 +70,7 @@ export async function loadModsEffect(
       { error: error instanceof Error ? error.message : String(error) }
     );
     
-    defaultEventSystem.emit(ModServiceEvent.ERROR_OCCURRED, kernelError);
+    eventSystem.emit(ModServiceEvent.ERROR_OCCURRED, kernelError);
     
     return {
       success: false,
@@ -84,11 +85,13 @@ export async function loadModsEffect(
 export async function applyModEffect(
   mod: ModInfo,
   config: ModServiceConfig,
+  fileSystem: TauriFileSystem,
+  eventSystem: EventEmitter,
   options: ModApplyOptions = {}
 ): Promise<Result<ModOperationResult, KernelError>> {
   try {
     // 检查是否已应用
-    const isAppliedResult = await isModApplied(mod, config.modTargetFolder, defaultFileSystem);
+    const isAppliedResult = await isModApplied(mod, config.modTargetFolder, fileSystem);
     if (isAppliedResult.success && isAppliedResult.data) {
       return {
         success: true,
@@ -102,9 +105,9 @@ export async function applyModEffect(
 
     // 创建备份（如果需要）
     if (options.backup) {
-      const backupDir = await defaultFileSystem.getConfigDir();
+      const backupDir = await fileSystem.getConfigDir();
       const backupPath = `${backupDir}/mod_backups/${mod.id}`;
-      await createModBackup(mod, backupPath, defaultFileSystem);
+      await createModBackup(mod, backupPath, fileSystem);
     }
 
     // 应用 Mod
@@ -114,11 +117,11 @@ export async function applyModEffect(
       dryRun: options.dryRun
     };
 
-    const result = await applyMod(mod, config.modTargetFolder, applyOptions, defaultFileSystem);
+    const result = await applyMod(mod, config.modTargetFolder, applyOptions, fileSystem);
     
     if (result.success) {
       // 发射事件
-      defaultEventSystem.emit(ModServiceEvent.MOD_APPLIED, mod, result.data);
+      eventSystem.emit(ModServiceEvent.MOD_APPLIED, { mod, result: result.data });
     }
     
     return result;
@@ -129,7 +132,7 @@ export async function applyModEffect(
       { modId: mod.id, error: error instanceof Error ? error.message : String(error) }
     );
     
-    defaultEventSystem.emit(ModServiceEvent.ERROR_OCCURRED, kernelError);
+    eventSystem.emit(ModServiceEvent.ERROR_OCCURRED, kernelError);
     
     return {
       success: false,
@@ -143,14 +146,16 @@ export async function applyModEffect(
  */
 export async function removeModEffect(
   mod: ModInfo,
-  config: ModServiceConfig
+  config: ModServiceConfig,
+  fileSystem: TauriFileSystem,
+  eventSystem: EventEmitter
 ): Promise<Result<ModOperationResult, KernelError>> {
   try {
-    const result = await removeMod(mod, config.modTargetFolder, defaultFileSystem);
+    const result = await removeMod(mod, config.modTargetFolder, fileSystem);
     
     if (result.success) {
       // 发射事件
-      defaultEventSystem.emit(ModServiceEvent.MOD_REMOVED, mod, result.data);
+      eventSystem.emit(ModServiceEvent.MOD_REMOVED, { mod, result: result.data });
     }
     
     return result;
@@ -161,7 +166,7 @@ export async function removeModEffect(
       { modId: mod.id, error: error instanceof Error ? error.message : String(error) }
     );
     
-    defaultEventSystem.emit(ModServiceEvent.ERROR_OCCURRED, kernelError);
+    eventSystem.emit(ModServiceEvent.ERROR_OCCURRED, kernelError);
     
     return {
       success: false,
@@ -174,14 +179,15 @@ export async function removeModEffect(
  * 检测 Mod 冲突
  */
 export async function detectConflictsEffect(
-  mods: ModInfo[]
+  mods: ModInfo[],
+  eventSystem: EventEmitter
 ): Promise<Result<void, KernelError>> {
   try {
     const conflicts = detectModConflicts(mods);
     
     if (conflicts.length > 0) {
       // 发射冲突检测事件
-      defaultEventSystem.emit(ModServiceEvent.CONFLICTS_DETECTED, conflicts);
+      eventSystem.emit(ModServiceEvent.CONFLICTS_DETECTED, conflicts);
     }
     
     return {
@@ -195,7 +201,7 @@ export async function detectConflictsEffect(
       { error: error instanceof Error ? error.message : String(error) }
     );
     
-    defaultEventSystem.emit(ModServiceEvent.ERROR_OCCURRED, kernelError);
+    eventSystem.emit(ModServiceEvent.ERROR_OCCURRED, kernelError);
     
     return {
       success: false,

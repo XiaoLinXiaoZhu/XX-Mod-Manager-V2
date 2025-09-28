@@ -12,7 +12,3 @@ export type {
   EventListenerInfo 
 } from './types';
 
-// 创建默认的事件系统实例
-import { EventEmitter } from './event-emitter';
-
-export const eventSystem = new EventEmitter();

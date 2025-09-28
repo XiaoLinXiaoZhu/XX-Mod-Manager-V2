@@ -42,6 +42,117 @@
 
 ### 第二阶段：逐步迁移现有代码
 
+## 详细迁移计划
+
+### 迁移优先级和策略
+
+基于代码分析，我们采用"元替代"策略，按以下优先级逐步迁移：
+
+#### 高优先级（核心基础设施）
+1. **插件系统迁移** - 从 `core/plugin/` 到 `kernels/plugin/`
+2. **事件系统统一** - 合并 `core/event/` 和 `kernels/event-system/`
+3. **配置系统迁移** - 从 `core/config/` 到 `modules/config-management/`
+
+#### 中优先级（业务功能）
+4. **Mod管理迁移** - 从 `features/mod-manager/` 到 `modules/mod-management/`
+5. **国际化迁移** - 从 `features/i18n/` 到 `modules/i18n/`
+6. **路由迁移** - 从 `features/router/` 到 `modules/router/`
+7. **仓库管理迁移** - 从 `features/repository/` 到 `modules/repository/`
+
+#### 低优先级（UI和工具）
+8. **UI组件整理** - 重新组织 `ui/` 和 `shared/components/`
+9. **工具函数迁移** - 从 `shared/utils/` 到相应层级
+10. **类型定义整理** - 统一类型定义位置
+
+### 迁移执行步骤
+
+#### 步骤1：插件系统迁移
+**目标**：将 `src/core/plugin/` 迁移到 `src/kernels/plugin/`
+
+**迁移内容**：
+- `PluginLoader.ts` → `kernels/plugin/plugin-loader.ts`
+- `PluginTypes.ts` → `kernels/plugin/types.ts`
+- `ToolsCanUsedInPlugin.ts` → `kernels/plugin/plugin-tools.ts`
+
+**迁移策略**：
+1. 将类转换为纯函数
+2. 移除全局状态，改为依赖注入
+3. 统一错误处理机制
+4. 更新类型定义
+
+#### 步骤2：事件系统统一
+**目标**：合并 `core/event/` 和 `kernels/event-system/`
+
+**迁移内容**：
+- 保留 `kernels/event-system/` 作为标准实现
+- 迁移 `core/event/EventSystem.ts` 中的业务逻辑到 `modules/`
+- 删除 `core/event/` 目录
+
+#### 步骤3：配置系统迁移
+**目标**：将 `core/config/` 迁移到 `modules/config-management/`
+
+**迁移内容**：
+- `ConfigLoader.ts` → `modules/config-management/config-loader.ts`
+- `GlobalConfigLoader.ts` → `modules/config-management/global-config.ts`
+- 更新 `services/config-service/` 使用新的配置模块
+
+#### 步骤4：Mod管理迁移
+**目标**：将 `features/mod-manager/` 迁移到 `modules/mod-management/`
+
+**迁移内容**：
+- `ModInfo.ts` → `modules/mod-management/mod-info.ts`
+- `ModLoader.ts` → `modules/mod-management/mod-loader.ts`
+- `ModMetadata.ts` → `modules/mod-management/mod-metadata.ts`
+- `ModFileOperator.ts` → `modules/mod-management/mod-file-operator.ts`
+- `ModHotkeyManager.ts` → `modules/mod-management/mod-hotkey.ts`
+- `ModPreviewManager.ts` → `modules/mod-management/mod-preview.ts`
+
+#### 步骤5：其他功能迁移
+**目标**：迁移剩余的功能模块
+
+**迁移内容**：
+- `features/i18n/` → `modules/i18n/`
+- `features/router/` → `modules/router/`
+- `features/repository/` → `modules/repository/`
+- `features/mod-apply/` → `modules/mod-management/mod-apply.ts`
+- `features/mod-preset/` → `modules/mod-management/mod-preset.ts`
+- `features/settings/` → `modules/settings/`
+- `features/updater/` → `modules/updater/`
+
+#### 步骤6：UI层整理
+**目标**：重新组织UI组件结构
+
+**整理内容**：
+- 保持 `ui/pages/` 作为页面组件
+- 将 `ui/section/` 中的业务组件迁移到 `shared/components/`
+- 整理 `shared/components/` 的组件分类
+- 更新组件的导入路径
+
+#### 步骤7：清理旧代码
+**目标**：删除已迁移的老旧代码
+
+**清理内容**：
+- 删除 `src/core/` 目录（保留必要的配置文件）
+- 删除 `src/features/` 目录
+- 清理 `src/shared/` 中已迁移的服务
+- 更新所有导入路径
+
+### 迁移检查点
+
+每个迁移步骤完成后，需要验证：
+1. **功能完整性**：确保迁移后功能正常
+2. **类型安全**：确保所有类型定义正确
+3. **依赖关系**：确保依赖方向正确（Kernel ← Module ← Service ← Main）
+4. **测试通过**：确保相关测试通过
+5. **无循环依赖**：确保没有循环依赖
+
+### 回滚策略
+
+如果迁移过程中出现问题：
+1. **功能回滚**：恢复到迁移前的状态
+2. **部分回滚**：只回滚有问题的部分
+3. **增量修复**：在现有基础上修复问题
+
 #### 1. 迁移文件系统操作
 
 **旧代码** (`src/shared/services/RustFileSystem.ts`):

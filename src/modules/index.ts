@@ -8,3 +8,21 @@ export * from './mod-management';
 
 // 配置管理模块
 export * from './config-management';
+
+// 事件管理模块
+export * from './event-management';
+
+// 国际化模块
+export * from './i18n';
+
+// 更新器模块
+export * from './updater';
+
+// 仓库管理模块
+export * from './repository';
+
+// 路由模块
+export * from './router';
+
+// 通知模块
+export * from './notification';

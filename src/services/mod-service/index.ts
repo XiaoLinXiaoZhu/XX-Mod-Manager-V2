@@ -7,10 +7,7 @@ import { ReactiveStore } from '@/kernels';
 import { 
   ModInfo, 
   ModStatus, 
-  ModOperationResult,
-  ModLoadOptions,
-  ModApplyOptions,
-  ModSearchOptions
+  ModOperationResult
 } from '@/modules/mod-management';
 import { 
   ModServiceState, 
@@ -21,22 +18,17 @@ import {
 } from './types';
 import { 
   loadModsEffect, 
-  applyModEffect, 
-  removeModEffect, 
-  detectConflictsEffect,
-  searchModsEffect,
-  updateModStatusEffect,
   addModToListEffect,
-  removeModFromListEffect,
-  refreshModEffect
+  updateModStatusEffect
 } from './effect';
 import { 
   DEFAULT_MOD_SERVICE_CONFIG, 
   DEFAULT_MOD_SERVICE_OPTIONS,
-  mergeModServiceConfig,
-  mergeModServiceOptions
+  mergeModServiceConfig
 } from './config';
-import { defaultEventSystem } from '@/kernels';
+import { TauriFileSystem, EventEmitter } from '@/kernels';
+import { ModOperations } from './mod-operations';
+import { ModSearch } from './mod-search';
 
 /**
  * Mod 服务实现类
@@ -46,14 +38,22 @@ export class ModService implements IModService {
   private stateStore: ReactiveStore<ModServiceState>;
   private config: ModServiceConfig;
   private options: ModServiceOptions;
+  private fileSystem: TauriFileSystem;
+  private eventSystem: EventEmitter;
   private eventListeners = new Map<ModServiceEvent, Set<(...args: any[]) => void>>();
+  private modOperations: ModOperations;
+  private modSearch: ModSearch;
 
   constructor(
     config: ModServiceConfig = DEFAULT_MOD_SERVICE_CONFIG,
-    options: ModServiceOptions = DEFAULT_MOD_SERVICE_OPTIONS
+    options: ModServiceOptions = DEFAULT_MOD_SERVICE_OPTIONS,
+    fileSystem: TauriFileSystem,
+    eventSystem: EventEmitter
   ) {
     this.config = config;
     this.options = options;
+    this.fileSystem = fileSystem;
+    this.eventSystem = eventSystem;
     
     // 初始化状态
     this.stateStore = new ReactiveStore<ModServiceState>('mod-service', {
@@ -62,6 +62,10 @@ export class ModService implements IModService {
       error: null,
       lastOperation: null
     });
+
+    // 初始化子组件
+    this.modOperations = new ModOperations(this.stateStore, this.config, this.fileSystem, this.eventSystem);
+    this.modSearch = new ModSearch(this.stateStore, this.eventSystem);
 
     // 设置事件监听器
     this.setupEventListeners();
@@ -88,7 +92,7 @@ export class ModService implements IModService {
     this.updateState({ loading: true, error: null });
 
     try {
-      const result = await loadModsEffect(this.config, {
+      const result = await loadModsEffect(this.config, this.fileSystem, this.eventSystem, {
         validateMetadata: this.options.validateOnLoad,
         checkConflicts: this.options.checkConflicts
       });
@@ -117,298 +121,79 @@ export class ModService implements IModService {
    * 添加 Mod
    */
   async addMod(location: string): Promise<ModOperationResult> {
-    try {
-      // 这里应该实现添加 Mod 的逻辑
-      // 目前返回一个占位符结果
-      const result: ModOperationResult = {
-        success: true,
-        message: `Mod added: ${location}`,
-        modId: 'temp-id'
-      };
-
-      this.updateState({
-        lastOperation: result
-      });
-
-      this.emit(ModServiceEvent.MOD_ADDED, result);
-      return result;
-    } catch (error) {
-      const result: ModOperationResult = {
-        success: false,
-        error: error instanceof Error ? error.message : String(error)
-      };
-
-      this.updateState({
-        lastOperation: result
-      });
-
-      this.emit(ModServiceEvent.ERROR_OCCURRED, result);
-      return result;
-    }
+    return await this.modOperations.addMod(location);
   }
 
   /**
    * 移除 Mod
    */
   async removeMod(modId: string): Promise<ModOperationResult> {
-    try {
-      const mod = this.getMod(modId);
-      if (!mod) {
-        return {
-          success: false,
-          error: `Mod not found: ${modId}`
-        };
-      }
-
-      const result = await removeModEffect(mod, this.config);
-      
-      if (result.success) {
-        this.updateState({
-          mods: removeModFromListEffect(this.getState().mods, modId),
-          lastOperation: result.data
-        });
-      } else {
-        this.updateState({
-          lastOperation: {
-            success: false,
-            error: result.error.message
-          }
-        });
-      }
-
-      return result.success ? result.data : result;
-    } catch (error) {
-      const result: ModOperationResult = {
-        success: false,
-        error: error instanceof Error ? error.message : String(error)
-      };
-
-      this.updateState({
-        lastOperation: result
-      });
-
-      this.emit(ModServiceEvent.ERROR_OCCURRED, result);
-      return result;
-    }
+    return await this.modOperations.removeMod(modId);
   }
 
   /**
    * 刷新 Mod
    */
   async refreshMod(modId: string): Promise<ModOperationResult> {
-    try {
-      const mod = this.getMod(modId);
-      if (!mod) {
-        return {
-          success: false,
-          error: `Mod not found: ${modId}`
-        };
-      }
-
-      const result = await refreshModEffect(mod, this.config);
-      
-      if (result.success) {
-        this.updateState({
-          mods: addModToListEffect(this.getState().mods, result.data),
-          lastOperation: {
-            success: true,
-            message: `Mod refreshed: ${mod.name}`,
-            modId: mod.id
-          }
-        });
-      }
-
-      return result.success ? {
-        success: true,
-        message: `Mod refreshed: ${mod.name}`,
-        modId: mod.id
-      } : {
-        success: false,
-        error: result.error.message
-      };
-    } catch (error) {
-      const result: ModOperationResult = {
-        success: false,
-        error: error instanceof Error ? error.message : String(error)
-      };
-
-      this.updateState({
-        lastOperation: result
-      });
-
-      this.emit(ModServiceEvent.ERROR_OCCURRED, result);
-      return result;
-    }
+    return await this.modOperations.refreshMod(modId);
   }
 
   /**
    * 应用 Mod
    */
   async applyMod(modId: string): Promise<ModOperationResult> {
-    try {
-      const mod = this.getMod(modId);
-      if (!mod) {
-        return {
-          success: false,
-          error: `Mod not found: ${modId}`
-        };
-      }
-
-      const result = await applyModEffect(mod, this.config, {
-        backup: this.options.backupOnApply
-      });
-      
-      if (result.success) {
-        this.updateState({
-          mods: updateModStatusEffect(this.getState().mods, modId, ModStatus.ACTIVE),
-          lastOperation: result.data
-        });
-      } else {
-        this.updateState({
-          lastOperation: {
-            success: false,
-            error: result.error.message
-          }
-        });
-      }
-
-      return result.success ? result.data : result;
-    } catch (error) {
-      const result: ModOperationResult = {
-        success: false,
-        error: error instanceof Error ? error.message : String(error)
-      };
-
-      this.updateState({
-        lastOperation: result
-      });
-
-      this.emit(ModServiceEvent.ERROR_OCCURRED, result);
-      return result;
-    }
+    return await this.modOperations.applyMod(modId, {
+      backup: this.options.backupOnApply
+    });
   }
 
   /**
    * 从游戏中移除 Mod
    */
   async removeModFromGame(modId: string): Promise<ModOperationResult> {
-    try {
-      const mod = this.getMod(modId);
-      if (!mod) {
-        return {
-          success: false,
-          error: `Mod not found: ${modId}`
-        };
-      }
-
-      const result = await removeModEffect(mod, this.config);
-      
-      if (result.success) {
-        this.updateState({
-          mods: updateModStatusEffect(this.getState().mods, modId, ModStatus.INACTIVE),
-          lastOperation: result.data
-        });
-      } else {
-        this.updateState({
-          lastOperation: {
-            success: false,
-            error: result.error.message
-          }
-        });
-      }
-
-      return result.success ? result.data : result;
-    } catch (error) {
-      const result: ModOperationResult = {
-        success: false,
-        error: error instanceof Error ? error.message : String(error)
-      };
-
-      this.updateState({
-        lastOperation: result
-      });
-
-      this.emit(ModServiceEvent.ERROR_OCCURRED, result);
-      return result;
-    }
+    return await this.modOperations.removeModFromGame(modId);
   }
 
   /**
    * 切换 Mod 状态
    */
   async toggleMod(modId: string): Promise<ModOperationResult> {
-    try {
-      const mod = this.getMod(modId);
-      if (!mod) {
-        return {
-          success: false,
-          error: `Mod not found: ${modId}`
-        };
-      }
-
-      if (mod.status === ModStatus.ACTIVE) {
-        return await this.removeModFromGame(modId);
-      } else {
-        return await this.applyMod(modId);
-      }
-    } catch (error) {
-      const result: ModOperationResult = {
-        success: false,
-        error: error instanceof Error ? error.message : String(error)
-      };
-
-      this.updateState({
-        lastOperation: result
-      });
-
-      this.emit(ModServiceEvent.ERROR_OCCURRED, result);
-      return result;
-    }
+    return await this.modOperations.toggleMod(modId);
   }
 
   /**
    * 获取 Mod
    */
   getMod(modId: string): ModInfo | null {
-    return this.getState().mods.find(mod => mod.id === modId) || null;
+    return this.modOperations.getMod(modId);
   }
 
   /**
    * 根据状态获取 Mod 列表
    */
   getModsByStatus(status: ModStatus): ModInfo[] {
-    return this.getState().mods.filter(mod => mod.status === status);
+    return this.modOperations.getModsByStatus(status);
   }
 
   /**
    * 搜索 Mod
    */
   searchMods(query: string): ModInfo[] {
-    return searchModsEffect(this.getState().mods, { query });
+    return this.modSearch.searchMods(query);
   }
 
   /**
    * 检测冲突
    */
   async detectConflicts(): Promise<void> {
-    try {
-      await detectConflictsEffect(this.getState().mods);
-    } catch (error) {
-      console.error('Failed to detect conflicts:', error);
-    }
+    return await this.modSearch.detectConflicts();
   }
 
   /**
    * 解决冲突
    */
   async resolveConflict(modId: string, resolution: 'keep' | 'replace'): Promise<ModOperationResult> {
-    // 这里应该实现冲突解决逻辑
-    // 目前返回一个占位符结果
-    return {
-      success: true,
-      message: `Conflict resolved for mod: ${modId}`,
-      modId
-    };
+    return await this.modSearch.resolveConflict(modId, resolution);
   }
 
   /**
@@ -476,19 +261,19 @@ export class ModService implements IModService {
    */
   private setupEventListeners(): void {
     // 监听内核事件
-    defaultEventSystem.on('mod:loaded', (mod: ModInfo) => {
+    this.eventSystem.on('mod:loaded', (mod: ModInfo) => {
       this.updateState({
         mods: addModToListEffect(this.getState().mods, mod)
       });
     });
 
-    defaultEventSystem.on('mod:applied', (mod: ModInfo) => {
+    this.eventSystem.on('mod:applied', (mod: ModInfo) => {
       this.updateState({
         mods: updateModStatusEffect(this.getState().mods, mod.id, ModStatus.ACTIVE)
       });
     });
 
-    defaultEventSystem.on('mod:removed', (mod: ModInfo) => {
+    this.eventSystem.on('mod:removed', (mod: ModInfo) => {
       this.updateState({
         mods: updateModStatusEffect(this.getState().mods, mod.id, ModStatus.INACTIVE)
       });
@@ -501,9 +286,11 @@ export class ModService implements IModService {
  */
 export function createModService(
   config: ModServiceConfig = DEFAULT_MOD_SERVICE_CONFIG,
-  options: ModServiceOptions = DEFAULT_MOD_SERVICE_OPTIONS
+  options: ModServiceOptions = DEFAULT_MOD_SERVICE_OPTIONS,
+  fileSystem: TauriFileSystem,
+  eventSystem: EventEmitter
 ): ModService {
-  return new ModService(config, options);
+  return new ModService(config, options, fileSystem, eventSystem);
 }
 
 // 导出类型

@@ -1,324 +1,196 @@
 /**
- * 全局配置管理模块
- * 提供全局配置的创建、验证、转换等纯函数
+ * 全局配置管理
+ * 提供全局配置的加载、保存和管理功能
  */
 
-import { GlobalConfig, ConfigValidationResult, ConfigError } from './types';
 import { Result, KernelError } from '@/kernels/types';
+import { TauriFileSystem } from '@/kernels/file-system';
+import { loadConfigFromFile, saveConfigToFile, mergeConfig, validateConfigStructure } from './config-loader';
+import { join } from '@tauri-apps/api/path';
 
 /**
- * 创建默认全局配置
+ * 全局配置接口
  */
-export function createDefaultGlobalConfig(): GlobalConfig {
+export interface GlobalConfig {
+  /**
+   * 语言设置
+   */
+  language: string;
+  
+  /**
+   * 主题设置
+   */
+  theme: string;
+  
+  /**
+   * 是否在启动时使用最后一个预设
+   */
+  ifStartWithLastPreset: boolean;
+  
+  /**
+   * Mod源文件夹列表
+   */
+  modSourceFolders: string[];
+  
+  /**
+   * Mod目标文件夹
+   */
+  modTargetFolder: string;
+  
+  /**
+   * 预设文件夹
+   */
+  presetFolder: string;
+  
+  /**
+   * 是否使用传统应用方式
+   */
+  ifUseTraditionalApply: boolean;
+  
+  /**
+   * 是否保持Mod名称作为文件夹名称
+   */
+  ifKeepModNameAsModFolderName: boolean;
+  
+  /**
+   * 是否首次加载
+   */
+  firstLoad: boolean;
+  
+  /**
+   * 禁用的插件列表
+   */
+  disabledPlugins: string[];
+  
+  /**
+   * 最近使用的游戏仓库路径
+   */
+  lastUsedGameRepo: string;
+  
+  /**
+   * 是否在启动时检查更新
+   */
+  checkUpdatesOnStart: boolean;
+}
+
+/**
+ * 默认全局配置
+ */
+export const DEFAULT_GLOBAL_CONFIG: GlobalConfig = {
+  language: 'zh-CN',
+  theme: 'dark',
+  ifStartWithLastPreset: false,
+  modSourceFolders: [],
+  modTargetFolder: '',
+  presetFolder: '',
+  ifUseTraditionalApply: false,
+  ifKeepModNameAsModFolderName: false,
+  firstLoad: true,
+  disabledPlugins: [],
+  lastUsedGameRepo: '',
+  checkUpdatesOnStart: true
+};
+
+/**
+ * 全局配置模式
+ */
+export const GLOBAL_CONFIG_SCHEMA = {
+  language: 'string',
+  theme: 'string',
+  ifStartWithLastPreset: 'boolean',
+  modSourceFolders: 'object',
+  modTargetFolder: 'string',
+  presetFolder: 'string',
+  ifUseTraditionalApply: 'boolean',
+  ifKeepModNameAsModFolderName: 'boolean',
+  firstLoad: 'boolean',
+  disabledPlugins: 'object',
+  lastUsedGameRepo: 'string',
+  checkUpdatesOnStart: 'boolean'
+};
+
+/**
+ * 加载全局配置
+ * @param fileSystem 文件系统实例
+ * @param configDir 配置目录
+ * @returns 加载结果
+ */
+export async function loadGlobalConfig(
+  fileSystem: TauriFileSystem,
+  configDir: string
+): Promise<Result<GlobalConfig, KernelError>> {
+  const configPath = await join(configDir, 'config.json');
+  
+  const result = await loadConfigFromFile(fileSystem, configPath, {
+    createDefault: true,
+    defaultConfig: DEFAULT_GLOBAL_CONFIG,
+    validator: (config) => {
+      const validation = validateConfigStructure(config, GLOBAL_CONFIG_SCHEMA);
+      return validation.success;
+    }
+  });
+  
+  if (!result.success) {
+    return result;
+  }
+  
+  // 合并默认配置，确保所有字段都存在
+  const mergedConfig = mergeConfig(DEFAULT_GLOBAL_CONFIG, result.data.config);
+  
   return {
-    version: '2.0.0',
-    language: 'zh-CN',
-    theme: 'dark',
-    ifStartWithLastPreset: false,
-    modSourceFolders: [],
-    modTargetFolder: '',
-    presetFolder: '',
-    ifUseTraditionalApply: false,
-    ifKeepModNameAsModFolderName: false,
-    firstLoad: true,
-    disabledPlugins: [],
-    lastUsedGameRepo: '',
-    checkUpdatesOnStart: true
+    success: true,
+    data: mergedConfig as GlobalConfig
   };
+}
+
+/**
+ * 保存全局配置
+ * @param fileSystem 文件系统实例
+ * @param configDir 配置目录
+ * @param config 配置数据
+ * @returns 保存结果
+ */
+export async function saveGlobalConfig(
+  fileSystem: TauriFileSystem,
+  configDir: string,
+  config: GlobalConfig
+): Promise<Result<void, KernelError>> {
+  const configPath = await join(configDir, 'config.json');
+  
+  // 验证配置
+  const validation = validateConfigStructure(config, GLOBAL_CONFIG_SCHEMA);
+  if (!validation.success) {
+    return validation;
+  }
+  
+  return await saveConfigToFile(fileSystem, configPath, config);
+}
+
+/**
+ * 创建全局配置
+ * @param overrides 覆盖配置
+ * @returns 全局配置
+ */
+export function createGlobalConfig(overrides: Partial<GlobalConfig> = {}): GlobalConfig {
+  return mergeConfig(DEFAULT_GLOBAL_CONFIG, overrides) as GlobalConfig;
 }
 
 /**
  * 验证全局配置
+ * @param config 配置对象
+ * @returns 验证结果
  */
-export function validateGlobalConfig(config: unknown): Result<ConfigValidationResult, KernelError> {
-  try {
-    if (!config || typeof config !== 'object') {
-      return {
-        success: false,
-        error: new KernelError(
-          'Invalid config: not an object',
-          'INVALID_CONFIG',
-          { config }
-        )
-      };
-    }
-
-    const configObj = config as Record<string, unknown>;
-    const errors: string[] = [];
-    const warnings: string[] = [];
-
-    // 验证版本
-    if (!configObj.version || typeof configObj.version !== 'string') {
-      errors.push('Version is required and must be a string');
-    }
-
-    // 验证语言
-    if (!configObj.language || typeof configObj.language !== 'string') {
-      errors.push('Language is required and must be a string');
-    } else if (!['zh-CN', 'en-US'].includes(configObj.language)) {
-      warnings.push(`Unsupported language: ${configObj.language}`);
-    }
-
-    // 验证主题
-    if (!configObj.theme || typeof configObj.theme !== 'string') {
-      errors.push('Theme is required and must be a string');
-    } else if (!['light', 'dark', 'auto'].includes(configObj.theme)) {
-      errors.push(`Invalid theme: ${configObj.theme}. Must be 'light', 'dark', or 'auto'`);
-    }
-
-    // 验证布尔值字段
-    const booleanFields = [
-      'ifStartWithLastPreset',
-      'ifUseTraditionalApply',
-      'ifKeepModNameAsModFolderName',
-      'firstLoad',
-      'checkUpdatesOnStart'
-    ];
-
-    for (const field of booleanFields) {
-      if (configObj[field] !== undefined && typeof configObj[field] !== 'boolean') {
-        errors.push(`${field} must be a boolean`);
-      }
-    }
-
-    // 验证数组字段
-    const arrayFields = ['modSourceFolders', 'disabledPlugins'];
-
-    for (const field of arrayFields) {
-      if (configObj[field] !== undefined && !Array.isArray(configObj[field])) {
-        errors.push(`${field} must be an array`);
-      }
-    }
-
-    // 验证字符串字段
-    const stringFields = ['modTargetFolder', 'presetFolder', 'lastUsedGameRepo'];
-
-    for (const field of stringFields) {
-      if (configObj[field] !== undefined && typeof configObj[field] !== 'string') {
-        errors.push(`${field} must be a string`);
-      }
-    }
-
-    return {
-      success: true,
-      data: {
-        isValid: errors.length === 0,
-        errors,
-        warnings
-      }
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: new KernelError(
-        'Failed to validate global config',
-        'CONFIG_VALIDATION_ERROR',
-        { error: error instanceof Error ? error.message : String(error) }
-      )
-    };
+export function validateGlobalConfig(config: any): Result<GlobalConfig, KernelError> {
+  const validation = validateConfigStructure(config, GLOBAL_CONFIG_SCHEMA);
+  if (!validation.success) {
+    return validation;
   }
-}
-
-/**
- * 合并全局配置
- */
-export function mergeGlobalConfig(
-  base: GlobalConfig,
-  updates: Partial<GlobalConfig>
-): GlobalConfig {
-  return {
-    ...base,
-    ...updates
-  };
-}
-
-/**
- * 更新全局配置
- */
-export function updateGlobalConfig(
-  config: GlobalConfig,
-  updates: Partial<GlobalConfig>
-): GlobalConfig {
-  return mergeGlobalConfig(config, updates);
-}
-
-/**
- * 比较两个全局配置
- */
-export function compareGlobalConfigs(
-  config1: GlobalConfig,
-  config2: GlobalConfig
-): {
-  isEqual: boolean;
-  differences: Array<{
-    key: keyof GlobalConfig;
-    oldValue: unknown;
-    newValue: unknown;
-  }>;
-} {
-  const differences: Array<{
-    key: keyof GlobalConfig;
-    oldValue: unknown;
-    newValue: unknown;
-  }> = [];
-
-  const keys = Object.keys(config1) as Array<keyof GlobalConfig>;
   
-  for (const key of keys) {
-    const oldValue = config1[key];
-    const newValue = config2[key];
-    
-    if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
-      differences.push({
-        key,
-        oldValue,
-        newValue
-      });
-    }
-  }
-
-  return {
-    isEqual: differences.length === 0,
-    differences
-  };
-}
-
-/**
- * 获取配置差异摘要
- */
-export function getConfigDiffSummary(
-  config1: GlobalConfig,
-  config2: GlobalConfig
-): string {
-  const comparison = compareGlobalConfigs(config1, config2);
-  
-  if (comparison.isEqual) {
-    return 'No differences found';
-  }
-
-  const diffCount = comparison.differences.length;
-  const changedKeys = comparison.differences.map(diff => diff.key).join(', ');
-  
-  return `${diffCount} field(s) changed: ${changedKeys}`;
-}
-
-/**
- * 检查配置是否需要迁移
- */
-export function needsConfigMigration(config: GlobalConfig): boolean {
-  const currentVersion = config.version;
-  const targetVersion = '2.0.0';
-  
-  return currentVersion !== targetVersion;
-}
-
-/**
- * 获取配置迁移信息
- */
-export function getConfigMigrationInfo(config: GlobalConfig): {
-  fromVersion: string;
-  toVersion: string;
-  needsMigration: boolean;
-  migrationSteps: string[];
-} {
-  const fromVersion = config.version;
-  const toVersion = '2.0.0';
-  const needsMigration = needsConfigMigration(config);
-  
-  const migrationSteps: string[] = [];
-  
-  if (needsMigration) {
-    migrationSteps.push('Update version number');
-    migrationSteps.push('Validate new configuration structure');
-    migrationSteps.push('Apply any necessary data transformations');
-  }
+  // 合并默认配置确保完整性
+  const mergedConfig = mergeConfig(DEFAULT_GLOBAL_CONFIG, config);
   
   return {
-    fromVersion,
-    toVersion,
-    needsMigration,
-    migrationSteps
+    success: true,
+    data: mergedConfig as GlobalConfig
   };
-}
-
-/**
- * 清理配置数据
- */
-export function sanitizeGlobalConfig(config: unknown): GlobalConfig {
-  const defaultConfig = createDefaultGlobalConfig();
-  
-  if (!config || typeof config !== 'object') {
-    return defaultConfig;
-  }
-  
-  const configObj = config as Record<string, unknown>;
-  
-  return {
-    version: typeof configObj.version === 'string' ? configObj.version : defaultConfig.version,
-    language: typeof configObj.language === 'string' ? configObj.language : defaultConfig.language,
-    theme: ['light', 'dark', 'auto'].includes(configObj.theme as string) 
-      ? configObj.theme as 'light' | 'dark' | 'auto' 
-      : defaultConfig.theme,
-    ifStartWithLastPreset: typeof configObj.ifStartWithLastPreset === 'boolean' 
-      ? configObj.ifStartWithLastPreset 
-      : defaultConfig.ifStartWithLastPreset,
-    modSourceFolders: Array.isArray(configObj.modSourceFolders) 
-      ? configObj.modSourceFolders.filter(folder => typeof folder === 'string')
-      : defaultConfig.modSourceFolders,
-    modTargetFolder: typeof configObj.modTargetFolder === 'string' 
-      ? configObj.modTargetFolder 
-      : defaultConfig.modTargetFolder,
-    presetFolder: typeof configObj.presetFolder === 'string' 
-      ? configObj.presetFolder 
-      : defaultConfig.presetFolder,
-    ifUseTraditionalApply: typeof configObj.ifUseTraditionalApply === 'boolean' 
-      ? configObj.ifUseTraditionalApply 
-      : defaultConfig.ifUseTraditionalApply,
-    ifKeepModNameAsModFolderName: typeof configObj.ifKeepModNameAsModFolderName === 'boolean' 
-      ? configObj.ifKeepModNameAsModFolderName 
-      : defaultConfig.ifKeepModNameAsModFolderName,
-    firstLoad: typeof configObj.firstLoad === 'boolean' 
-      ? configObj.firstLoad 
-      : defaultConfig.firstLoad,
-    disabledPlugins: Array.isArray(configObj.disabledPlugins) 
-      ? configObj.disabledPlugins.filter(plugin => typeof plugin === 'string')
-      : defaultConfig.disabledPlugins,
-    lastUsedGameRepo: typeof configObj.lastUsedGameRepo === 'string' 
-      ? configObj.lastUsedGameRepo 
-      : defaultConfig.lastUsedGameRepo,
-    checkUpdatesOnStart: typeof configObj.checkUpdatesOnStart === 'boolean' 
-      ? configObj.checkUpdatesOnStart 
-      : defaultConfig.checkUpdatesOnStart
-  };
-}
-
-/**
- * 导出配置为 JSON
- */
-export function exportGlobalConfig(config: GlobalConfig): string {
-  return JSON.stringify(config, null, 2);
-}
-
-/**
- * 从 JSON 导入配置
- */
-export function importGlobalConfig(json: string): Result<GlobalConfig, KernelError> {
-  try {
-    const parsed = JSON.parse(json);
-    const sanitized = sanitizeGlobalConfig(parsed);
-    
-    return {
-      success: true,
-      data: sanitized
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: new KernelError(
-        'Failed to parse config JSON',
-        'CONFIG_IMPORT_ERROR',
-        { error: error instanceof Error ? error.message : String(error) }
-      )
-    };
-  }
 }
