@@ -5,7 +5,7 @@
 
 import { invoke } from "@tauri-apps/api/core";
 import axios from "axios";
-import type { FilePath, HttpUrl, BlobUrl, Base64DataUrl, ImageUrl, PathOrUrl } from './types';
+import type { BlobUrl, Base64DataUrl, ImageUrl, PathOrUrl } from './types';
 import { EmptyImage } from './types';
 import type { UrlType } from './types';
 

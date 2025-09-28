@@ -7,10 +7,20 @@
 export * from './file-system';
 
 // 事件系统
-export { EventEmitter, EventType } from './event-system';
+export { EventEmitter } from './event-system';
+export type { EventType } from './event-system';
 
 // 状态管理
-export * from './state-manager';
+export { ReactiveStore } from './state-manager';
+export type { 
+  StateManager, 
+  StateSubscriber, 
+  StateUpdater,
+  StateChangeInfo,
+  StateManagerOptions,
+  StateSelector,
+  StateComparator
+} from './state-manager';
 
 // 配置存储
 export * from './config-storage';

@@ -103,10 +103,11 @@ export class SimpleHash {
     
     // 复制块到前16个字
     for (let i = 0; i < 16; i++) {
-      w[i] = (chunk[i * 4] << 24) | 
-             (chunk[i * 4 + 1] << 16) | 
-             (chunk[i * 4 + 2] << 8) | 
-             chunk[i * 4 + 3];
+      const byte1 = chunk[i * 4] ?? 0;
+      const byte2 = chunk[i * 4 + 1] ?? 0;
+      const byte3 = chunk[i * 4 + 2] ?? 0;
+      const byte4 = chunk[i * 4 + 3] ?? 0;
+      w[i] = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
     }
     
     // 扩展到64个字
@@ -127,12 +128,12 @@ export class SimpleHash {
     
     // 主循环
     for (let i = 0; i < 64; i++) {
-      const S1 = this.rotr(e, 6) ^ this.rotr(e, 11) ^ this.rotr(e, 25);
-      const ch = (e & f) ^ (~e & g);
-      const temp1 = (h0 + S1 + ch + this.K[i] + w[i]) >>> 0;
-      const S0 = this.rotr(a, 2) ^ this.rotr(a, 13) ^ this.rotr(a, 22);
-      const maj = (a & b) ^ (a & c) ^ (b & c);
-      const temp2 = (S0 + maj) >>> 0;
+      const S1: number = this.rotr(e, 6) ^ this.rotr(e, 11) ^ this.rotr(e, 25);
+      const ch: number = (e & f) ^ (~e & g);
+      const temp1: number = (h0 + S1 + ch + this.K[i]! + (w[i] ?? 0)) >>> 0;
+      const S0: number = this.rotr(a, 2) ^ this.rotr(a, 13) ^ this.rotr(a, 22);
+      const maj: number = (a & b) ^ (a & c) ^ (b & c);
+      const temp2: number = (S0 + maj) >>> 0;
       
       h0 = g;
       g = f;
@@ -145,14 +146,14 @@ export class SimpleHash {
     }
     
     // 添加到哈希值
-    h[0] = (h[0] + a) >>> 0;
-    h[1] = (h[1] + b) >>> 0;
-    h[2] = (h[2] + c) >>> 0;
-    h[3] = (h[3] + d) >>> 0;
-    h[4] = (h[4] + e) >>> 0;
-    h[5] = (h[5] + f) >>> 0;
-    h[6] = (h[6] + g) >>> 0;
-    h[7] = (h[7] + h0) >>> 0;
+    h[0] = ((h[0] ?? 0) + a) >>> 0;
+    h[1] = ((h[1] ?? 0) + b) >>> 0;
+    h[2] = ((h[2] ?? 0) + c) >>> 0;
+    h[3] = ((h[3] ?? 0) + d) >>> 0;
+    h[4] = ((h[4] ?? 0) + e) >>> 0;
+    h[5] = ((h[5] ?? 0) + f) >>> 0;
+    h[6] = ((h[6] ?? 0) + g) >>> 0;
+    h[7] = ((h[7] ?? 0) + h0) >>> 0;
   }
 
   private static rotr(x: number, n: number): number {

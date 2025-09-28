@@ -7,7 +7,8 @@ import 'sober';
 import { createApp } from 'vue';
 import App from './App.vue';
 // 导入新架构的组件
-import { TauriFileSystem, EventEmitter, EventType } from '@/kernels';
+import { TauriFileSystem, EventEmitter } from '@/kernels';
+// import type { EventType } from '@/kernels';
 import { 
   createModService, 
   createAppService, 
@@ -17,8 +18,8 @@ import {
   DEFAULT_MOD_SERVICE_CONFIG,
   DEFAULT_MOD_SERVICE_OPTIONS,
   DEFAULT_APP_CONFIG,
-  DEFAULT_CONFIG_SERVICE_CONFIG,
-  DEFAULT_PLUGIN_SERVICE_CONFIG,
+  // DEFAULT_CONFIG_SERVICE_CONFIG,
+  // DEFAULT_PLUGIN_SERVICE_CONFIG,
   DEFAULT_UI_SERVICE_CONFIG,
   DEFAULT_UI_SERVICE_OPTIONS
 } from '@/services';
@@ -27,7 +28,7 @@ import {
 import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
 import { getArgv, type Argv } from '@/kernels/utils';
-import * as path from '@tauri-apps/api/path';
+// import * as path from '@tauri-apps/api/path';
 
 // 导入新架构的模块
 import { 
@@ -42,8 +43,8 @@ import {
 } from '@/modules/updater';
 
 // 导入路由和国际化
-import router from './features/router/index';
-import { i18nInstance } from './features/i18n/index';
+// import router from './features/router/index';
+// import { i18nInstance } from './features/i18n/index';
 
 // 导入通知系统
 import { createSuccessNotification } from '@/modules/notification';
@@ -91,8 +92,8 @@ class AppInitializer {
       this.eventSystem
     );
     this.appService = createAppService(DEFAULT_APP_CONFIG);
-    this.configService = createConfigService(DEFAULT_CONFIG_SERVICE_CONFIG);
-    this.pluginService = createPluginService(DEFAULT_PLUGIN_SERVICE_CONFIG);
+    this.configService = createConfigService();
+    this.pluginService = createPluginService();
     this.uiService = createUiService(DEFAULT_UI_SERVICE_CONFIG, DEFAULT_UI_SERVICE_OPTIONS, this.eventSystem);
   }
 
@@ -132,7 +133,7 @@ class AppInitializer {
       this.isInitialized = true;
 
       // 9. 发射初始化完成事件
-      this.eventSystem.emit(EventType.APP_READY, { timestamp: new Date().toISOString() });
+      this.eventSystem.emit('app:ready', { timestamp: new Date().toISOString() });
 
       console.log('✅ XX-Mod-Manager V2.0 initialized successfully!');
     } catch (error) {
@@ -244,7 +245,7 @@ class AppInitializer {
     // 监听 Tauri 事件
     listen('wake-up', (event) => {
       console.log('wakeUp event received', event);
-      this.eventSystem.emit(EventType.APP_READY, { source: 'wake-up', event });
+      this.eventSystem.emit('app:ready', { source: 'wake-up', event });
     });
 
     // 监听应用服务事件
@@ -282,8 +283,8 @@ class AppInitializer {
     vueApp.provide(FileSystemKey, this.fileSystem);
     vueApp.provide(EventSystemKey, this.eventSystem);
     
-    vueApp.use(router);
-    vueApp.use(i18nInstance);
+    // vueApp.use(router);
+    // vueApp.use(i18nInstance);
     vueApp.mount('#app');
 
     console.log('🎨 Vue application initialized with service injection');
@@ -315,7 +316,7 @@ class AppInitializer {
             await this.configService.setConfigValue('lastUsedGameRepo', repoConfigPath, 'global');
             
             // 跳转到 modList 页面
-            router.push({ name: 'modList' });
+            // router.push({ name: 'modList' });
             
             console.log(`📁 Switched to repository: ${this.argv.repo}`);
           } else {

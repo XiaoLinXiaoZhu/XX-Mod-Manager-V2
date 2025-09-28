@@ -4,13 +4,10 @@
  */
 
 import { invoke } from '@tauri-apps/api/core';
-import { join, basename, dirname, normalize } from '@tauri-apps/api/path';
 import type { 
   ExtendedFileSystem, 
   FileInfo, 
-  FileSystemResult, 
   FileChangeEvent,
-  FileOptions,
   DirectoryOptions 
 } from './types';
 import { KernelError } from '../types';
@@ -323,8 +320,8 @@ export class TauriFileSystem implements ExtendedFileSystem {
   /**
    * 监听文件变化
    */
-  watchFile(path: string, callback: (event: FileChangeEvent) => void): () => void {
-    // 这里需要实现文件监听逻辑
+  watchFile(_path: string, _callback: (event: FileChangeEvent) => void): () => void {
+    // TODO: 实现文件监听逻辑，使用 Tauri 的文件监听 API
     // 暂时返回一个空的取消函数
     return () => {};
   }

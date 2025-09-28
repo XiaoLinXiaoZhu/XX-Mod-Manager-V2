@@ -2,7 +2,7 @@
  * 文件系统 Kernel 类型定义
  */
 
-import type { FileSystem } from '../types';
+// 注意：FileSystem 类型在 types.ts 中定义，这里不需要导入
 
 // 文件操作选项
 export interface FileOptions {

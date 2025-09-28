@@ -4,7 +4,7 @@
  */
 
 import { getCurrentWindow, LogicalPosition, LogicalSize, currentMonitor } from "@tauri-apps/api/window";
-import { Bounds } from './types';
+import type { Bounds } from './types';
 
 ///@ts-ignore
 const clamp = function(value: number, min: number, max: number): number {

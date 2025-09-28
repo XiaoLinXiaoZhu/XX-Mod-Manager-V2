@@ -3,7 +3,8 @@
  * 提供通用的对象验证功能
  */
 
-import type { Result, KernelError } from '@/kernels/types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 
 /**
  * 验证对象是否为非空对象
