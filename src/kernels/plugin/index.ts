@@ -7,5 +7,11 @@
 // 类型导出
 export * from './types';
 
-// 插件加载器
-export { PluginLoader } from './plugin-loader';
+// 插件加载器纯函数
+export { 
+  validatePlugin,
+  loadPlugin,
+  unloadPlugin,
+  loadPlugins,
+  checkPluginCompatibility
+} from './plugin-loader';

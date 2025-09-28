@@ -3,11 +3,9 @@
  * 提供插件管理的核心功能
  */
 
-import { 
+import type { 
   PluginInfo, 
   PluginConfig, 
-  PluginStatus, 
-  PluginType,
   PluginLoadOptions,
   PluginServiceState,
   PluginServiceOptions,
@@ -19,12 +17,18 @@ import {
   PluginSearchOptions,
   PluginSearchResult,
   PluginDependencyGraph,
-  PluginError,
-  DEFAULT_PLUGIN_SERVICE_OPTIONS
+  PluginError
 } from './types';
-import { Result, KernelError } from '@/kernels/types';
+import { PluginStatus, PluginType, DEFAULT_PLUGIN_SERVICE_OPTIONS } from './types';
+import type { Result, KernelError } from '@/kernels/types';
 import { EventEmitter } from '@/kernels/event-system';
-import { PluginLoader } from './plugin-loader';
+import { 
+  validatePlugin,
+  loadPlugin,
+  unloadPlugin,
+  loadPlugins,
+  checkPluginCompatibility
+} from '@/kernels/plugin';
 import { PluginValidator } from './plugin-validator';
 
 // 插件服务类
@@ -32,7 +36,6 @@ export class PluginService {
   private state: PluginServiceState;
   private options: PluginServiceOptions;
   private eventEmitter: EventEmitter;
-  private pluginLoader: PluginLoader;
   private pluginValidator: PluginValidator;
 
   constructor(options: PluginServiceOptions = DEFAULT_PLUGIN_SERVICE_OPTIONS) {
@@ -50,7 +53,6 @@ export class PluginService {
     };
 
     // 初始化子组件
-    this.pluginLoader = new PluginLoader(this.state, this.eventEmitter);
     this.pluginValidator = new PluginValidator(this.eventEmitter);
   }
 
@@ -64,7 +66,7 @@ export class PluginService {
       
       // 如果启用自动加载，则加载所有插件
       if (this.options.autoLoad) {
-        await this.pluginLoader.loadAllPlugins();
+        await this.loadAllPlugins();
       }
 
       return {
@@ -85,6 +87,14 @@ export class PluginService {
         error: kernelError
       };
     }
+  }
+
+  /**
+   * 加载所有插件
+   */
+  private async loadAllPlugins(): Promise<void> {
+    // 这里需要根据具体的插件发现逻辑来实现
+    // 暂时留空，等待具体实现
   }
 
   /**
@@ -132,8 +142,69 @@ export class PluginService {
         }
       }
 
-      // 使用插件加载器加载插件
-      return await this.pluginLoader.loadPlugin(pluginId, options);
+      // 获取插件信息
+      const pluginInfo = this.state.plugins.get(pluginId);
+      if (!pluginInfo) {
+        return {
+          success: false,
+          error: new KernelError(
+            'Plugin not found',
+            'PLUGIN_NOT_FOUND',
+            { pluginId }
+          )
+        };
+      }
+
+      // 设置加载状态
+      this.state.loadingPlugins.add(pluginId);
+      this.state.errorPlugins.delete(pluginId);
+
+      try {
+        // 创建插件环境
+        const environment = this.createPluginEnvironment();
+        
+        // 使用 Kernel 层纯函数加载插件
+        const result = await loadPlugin(pluginInfo, environment, options);
+        
+        if (result.success) {
+          // 更新插件状态
+          this.state.enabledPlugins.add(pluginId);
+          this.state.disabledPlugins.delete(pluginId);
+          this.state.loadingPlugins.delete(pluginId);
+          
+          // 更新插件信息
+          pluginInfo.status = PluginStatus.ENABLED;
+          pluginInfo.loadTime = result.data.loadTime;
+          pluginInfo.error = undefined;
+          
+          // 发射事件
+          this.eventEmitter.emit(PluginServiceEventType.PLUGIN_LOADED, {
+            pluginId,
+            loadTime: result.data.loadTime
+          });
+        } else {
+          this.state.loadingPlugins.delete(pluginId);
+          this.state.errorPlugins.add(pluginId);
+          pluginInfo.status = PluginStatus.ERROR;
+          pluginInfo.error = result.error.message;
+        }
+        
+        return result;
+      } catch (error) {
+        this.state.loadingPlugins.delete(pluginId);
+        this.state.errorPlugins.add(pluginId);
+        pluginInfo.status = PluginStatus.ERROR;
+        pluginInfo.error = error instanceof Error ? error.message : String(error);
+        
+        return {
+          success: false,
+          error: new KernelError(
+            `Failed to load plugin: ${pluginId}`,
+            'PLUGIN_LOAD_ERROR',
+            { pluginId, error: error instanceof Error ? error.message : String(error) }
+          )
+        };
+      }
     } catch (error) {
       const kernelError = new KernelError(
         `Failed to load plugin: ${pluginId}`,
@@ -154,7 +225,55 @@ export class PluginService {
    * 卸载插件
    */
   async unloadPlugin(pluginId: string): Promise<Result<PluginLoadResult, KernelError>> {
-    return await this.pluginLoader.unloadPlugin(pluginId);
+    try {
+      const pluginInfo = this.state.plugins.get(pluginId);
+      if (!pluginInfo) {
+        return {
+          success: false,
+          error: new KernelError(
+            'Plugin not found',
+            'PLUGIN_NOT_FOUND',
+            { pluginId }
+          )
+        };
+      }
+
+      // 使用 Kernel 层纯函数卸载插件
+      const result = unloadPlugin(pluginInfo);
+      
+      if (result.success) {
+        // 更新插件状态
+        this.state.enabledPlugins.delete(pluginId);
+        this.state.disabledPlugins.add(pluginId);
+        this.state.loadingPlugins.delete(pluginId);
+        this.state.errorPlugins.delete(pluginId);
+        
+        // 更新插件信息
+        pluginInfo.status = PluginStatus.UNLOADED;
+        pluginInfo.enabled = false;
+        pluginInfo.loadTime = undefined;
+        pluginInfo.error = undefined;
+        
+        // 发射事件
+        this.eventEmitter.emit(PluginServiceEventType.PLUGIN_UNLOADED, {
+          pluginId
+        });
+      } else {
+        pluginInfo.status = PluginStatus.ERROR;
+        pluginInfo.error = result.error.message;
+      }
+      
+      return result;
+    } catch (error) {
+      return {
+        success: false,
+        error: new KernelError(
+          `Failed to unload plugin: ${pluginId}`,
+          'PLUGIN_UNLOAD_ERROR',
+          { pluginId, error: error instanceof Error ? error.message : String(error) }
+        )
+      };
+    }
   }
 
   /**
@@ -335,10 +454,9 @@ export class PluginService {
     const loadingPlugins = this.state.loadingPlugins.size;
     const errorPlugins = this.state.errorPlugins.size;
     
-    const loadTimes = Array.from(this.pluginLoader.getLoadTime ? 
-      this.state.plugins.keys().map(id => this.pluginLoader.getLoadTime(id)).filter(Boolean) : 
-      []
-    );
+    const loadTimes = Array.from(this.state.plugins.values())
+      .map(plugin => plugin.loadTime)
+      .filter((time): time is number => time !== undefined);
     const averageLoadTime = loadTimes.length > 0 
       ? loadTimes.reduce((sum, time) => sum + time, 0) / loadTimes.length 
       : 0;
@@ -392,6 +510,36 @@ export class PluginService {
       error: message,
       timestamp: new Date().toISOString()
     });
+  }
+
+  /**
+   * 创建插件环境
+   */
+  private createPluginEnvironment() {
+    return {
+      log: {
+        info: (message: string, ...args: any[]) => {
+          console.log(`[Plugin] ${message}`, ...args);
+        },
+        warn: (message: string, ...args: any[]) => {
+          console.warn(`[Plugin] ${message}`, ...args);
+        },
+        error: (message: string, ...args: any[]) => {
+          console.error(`[Plugin] ${message}`, ...args);
+        }
+      },
+      events: {
+        on: <T = any>(event: string, listener: (data: T) => void) => {
+          return this.eventEmitter.on(event, listener);
+        },
+        off: (event: string, listenerId: string) => {
+          this.eventEmitter.off(event, listenerId);
+        },
+        emit: <T = any>(event: string, data: T) => {
+          this.eventEmitter.emit(event, data);
+        }
+      }
+    };
   }
 }
 

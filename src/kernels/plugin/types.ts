@@ -5,9 +5,9 @@
  */
 
 /**
- * 插件状态
+ * 插件兼容性检查函数类型
  */
-export type PluginStatus = 'enabled' | 'disabled' | 'loading' | 'error';
+export type PluginCompatibilityChecker<TEnvironment = any> = (environment: TEnvironment) => boolean;
 
 /**
  * 通用插件接口定义
@@ -34,6 +34,13 @@ export interface Plugin<TEnvironment = any> {
    * 插件销毁函数
    */
   destroy?: () => void;
+  
+  /**
+   * 插件兼容性检查函数（可选）
+   * @param environment 目标环境
+   * @returns 是否兼容
+   */
+  checkCompatibility?: PluginCompatibilityChecker<TEnvironment>;
 }
 
 /**
@@ -102,26 +109,16 @@ export interface PluginLoadResult {
 }
 
 /**
- * 通用插件统计信息
+ * 插件验证结果
  */
-export interface PluginStatistics {
+export interface PluginValidationResult {
   /**
-   * 总插件数
+   * 是否有效
    */
-  total: number;
+  valid: boolean;
   
   /**
-   * 已启用插件数
+   * 错误信息列表
    */
-  enabled: number;
-  
-  /**
-   * 已禁用插件数
-   */
-  disabled: number;
-  
-  /**
-   * 错误插件数
-   */
-  error: number;
+  errors: string[];
 }
