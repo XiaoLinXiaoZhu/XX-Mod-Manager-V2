@@ -1,0 +1,89 @@
+---
+globs: src/kernels/**/*.ts
+description: "Kernel 层开发规范"
+---
+
+# Kernel 层开发规范
+
+Kernel 层提供与业务完全解耦的通用能力，必须保持纯函数和无状态。
+
+## 文件组织
+
+每个 Kernel 模块必须包含：
+- `index.ts` - 公共接口导出
+- `types.ts` - 类型定义
+- 实现文件（如 `tauri-file-system.ts`）
+
+参考结构：
+- [src/kernels/file-system/](mdc:src/kernels/file-system/)
+- [src/kernels/event-system/](mdc:src/kernels/event-system/)
+- [src/kernels/state-manager/](mdc:src/kernels/state-manager/)
+
+## 核心原则
+
+### 纯函数要求
+- **严禁** `effect.ts` 文件
+- 所有函数必须是纯函数
+- 无副作用，无状态管理
+
+### 错误处理
+- 使用 `KernelError` 类统一错误处理
+- 提供详细的错误上下文信息
+- 参考：[src/kernels/types.ts](mdc:src/kernels/types.ts)
+
+### 类型定义
+- 所有公共接口必须有完整的类型定义
+- 使用 JSDoc 注释说明用途和参数
+- 导出类型和实现分离
+
+## 实现示例
+
+### 文件系统 Kernel
+```typescript
+// 类型定义
+export interface ExtendedFileSystem extends FileSystem {
+  getFileInfo(path: string): Promise<FileInfo>;
+  copyFile(from: string, to: string): Promise<void>;
+}
+
+// 实现类
+export class TauriFileSystem implements ExtendedFileSystem {
+  async readFile(path: string, options: FileOptions = {}): Promise<string> {
+    try {
+      const result = await invoke<string>('read_file', { path });
+      return result;
+    } catch (error) {
+      throw new KernelError(
+        `Failed to read file: ${path}`,
+        'FILE_READ_ERROR',
+        { path, error: error instanceof Error ? error.message : String(error) }
+      );
+    }
+  }
+}
+```
+
+### 事件系统 Kernel
+```typescript
+// 事件类型枚举
+export enum EventType {
+  APP_START = 'app:start',
+  MOD_LOADED = 'mod:loaded',
+  CONFIG_CHANGED = 'config:changed'
+}
+
+// 事件发射器实现
+export class EventEmitter implements EventSystem {
+  private listeners = new Map<string, Map<string, EventListenerInfo>>();
+  
+  on<T = any>(event: string, listener: EventListener<T>): string {
+    // 实现逻辑
+  }
+}
+```
+
+## 测试要求
+
+- **完备的单元测试** (覆盖率 ≈ 100%)
+- 无 Mock，测试真实实现
+- 测试所有边界条件和错误情况

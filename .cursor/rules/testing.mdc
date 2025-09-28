@@ -1,0 +1,184 @@
+---
+globs: **/*.test.ts,**/*.spec.ts,**/__tests__/**/*.ts
+description: "测试规范和策略"
+---
+
+# 测试规范
+
+本项目采用分层测试策略，每层都有明确的测试要求。
+
+## 分层测试策略
+
+### Kernel 层测试
+- **完备的单元测试** (覆盖率 ≈ 100%)
+- 无 Mock，测试真实实现
+- 测试所有边界条件和错误情况
+
+```typescript
+// 示例：文件系统测试
+describe('TauriFileSystem', () => {
+  it('should read file successfully', async () => {
+    const fs = new TauriFileSystem();
+    const content = await fs.readFile('/test/path');
+    expect(content).toBe('expected content');
+  });
+
+  it('should throw KernelError on file read failure', async () => {
+    const fs = new TauriFileSystem();
+    await expect(fs.readFile('/nonexistent/path'))
+      .rejects
+      .toThrow(KernelError);
+  });
+});
+```
+
+### Module 层测试
+- **纯粹的单元测试** (覆盖率 > 95%)
+- **严禁**使用 Mock
+- 测试所有业务逻辑分支
+
+```typescript
+// 示例：Mod 元数据测试
+describe('mod-metadata', () => {
+  it('should create mod metadata with correct defaults', () => {
+    const config = { keepModNameAsModFolderName: false, traditionalApply: false };
+    const metadata = createModMetadata('/test/path', config);
+    
+    expect(metadata.id).toBeDefined();
+    expect(metadata.name).toBe('path');
+    expect(metadata.location).toBe('/test/path');
+  });
+
+  it('should validate mod metadata correctly', () => {
+    const validMetadata = { id: 'test', name: 'test', location: '/test' };
+    const result = validateModMetadata(validMetadata);
+    
+    expect(result.success).toBe(true);
+    expect(result.data).toEqual(validMetadata);
+  });
+});
+```
+
+### Service 层测试
+- **集成测试**，**必须** Mock 掉所有外部依赖
+- 测试服务状态变化
+- 测试事件发射和监听
+
+```typescript
+// 示例：Mod 服务测试
+describe('ModService', () => {
+  let modService: ModService;
+  let mockFileSystem: jest.Mocked<ExtendedFileSystem>;
+
+  beforeEach(() => {
+    mockFileSystem = createMockFileSystem();
+    modService = createModService({
+      modSourceFolders: ['/test/mods'],
+      modTargetFolder: '/test/game',
+      keepModNameAsModFolderName: false,
+      traditionalApply: false
+    });
+  });
+
+  it('should load mods successfully', async () => {
+    mockFileSystem.listDirectory.mockResolvedValue(['mod1', 'mod2']);
+    
+    await modService.loadMods();
+    
+    const state = modService.getState();
+    expect(state.mods).toHaveLength(2);
+    expect(state.loading).toBe(false);
+  });
+});
+```
+
+### Main 层测试
+- **端到端 (E2E) 测试**
+- 测试完整的启动流程
+- 测试错误处理
+
+```typescript
+// 示例：应用启动测试
+describe('App Initialization', () => {
+  it('should initialize application successfully', async () => {
+    const appInitializer = new AppInitializer();
+    
+    await expect(appInitializer.initialize()).resolves.not.toThrow();
+    
+    const state = appInitializer.getAppState();
+    expect(state.isInitialized).toBe(true);
+  });
+});
+```
+
+## 测试工具和配置
+
+### 测试框架
+- **Jest** - 单元测试和集成测试
+- **Vue Test Utils** - Vue 组件测试
+- **Playwright** - 端到端测试
+
+### 测试配置
+```typescript
+// jest.config.js
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  moduleNameMapping: {
+    '^@/(.*)$': '<rootDir>/src/$1'
+  },
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/*.test.{ts,tsx}',
+    '!src/**/*.spec.{ts,tsx}'
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
+    }
+  }
+};
+```
+
+## 测试最佳实践
+
+### 测试命名
+- 使用描述性的测试名称
+- 遵循 "should ... when ..." 格式
+- 分组相关测试
+
+### 测试结构
+- **Arrange** - 准备测试数据
+- **Act** - 执行被测试的操作
+- **Assert** - 验证结果
+
+### Mock 策略
+- Kernel 层：无 Mock
+- Module 层：无 Mock
+- Service 层：Mock 外部依赖
+- Main 层：Mock 所有服务
+
+### 错误测试
+- 测试所有错误路径
+- 验证错误消息和类型
+- 测试错误恢复机制
+
+## 持续集成
+
+### 测试流水线
+1. 代码检查 (ESLint, Prettier)
+2. 类型检查 (TypeScript)
+3. 单元测试 (Jest)
+4. 集成测试 (Jest)
+5. 端到端测试 (Playwright)
+
+### 覆盖率要求
+- Kernel 层：≈ 100%
+- Module 层：> 95%
+- Service 层：> 90%
+- Main 层：> 80%
+- 整体：> 85%

@@ -1,0 +1,51 @@
+---
+alwaysApply: true
+description: "四层架构规范和依赖方向"
+---
+
+# 四层架构规范
+
+本项目严格遵循 `Kernel ← Module ← Service ← Main` 的四层架构模型。
+
+## 架构层次
+
+### Kernel 层 (`src/kernels/`)
+- **职责**: 提供与业务完全解耦的通用能力
+- **特点**: 纯函数、无状态、可跨项目复用
+- **包含**: 文件系统、事件系统、状态管理、配置存储
+
+### Module 层 (`src/modules/`)
+- **职责**: 无状态的业务函数工具箱
+- **特点**: 由 Kernel 函数组合而成、完全被动、无副作用
+- **包含**: Mod 管理、配置管理等业务逻辑
+
+### Service 层 (`src/services/`)
+- **职责**: 状态的唯一合法持有者
+- **特点**: 封装状态和副作用、编排 Kernel 和 Module
+- **包含**: Mod 服务、应用服务等
+
+### Main 层 (`src/main.ts`, `src/main-new.ts`)
+- **职责**: 副作用的边界与系统组装点
+- **特点**: 应用启动入口、最终副作用执行边界
+
+## 依赖方向戒律
+
+**仅允许从右向左的单向依赖**：
+- ✅ Module 可以导入 Kernel
+- ✅ Service 可以导入 Module 和 Kernel  
+- ✅ Main 可以导入 Service、Module 和 Kernel
+- ❌ 严禁反向依赖（如 Module 导入 Service）
+- ❌ 严禁跨层依赖（如 Module 导入 Main）
+
+## 文件组织
+
+每个功能单元必须包含：
+- `index.ts` - 唯一的公共出口
+- `types.ts` - 类型定义
+- `utils/` - 内部纯函数（可选）
+- `effect.ts` - 副作用处理（仅 Service 层）
+
+参考文件：
+- [src/kernels/index.ts](mdc:src/kernels/index.ts)
+- [src/modules/index.ts](mdc:src/modules/index.ts)
+- [src/services/index.ts](mdc:src/services/index.ts)

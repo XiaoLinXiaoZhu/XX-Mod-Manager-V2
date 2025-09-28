@@ -1,0 +1,186 @@
+---
+globs: src/services/**/*.ts
+description: "Service 层开发规范"
+---
+
+# Service 层开发规范
+
+Service 层是状态的唯一合法持有者，负责封装状态和副作用，编排 Kernel 和 Module。
+
+## 文件组织
+
+每个 Service 单元必须包含：
+- `index.ts` - 服务实现和公共接口
+- `types.ts` - 服务类型定义
+- `effect.ts` - 副作用处理（必须）
+- `config.ts` - 服务配置（可选）
+
+参考结构：
+- [src/services/mod-service/](mdc:src/services/mod-service/)
+- [src/services/app-service/](mdc:src/services/app-service/)
+
+## 核心原则
+
+### 状态管理
+- **唯一合法持有者**: 应用中唯一允许持有和管理运行时状态的层级
+- 使用 `ReactiveStore` 进行状态管理
+- 提供状态订阅和更新机制
+
+### 副作用处理
+- **必须包含** `effect.ts` 文件
+- 所有与外部世界交互的操作封装在 `effect.ts` 中
+- 包括文件系统操作、API 请求、事件发射等
+
+### 服务编排
+- 编排 Kernel 和 Module 层的功能
+- 提供高级业务操作接口
+- 处理复杂的业务流程
+
+## 实现示例
+
+### 服务状态定义
+```typescript
+// 服务状态接口
+export interface ModServiceState {
+  mods: ModInfo[];
+  loading: boolean;
+  error: string | null;
+  lastOperation: ModOperationResult | null;
+}
+
+// 服务配置接口
+export interface ModServiceConfig {
+  modSourceFolders: string[];
+  modTargetFolder: string;
+  keepModNameAsModFolderName: boolean;
+  traditionalApply: boolean;
+}
+```
+
+### 服务实现类
+```typescript
+export class ModService implements IModService {
+  private stateStore: ReactiveStore<ModServiceState>;
+  private config: ModServiceConfig;
+  private eventListeners = new Map<ModServiceEvent, Set<(...args: any[]) => void>>();
+
+  constructor(config: ModServiceConfig, options: ModServiceOptions) {
+    this.config = config;
+    this.stateStore = new ReactiveStore<ModServiceState>('mod-service', {
+      mods: [],
+      loading: false,
+      error: null,
+      lastOperation: null
+    });
+  }
+
+  // 状态管理
+  getState(): ModServiceState {
+    return this.stateStore.getState();
+  }
+
+  subscribe(listener: (state: ModServiceState) => void): () => void {
+    return this.stateStore.subscribe(listener);
+  }
+
+  // 业务操作
+  async loadMods(): Promise<void> {
+    this.updateState({ loading: true, error: null });
+    
+    try {
+      const result = await loadModsEffect(this.config);
+      if (result.success) {
+        this.updateState({ mods: result.data, loading: false });
+      } else {
+        this.updateState({ loading: false, error: result.error.message });
+      }
+    } catch (error) {
+      this.updateState({ loading: false, error: error.message });
+    }
+  }
+}
+```
+
+### 副作用处理
+```typescript
+// effect.ts - 副作用处理
+export async function loadModsEffect(
+  config: ModServiceConfig,
+  options: ModLoadOptions = {}
+): Promise<Result<ModInfo[], KernelError>> {
+  try {
+    const result = await loadMods(config.modSourceFolders, modConfig, options);
+    
+    if (result.success) {
+      defaultEventSystem.emit(ModServiceEvent.MODS_LOADED, result.data);
+    }
+    
+    return result;
+  } catch (error) {
+    const kernelError = new KernelError(
+      'Failed to load mods',
+      'MODS_LOAD_ERROR',
+      { error: error.message }
+    );
+    
+    defaultEventSystem.emit(ModServiceEvent.ERROR_OCCURRED, kernelError);
+    return { success: false, error: kernelError };
+  }
+}
+```
+
+## 设计模式
+
+### 工厂模式
+```typescript
+export function createModService(
+  config: ModServiceConfig = DEFAULT_MOD_SERVICE_CONFIG,
+  options: ModServiceOptions = DEFAULT_MOD_SERVICE_OPTIONS
+): ModService {
+  return new ModService(config, options);
+}
+```
+
+### 事件驱动
+```typescript
+// 事件管理
+on(event: ModServiceEvent, listener: (...args: any[]) => void): () => void {
+  if (!this.eventListeners.has(event)) {
+    this.eventListeners.set(event, new Set());
+  }
+  
+  this.eventListeners.get(event)!.add(listener);
+  return () => this.off(event, listener);
+}
+```
+
+## 配置管理
+
+### 配置验证
+```typescript
+export function validateModServiceConfig(config: unknown): config is ModServiceConfig {
+  if (!config || typeof config !== 'object') return false;
+  
+  const configObj = config as Record<string, unknown>;
+  return Array.isArray(configObj.modSourceFolders) &&
+         typeof configObj.modTargetFolder === 'string';
+}
+```
+
+### 配置合并
+```typescript
+export function mergeModServiceConfig(
+  base: ModServiceConfig,
+  updates: Partial<ModServiceConfig>
+): ModServiceConfig {
+  return { ...base, ...updates };
+}
+```
+
+## 测试要求
+
+- **集成测试**，**必须** Mock 掉所有外部依赖
+- 测试服务状态变化
+- 测试事件发射和监听
+- 测试错误处理
+- 测试配置管理

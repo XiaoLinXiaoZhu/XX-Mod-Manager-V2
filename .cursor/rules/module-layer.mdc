@@ -1,0 +1,122 @@
+---
+globs: src/modules/**/*.ts
+description: "Module 层开发规范"
+---
+
+# Module 层开发规范
+
+Module 层提供无状态的业务函数工具箱，由 Kernel 函数组合而成。
+
+## 文件组织
+
+每个 Module 单元必须包含：
+- `index.ts` - 公共接口导出
+- `types.ts` - 业务类型定义
+- 功能文件（如 `mod-metadata.ts`, `mod-loader.ts`）
+
+参考结构：
+- [src/modules/mod-management/](mdc:src/modules/mod-management/)
+- [src/modules/config-management/](mdc:src/modules/config-management/)
+
+## 核心原则
+
+### 纯函数要求
+- **严禁** `effect.ts` 文件
+- 所有函数必须是纯函数
+- 无副作用，无状态管理
+- 由 Kernel 函数组合而成
+
+### 业务逻辑封装
+- 将复杂的业务逻辑拆分为小的纯函数
+- 每个函数只做一件事
+- 函数之间通过参数和返回值通信
+
+### 类型安全
+- 定义完整的业务类型
+- 使用 `Result<T, E>` 类型处理错误
+- 避免使用 `any` 类型
+
+## 实现示例
+
+### Mod 元数据处理
+```typescript
+// 业务类型定义
+export interface ModMetadata {
+  readonly id: string;
+  readonly name: string;
+  readonly location: string;
+  // ... 其他字段
+}
+
+// 纯函数实现
+export function createModMetadata(
+  location: string,
+  config: ModConfig,
+  overrides: Partial<ModMetadata> = {}
+): ModMetadata {
+  return {
+    id: generateModId(location),
+    name: overrides.name || extractModName(location),
+    location,
+    // ... 其他字段
+  };
+}
+
+// 验证函数
+export function validateModMetadata(metadata: unknown): Result<ModMetadata, KernelError> {
+  // 验证逻辑
+}
+```
+
+### 配置管理
+```typescript
+// 配置类型
+export interface GlobalConfig {
+  readonly version: string;
+  readonly language: string;
+  readonly theme: 'light' | 'dark' | 'auto';
+  // ... 其他字段
+}
+
+// 配置创建
+export function createDefaultGlobalConfig(): GlobalConfig {
+  return {
+    version: '2.0.0',
+    language: 'zh-CN',
+    theme: 'dark',
+    // ... 其他字段
+  };
+}
+
+// 配置合并
+export function mergeGlobalConfig(
+  base: GlobalConfig,
+  updates: Partial<GlobalConfig>
+): GlobalConfig {
+  return { ...base, ...updates };
+}
+```
+
+## 函数设计原则
+
+### 单一职责
+- 每个函数只做一件事
+- 函数名清楚表达其功能
+- 参数和返回值类型明确
+
+### 可组合性
+- 函数可以轻松组合
+- 避免深层嵌套
+- 提供中间结果
+
+### 可测试性
+- 纯函数易于测试
+- 无外部依赖
+- 输入输出明确
+
+## 测试要求
+
+- **纯粹的单元测试** (覆盖率 > 95%)
+- **严禁**使用 Mock
+- 测试所有业务逻辑分支
+- 测试边界条件和错误情况

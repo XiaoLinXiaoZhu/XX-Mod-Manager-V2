@@ -1,0 +1,225 @@
+---
+description: "架构迁移指南和最佳实践"
+---
+
+# 架构迁移指南
+
+本指南描述了如何从旧架构迁移到新的四层架构。
+
+## 迁移策略
+
+### 渐进式迁移
+- 新架构与旧代码并存
+- 逐步替换旧组件
+- 确保系统始终可用
+
+### 元替代方法
+- 用新架构替代旧架构
+- 用纯函数替代副作用
+- 用类型安全替代运行时错误
+
+## 迁移步骤
+
+### 第一阶段：建立新架构 ✅
+- [x] 创建 Kernel 层
+- [x] 创建 Module 层  
+- [x] 创建 Service 层
+- [x] 重构 Main 层
+
+### 第二阶段：迁移现有代码
+
+#### 1. 迁移文件系统操作
+**旧代码** → **新代码**
+```typescript
+// 旧：src/shared/services/RustFileSystem.ts
+export class RustFileSystem implements IFileSystem {
+  async readFile(path: string): Promise<string> {
+    return await invoke('read_file', { path });
+  }
+}
+
+// 新：src/kernels/file-system/tauri-file-system.ts
+export class TauriFileSystem implements ExtendedFileSystem {
+  async readFile(path: string, options: FileOptions = {}): Promise<string> {
+    try {
+      const result = await invoke<string>('read_file', { path });
+      return result;
+    } catch (error) {
+      throw new KernelError(
+        `Failed to read file: ${path}`,
+        'FILE_READ_ERROR',
+        { path, error: error instanceof Error ? error.message : String(error) }
+      );
+    }
+  }
+}
+```
+
+#### 2. 迁移 Mod 管理
+**旧代码** → **新代码**
+```typescript
+// 旧：src/features/mod-manager/ModMetadata.ts
+export class ModMetadata extends Storage {
+  public readonly id = this.useStorage("id", "");
+  public readonly name = this.useStorage("modName", "");
+}
+
+// 新：src/modules/mod-management/mod-metadata.ts
+export function createModMetadata(
+  location: string,
+  config: ModConfig,
+  overrides: Partial<ModMetadata> = {}
+): ModMetadata {
+  return {
+    id: generateModId(location),
+    name: overrides.name || extractModName(location),
+    location,
+    // ... 其他字段
+  };
+}
+```
+
+#### 3. 迁移状态管理
+**旧代码** → **新代码**
+```typescript
+// 旧：src/core/XXMMState.ts
+export const currentPage = ref<"gamePage" | "modListPage">("gamePage");
+
+// 新：src/services/app-service/index.ts
+export class AppService {
+  private stateStore: ReactiveStore<AppState>;
+  
+  getState(): AppState {
+    return this.stateStore.getState();
+  }
+  
+  setCurrentPage(page: string): void {
+    this.updateState({ currentPage: page });
+  }
+}
+```
+
+### 第三阶段：更新组件使用新架构
+
+#### Vue 组件迁移
+```typescript
+// 旧方式
+import { globalServiceContainer } from '@/shared/services/ServiceContainer';
+import { currentPage } from '@/core/XXMMState';
+
+export default {
+  setup() {
+    const fs = globalServiceContainer.fs;
+    const page = currentPage.value;
+  }
+}
+
+// 新方式
+import { defaultModService, defaultAppService } from '@/services';
+
+export default {
+  setup() {
+    const modService = defaultModService;
+    const appService = defaultAppService;
+    
+    const mods = modService.getState().mods;
+    const currentPage = appService.getState().currentPage;
+    
+    // 订阅状态变化
+    const unsubscribe = modService.subscribe((state) => {
+      console.log('Mods updated:', state.mods);
+    });
+    
+    onUnmounted(() => {
+      unsubscribe();
+    });
+  }
+}
+```
+
+## 迁移检查清单
+
+### Kernel 层迁移
+- [ ] 文件系统操作已迁移
+- [ ] 事件系统已迁移
+- [ ] 状态管理已迁移
+- [ ] 配置存储已迁移
+- [ ] 所有类型定义完整
+- [ ] 错误处理统一
+
+### Module 层迁移
+- [ ] Mod 管理逻辑已迁移
+- [ ] 配置管理逻辑已迁移
+- [ ] 所有函数都是纯函数
+- [ ] 无状态管理
+- [ ] 类型安全
+
+### Service 层迁移
+- [ ] Mod 服务已实现
+- [ ] 应用服务已实现
+- [ ] 状态管理集中
+- [ ] 副作用隔离
+- [ ] 事件系统集成
+
+### Main 层迁移
+- [ ] 应用启动逻辑清晰
+- [ ] 依赖注入正确
+- [ ] 错误处理完善
+- [ ] 生命周期管理
+
+## 常见迁移问题
+
+### Q: 如何处理现有的全局状态？
+A: 将全局状态迁移到 Service 层，使用 ReactiveStore 管理。
+
+### Q: 如何处理循环依赖？
+A: 通过重新设计模块结构，确保依赖方向为 Kernel ← Module ← Service ← Main。
+
+### Q: 如何处理现有的 Vue 组件？
+A: 逐步更新组件使用新的服务，保持向后兼容。
+
+### Q: 如何处理现有的配置系统？
+A: 将配置系统迁移到 Module 层，使用纯函数处理配置逻辑。
+
+## 迁移工具
+
+### 代码转换脚本
+```bash
+# 批量替换导入路径
+find src -name "*.ts" -o -name "*.vue" | xargs sed -i 's/@\/core\//@\/kernels\//g'
+find src -name "*.ts" -o -name "*.vue" | xargs sed -i 's/@\/features\//@\/modules\//g'
+find src -name "*.ts" -o -name "*.vue" | xargs sed -i 's/@\/shared\/services\//@\/kernels\//g'
+```
+
+### 类型检查
+```bash
+# 检查类型错误
+npx tsc --noEmit
+
+# 检查未使用的导入
+npx eslint --ext .ts,.vue src --fix
+```
+
+## 测试迁移
+
+### 更新测试文件
+- 更新导入路径
+- 使用新的测试策略
+- 更新 Mock 策略
+
+### 测试覆盖率
+- 确保迁移后测试覆盖率不降低
+- 添加新功能的测试
+- 更新测试配置
+
+## 性能优化
+
+### 代码分割
+- 按层分割代码
+- 懒加载非关键模块
+- 优化包大小
+
+### 状态管理优化
+- 使用计算属性减少重复计算
+- 实现状态订阅的细粒度控制
+- 避免不必要的状态更新

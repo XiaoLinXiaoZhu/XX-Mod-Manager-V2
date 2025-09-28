@@ -1,0 +1,63 @@
+---
+globs: *.ts,*.tsx,*.vue
+description: "编码规范和最佳实践"
+---
+
+# 编码规范
+
+## 函数化原则
+
+### 纯函数优先
+- Kernel 和 Module 层**必须**只使用纯函数
+- Service 层优先将可计算逻辑提取到纯函数中
+- 示例参考：[src/modules/mod-management/mod-metadata.ts](mdc:src/modules/mod-management/mod-metadata.ts)
+
+### 数据不可变性
+- **严禁**直接修改函数参数、对象或数组
+- **必须**通过创建副本返回新的数据结构
+- 使用展开运算符和不可变更新模式
+
+### 组合优于继承
+- **严禁**使用 `class` 的 `extends` 继承
+- 优先使用组合和函数式编程
+
+## 无状态原则
+
+### 禁止全局状态
+- **严禁**定义和使用任何形式的全局可变状态
+- 所有状态必须在 Service 层管理
+
+### 显式依赖传递
+- 所有函数和组件的依赖**必须**作为参数显式传入
+- 避免隐式依赖和副作用
+
+## 类型安全
+
+### 严格类型定义
+- **必须**启用所有 `strict` 选项
+- **严禁**在新代码中使用 `any` 类型
+- 优先使用 `unknown` 并配合类型守卫
+
+### 公共接口定义
+- 所有从 `index.ts` 导出的函数、类型、接口**必须**拥有完整且明确的 TypeScript 类型定义和 JSDoc 注释
+- 参考：[src/kernels/types.ts](mdc:src/kernels/types.ts)
+
+## 错误处理
+
+### 分层策略
+- Module/Kernel 层：返回 `Result<T, E>` 类型，避免抛出异常
+- Service/Main 层：使用 `try...catch` 处理可预见的外部错误
+- 参考：[src/kernels/types.ts](mdc:src/kernels/types.ts) 中的 `Result` 类型
+
+## 命名规范
+
+- 变量/函数：`camelCase`
+- 类型/接口：`PascalCase`  
+- 常量：`UPPER_SNAKE_CASE`
+- 目录/文件：`kebab-case`
+
+## 导入路径规范
+
+- 项目**必须**在 `tsconfig.json` 中配置路径别名 `{"@/*": ["src/*"]}`
+- 跨单元导入：使用 `@` 别名创建的绝对路径
+- 单元内导入：使用相对路径

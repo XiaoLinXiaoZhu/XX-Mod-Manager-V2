@@ -1,0 +1,148 @@
+---
+alwaysApply: true
+description: "Cursor Rules 概览和使用指南"
+---
+
+# Cursor Rules 概览
+
+本项目包含一套完整的 Cursor Rules，用于指导 AI 理解和维护基于四层架构的代码库。
+
+## 规则列表
+
+### 核心架构规则
+- **[architecture.mdc](mdc:.cursor/rules/architecture.mdc)** - 四层架构规范和依赖方向
+- **[coding-standards.mdc](mdc:.cursor/rules/coding-standards.mdc)** - 编码规范和最佳实践
+
+### 分层开发规则
+- **[kernel-layer.mdc](mdc:.cursor/rules/kernel-layer.mdc)** - Kernel 层开发规范
+- **[module-layer.mdc](mdc:.cursor/rules/module-layer.mdc)** - Module 层开发规范
+- **[service-layer.mdc](mdc:.cursor/rules/service-layer.mdc)** - Service 层开发规范
+- **[main-layer.mdc](mdc:.cursor/rules/main-layer.mdc)** - Main 层开发规范
+
+### 技术专项规则
+- **[testing.mdc](mdc:.cursor/rules/testing.mdc)** - 测试规范和策略
+- **[vue-components.mdc](mdc:.cursor/rules/vue-components.mdc)** - Vue 组件开发规范
+- **[performance.mdc](mdc:.cursor/rules/performance.mdc)** - 性能优化指南
+
+### 项目管理规则
+- **[migration.mdc](mdc:.cursor/rules/migration.mdc)** - 架构迁移指南
+
+## 四层架构概览
+
+```
+┌─────────────────────────────────────────┐
+│                Main 层                   │
+│         (应用启动和组装点)                │
+│  src/main.ts, src/main-new.ts          │
+└─────────────────┬───────────────────────┘
+                  │ 依赖
+┌─────────────────▼───────────────────────┐
+│               Service 层                 │
+│        (状态的唯一合法持有者)             │
+│  src/services/mod-service/              │
+│  src/services/app-service/              │
+└─────────────────┬───────────────────────┘
+                  │ 依赖
+┌─────────────────▼───────────────────────┐
+│               Module 层                  │
+│        (无状态的业务函数工具箱)           │
+│  src/modules/mod-management/            │
+│  src/modules/config-management/         │
+└─────────────────┬───────────────────────┘
+                  │ 依赖
+┌─────────────────▼───────────────────────┐
+│               Kernel 层                  │
+│      (与业务解耦的通用能力)              │
+│  src/kernels/file-system/              │
+│  src/kernels/event-system/             │
+│  src/kernels/state-manager/            │
+│  src/kernels/config-storage/           │
+└─────────────────────────────────────────┘
+```
+
+## 核心设计原则
+
+### 1. 函数化 (Functional)
+- **纯函数优先**: Kernel 和 Module 层必须只使用纯函数
+- **数据不可变性**: 严禁直接修改函数参数、对象或数组
+- **组合优于继承**: 严禁使用 class 的 extends 继承
+
+### 2. 无状态 (Stateless by Default)
+- **禁止全局状态**: 严禁定义和使用任何形式的全局可变状态
+- **显式依赖传递**: 所有函数和组件的依赖必须作为参数显式传入
+- **Service 是状态的唯一归宿**: Kernel 和 Module 必须保持完全无状态
+
+### 3. 严格类型定义 (Strictly Typed)
+- **必须启用所有 strict 选项**: tsconfig.json 中必须启用所有 strict 模式
+- **原则上禁止 any**: 严禁在新代码中使用 any 类型
+- **强制定义公共接口**: 所有从 index.ts 导出的函数、类型、接口必须拥有完整且明确的 TypeScript 类型定义和 JSDoc 注释
+
+## 依赖方向戒律
+
+**仅允许从右向左的单向依赖**：
+- ✅ Module 可以导入 Kernel
+- ✅ Service 可以导入 Module 和 Kernel  
+- ✅ Main 可以导入 Service、Module 和 Kernel
+- ❌ 严禁反向依赖（如 Module 导入 Service）
+- ❌ 严禁跨层依赖（如 Module 导入 Main）
+
+## 文件组织规范
+
+每个功能单元必须包含：
+- `index.ts` - 唯一的公共出口
+- `types.ts` - 类型定义
+- `utils/` - 内部纯函数（可选）
+- `effect.ts` - 副作用处理（仅 Service 层）
+
+## 测试策略
+
+### 分层测试要求
+- **Kernel 层**: 完备的单元测试 (覆盖率 ≈ 100%)
+- **Module 层**: 纯粹的单元测试 (覆盖率 > 95%)，严禁使用 Mock
+- **Service 层**: 集成测试，必须 Mock 掉所有外部依赖
+- **Main 层**: 端到端 (E2E) 测试
+
+## 性能优化原则
+
+### 代码分割
+- 按层分割代码
+- 懒加载非关键模块
+- 优化包大小
+
+### 状态管理优化
+- 使用计算属性减少重复计算
+- 实现状态订阅的细粒度控制
+- 避免不必要的状态更新
+
+### 内存管理
+- 正确清理事件监听器
+- 避免内存泄漏
+- 优化大对象的使用
+
+## 使用指南
+
+### 对于 AI 助手
+1. 始终遵循四层架构原则
+2. 优先使用纯函数和显式依赖
+3. 确保类型安全和错误处理
+4. 遵循命名和文件组织规范
+
+### 对于开发者
+1. 阅读相关规则文件了解具体规范
+2. 使用规则指导代码编写
+3. 定期更新规则以反映最佳实践
+4. 在代码审查中检查规则遵循情况
+
+## 规则更新
+
+规则文件应该随着项目发展而更新：
+- 添加新的最佳实践
+- 修正过时的规范
+- 补充遗漏的指导
+- 优化现有规则的可读性
+
+## 相关文档
+
+- [项目规范文档](mdc:docs/PROJECT_STANDARDS.md)
+- [架构迁移指南](mdc:docs/ARCHITECTURE_MIGRATION_GUIDE.md)
+- [README 文件](mdc:README.md)

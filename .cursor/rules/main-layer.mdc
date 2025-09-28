@@ -1,0 +1,167 @@
+---
+globs: src/main*.ts
+description: "Main 层开发规范"
+---
+
+# Main 层开发规范
+
+Main 层是副作用的边界与系统组装点，负责应用启动和最终副作用执行。
+
+## 核心职责
+
+### 应用组装
+- 初始化所有服务和依赖
+- 配置依赖注入
+- 建立服务间的协作关系
+
+### 生命周期管理
+- 应用启动流程
+- 错误处理和恢复
+- 优雅关闭
+
+### 副作用边界
+- 最终副作用执行边界
+- 与外部系统的交互点
+- 事件监听和响应
+
+## 实现示例
+
+### 应用初始化类
+```typescript
+class AppInitializer {
+  private isInitialized = false;
+  private argv: Argv | null = null;
+
+  async initialize(): Promise<void> {
+    if (this.isInitialized) return;
+
+    try {
+      // 1. 解析命令行参数
+      await this.parseArgv();
+
+      // 2. 加载全局配置
+      await this.loadGlobalConfig();
+
+      // 3. 初始化内核层
+      await this.initializeKernels();
+
+      // 4. 初始化服务层
+      await this.initializeServices();
+
+      // 5. 设置事件监听器
+      await this.setupEventListeners();
+
+      // 6. 初始化 Vue 应用
+      await this.initializeVueApp();
+
+      // 7. 处理命令行参数
+      await this.handleArgv();
+
+      this.isInitialized = true;
+      defaultEventSystem.emit(EventType.APP_READY);
+    } catch (error) {
+      console.error('Failed to initialize application:', error);
+      throw error;
+    }
+  }
+}
+```
+
+### 服务初始化
+```typescript
+private async initializeServices(): Promise<void> {
+  // 配置 Mod 服务
+  const modServiceConfig = {
+    modSourceFolders: GlobalConfig.modSourceFolders.value,
+    modTargetFolder: GlobalConfig.modTargetFolder.value,
+    keepModNameAsModFolderName: GlobalConfig.ifKeepModNameAsModFolderName.value,
+    traditionalApply: GlobalConfig.ifUseTraditionalApply.value
+  };
+
+  defaultModService.updateConfig(modServiceConfig);
+
+  // 配置应用服务
+  const appServiceConfig = {
+    version: '2.0.0',
+    environment: 'development',
+    debug: true,
+    autoUpdate: true,
+    checkUpdatesOnStart: GlobalConfig.checkUpdatesOnStart.value
+  };
+
+  defaultAppService.updateConfig(appServiceConfig);
+}
+```
+
+### 事件监听设置
+```typescript
+private async setupEventListeners(): Promise<void> {
+  // 禁用默认行为
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') e.preventDefault();
+  });
+
+  document.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+  });
+
+  // 监听 Tauri 事件
+  listen('wake-up', (event) => {
+    defaultEventSystem.emit(EventType.APP_READY);
+  });
+
+  // 监听服务事件
+  defaultAppService.on('app:ready', () => {
+    $t_snack("message.hello", "success");
+  });
+}
+```
+
+## 设计原则
+
+### 单一入口
+- 只有一个主入口文件
+- 所有初始化逻辑集中管理
+- 清晰的启动流程
+
+### 错误处理
+- 全局错误处理
+- 优雅的错误恢复
+- 详细的错误日志
+
+### 配置管理
+- 统一的配置加载
+- 环境变量处理
+- 配置验证
+
+## 文件结构
+
+### 主入口文件
+- `src/main.ts` - 旧版本入口（逐步废弃）
+- `src/main-new.ts` - 新架构入口
+
+### 应用组装
+```typescript
+// 创建应用初始化器实例
+const appInitializer = new AppInitializer();
+
+// 启动应用
+appInitializer.initialize()
+  .then(() => {
+    console.log('Application started successfully!');
+  })
+  .catch((error) => {
+    console.error('Application failed to start:', error);
+  });
+
+// 导出给调试使用
+export { appInitializer, defaultModService, defaultAppService };
+```
+
+## 测试要求
+
+- **端到端 (E2E) 测试**
+- 测试完整的启动流程
+- 测试错误处理
+- 测试配置加载
+- 测试服务初始化

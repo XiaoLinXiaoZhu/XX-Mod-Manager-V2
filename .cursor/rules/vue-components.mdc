@@ -1,0 +1,338 @@
+---
+globs: src/**/*.vue,src/**/*.tsx
+description: "Vue 组件开发规范"
+---
+
+# Vue 组件开发规范
+
+Vue 组件应该与新的四层架构集成，使用服务层进行状态管理。
+
+## 组件架构
+
+### 组件分层
+- **UI 组件**: 纯展示组件，无业务逻辑
+- **容器组件**: 连接服务层和 UI 组件
+- **页面组件**: 组合多个容器组件
+
+### 状态管理
+- 使用 Service 层进行状态管理
+- 避免在组件中直接管理复杂状态
+- 使用 `subscribe` 监听状态变化
+
+## 实现示例
+
+### 容器组件
+```vue
+<template>
+  <div class="mod-list">
+    <ModCard 
+      v-for="mod in mods" 
+      :key="mod.id"
+      :mod="mod"
+      @toggle="handleToggleMod"
+      @remove="handleRemoveMod"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import { defaultModService } from '@/services';
+import { ModInfo } from '@/modules/mod-management';
+import ModCard from './ModCard.vue';
+
+// 状态管理
+const mods = ref<ModInfo[]>([]);
+const loading = ref(false);
+const error = ref<string | null>(null);
+
+// 服务实例
+const modService = defaultModService;
+
+// 状态订阅
+let unsubscribe: (() => void) | null = null;
+
+onMounted(async () => {
+  // 订阅状态变化
+  unsubscribe = modService.subscribe((state) => {
+    mods.value = state.mods;
+    loading.value = state.loading;
+    error.value = state.error;
+  });
+
+  // 加载 Mod 列表
+  await modService.loadMods();
+});
+
+onUnmounted(() => {
+  if (unsubscribe) {
+    unsubscribe();
+  }
+});
+
+// 事件处理
+const handleToggleMod = async (modId: string) => {
+  await modService.toggleMod(modId);
+};
+
+const handleRemoveMod = async (modId: string) => {
+  await modService.removeMod(modId);
+};
+</script>
+```
+
+### UI 组件
+```vue
+<template>
+  <div class="mod-card" :class="{ active: mod.status === 'active' }">
+    <div class="mod-preview">
+      <img v-if="mod.preview" :src="mod.preview" :alt="mod.name" />
+      <div v-else class="no-preview">No Preview</div>
+    </div>
+    
+    <div class="mod-info">
+      <h3 class="mod-name">{{ mod.name }}</h3>
+      <p class="mod-description">{{ mod.description }}</p>
+      <div class="mod-tags">
+        <span v-for="tag in mod.tags" :key="tag" class="tag">
+          {{ tag }}
+        </span>
+      </div>
+    </div>
+    
+    <div class="mod-actions">
+      <button 
+        @click="$emit('toggle', mod.id)"
+        :class="{ active: mod.status === 'active' }"
+      >
+        {{ mod.status === 'active' ? 'Disable' : 'Enable' }}
+      </button>
+      <button @click="$emit('remove', mod.id)" class="danger">
+        Remove
+      </button>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ModInfo } from '@/modules/mod-management';
+
+// Props 定义
+interface Props {
+  mod: ModInfo;
+}
+
+defineProps<Props>();
+
+// 事件定义
+defineEmits<{
+  toggle: [modId: string];
+  remove: [modId: string];
+}>();
+</script>
+
+<style scoped>
+.mod-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 8px 0;
+}
+
+.mod-card.active {
+  border-color: #4CAF50;
+  background-color: #f1f8e9;
+}
+
+.mod-preview {
+  width: 100%;
+  height: 200px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.mod-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.mod-name {
+  margin: 0 0 8px 0;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.mod-description {
+  margin: 0 0 12px 0;
+  color: #666;
+  line-height: 1.4;
+}
+
+.mod-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.tag {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+}
+
+.mod-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.mod-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.mod-actions button.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.mod-actions button.danger {
+  background-color: #f44336;
+  color: white;
+}
+</style>
+```
+
+## 组件设计原则
+
+### 单一职责
+- 每个组件只负责一个功能
+- UI 组件只负责展示
+- 容器组件只负责状态管理
+
+### 可复用性
+- 组件应该是可复用的
+- 通过 props 传递数据
+- 通过 events 传递行为
+
+### 类型安全
+- 使用 TypeScript 定义 props 和 events
+- 使用泛型提高类型安全性
+- 避免使用 `any` 类型
+
+## 状态管理最佳实践
+
+### 服务订阅
+```typescript
+// 正确的订阅方式
+onMounted(() => {
+  const unsubscribe = service.subscribe((state) => {
+    // 更新本地状态
+    localState.value = state.someProperty;
+  });
+
+  onUnmounted(() => {
+    unsubscribe();
+  });
+});
+```
+
+### 避免直接修改服务状态
+```typescript
+// ❌ 错误：直接修改服务状态
+modService.getState().mods.push(newMod);
+
+// ✅ 正确：通过服务方法修改状态
+await modService.addMod(newMod);
+```
+
+### 错误处理
+```typescript
+// 在组件中处理服务错误
+const handleOperation = async () => {
+  try {
+    await modService.someOperation();
+  } catch (error) {
+    // 显示错误消息
+    showError(error.message);
+  }
+};
+```
+
+## 性能优化
+
+### 计算属性
+```typescript
+// 使用计算属性避免重复计算
+const filteredMods = computed(() => {
+  return mods.value.filter(mod => 
+    mod.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
+```
+
+### 事件防抖
+```typescript
+// 使用防抖避免频繁操作
+const debouncedSearch = debounce((query: string) => {
+  modService.searchMods(query);
+}, 300);
+```
+
+### 组件懒加载
+```typescript
+// 懒加载大型组件
+const ModEditor = defineAsyncComponent(() => import('./ModEditor.vue'));
+```
+
+## 测试策略
+
+### 组件测试
+```typescript
+// 测试组件渲染
+import { mount } from '@vue/test-utils';
+import ModCard from './ModCard.vue';
+
+describe('ModCard', () => {
+  it('should render mod information correctly', () => {
+    const mod = {
+      id: 'test-mod',
+      name: 'Test Mod',
+      description: 'A test mod',
+      status: 'inactive'
+    };
+
+    const wrapper = mount(ModCard, {
+      props: { mod }
+    });
+
+    expect(wrapper.find('.mod-name').text()).toBe('Test Mod');
+    expect(wrapper.find('.mod-description').text()).toBe('A test mod');
+  });
+});
+```
+
+### 服务集成测试
+```typescript
+// 测试组件与服务的集成
+describe('ModList Integration', () => {
+  it('should load mods on mount', async () => {
+    const loadModsSpy = jest.spyOn(modService, 'loadMods');
+    
+    mount(ModList);
+    
+    expect(loadModsSpy).toHaveBeenCalled();
+  });
+});
+```

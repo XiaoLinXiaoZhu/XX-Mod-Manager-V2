@@ -1,0 +1,451 @@
+---
+description: "性能优化指南和最佳实践"
+---
+
+# 性能优化指南
+
+基于新架构的性能优化策略和最佳实践。
+
+## 架构层面的性能优化
+
+### 代码分割
+```typescript
+// 按层分割代码
+const KernelModules = {
+  fileSystem: () => import('@/kernels/file-system'),
+  eventSystem: () => import('@/kernels/event-system'),
+  stateManager: () => import('@/kernels/state-manager'),
+  configStorage: () => import('@/kernels/config-storage')
+};
+
+const ModuleModules = {
+  modManagement: () => import('@/modules/mod-management'),
+  configManagement: () => import('@/modules/config-management')
+};
+
+const ServiceModules = {
+  modService: () => import('@/services/mod-service'),
+  appService: () => import('@/services/app-service')
+};
+```
+
+### 懒加载策略
+```typescript
+// 懒加载非关键模块
+const LazyModEditor = defineAsyncComponent({
+  loader: () => import('@/components/ModEditor.vue'),
+  loadingComponent: LoadingSpinner,
+  errorComponent: ErrorComponent,
+  delay: 200,
+  timeout: 3000
+});
+
+// 路由级别的懒加载
+const routes = [
+  {
+    path: '/mods',
+    component: () => import('@/pages/ModListPage.vue')
+  },
+  {
+    path: '/settings',
+    component: () => import('@/pages/SettingsPage.vue')
+  }
+];
+```
+
+## 状态管理优化
+
+### 细粒度状态订阅
+```typescript
+// 只订阅需要的状态部分
+const modService = defaultModService;
+
+// 使用选择器避免不必要的重新渲染
+const mods = computed(() => modService.getState().mods);
+const loading = computed(() => modService.getState().loading);
+
+// 而不是订阅整个状态
+// const state = computed(() => modService.getState());
+```
+
+### 状态更新优化
+```typescript
+// 批量更新状态
+const updateMultipleMods = (updates: Array<{id: string, status: ModStatus}>) => {
+  const currentMods = modService.getState().mods;
+  const updatedMods = currentMods.map(mod => {
+    const update = updates.find(u => u.id === mod.id);
+    return update ? { ...mod, status: update.status } : mod;
+  });
+  
+  modService.updateState({ mods: updatedMods });
+};
+
+// 而不是逐个更新
+// updates.forEach(update => {
+//   modService.updateModStatus(update.id, update.status);
+// });
+```
+
+### 计算属性缓存
+```typescript
+// 使用计算属性缓存复杂计算
+const filteredMods = computed(() => {
+  const mods = modService.getState().mods;
+  const filters = filterService.getState().filters;
+  
+  return mods.filter(mod => {
+    if (filters.category && mod.category !== filters.category) return false;
+    if (filters.status && mod.status !== filters.status) return false;
+    if (filters.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      return mod.name.toLowerCase().includes(query) ||
+             mod.description?.toLowerCase().includes(query);
+    }
+    return true;
+  });
+});
+```
+
+## 内存管理优化
+
+### 事件监听器清理
+```typescript
+// 正确清理事件监听器
+export class ModService {
+  private eventListeners = new Map<ModServiceEvent, Set<(...args: any[]) => void>>();
+
+  on(event: ModServiceEvent, listener: (...args: any[]) => void): () => void {
+    if (!this.eventListeners.has(event)) {
+      this.eventListeners.set(event, new Set());
+    }
+    
+    this.eventListeners.get(event)!.add(listener);
+    
+    // 返回清理函数
+    return () => {
+      this.off(event, listener);
+    };
+  }
+
+  destroy(): void {
+    // 清理所有事件监听器
+    this.eventListeners.clear();
+  }
+}
+```
+
+### 组件内存泄漏防护
+```vue
+<script setup lang="ts">
+import { onMounted, onUnmounted } from 'vue';
+
+let unsubscribe: (() => void) | null = null;
+
+onMounted(() => {
+  unsubscribe = modService.subscribe((state) => {
+    // 处理状态变化
+  });
+});
+
+onUnmounted(() => {
+  // 确保清理订阅
+  if (unsubscribe) {
+    unsubscribe();
+  }
+});
+</script>
+```
+
+### 大对象处理
+```typescript
+// 使用 WeakMap 处理大对象
+const modCache = new WeakMap<ModInfo, ProcessedModInfo>();
+
+const processMod = (mod: ModInfo): ProcessedModInfo => {
+  if (modCache.has(mod)) {
+    return modCache.get(mod)!;
+  }
+  
+  const processed = {
+    ...mod,
+    displayName: mod.name || extractModName(mod.location),
+    hasPreview: !!mod.preview,
+    isActive: mod.status === ModStatus.ACTIVE
+  };
+  
+  modCache.set(mod, processed);
+  return processed;
+};
+```
+
+## 文件系统优化
+
+### 批量操作
+```typescript
+// 批量文件操作
+export async function batchFileOperations(
+  operations: Array<{type: 'read' | 'write', path: string, data?: string}>
+): Promise<Array<{success: boolean, data?: string, error?: string}>> {
+  const results = await Promise.allSettled(
+    operations.map(async (op) => {
+      if (op.type === 'read') {
+        return await fileSystem.readFile(op.path);
+      } else {
+        await fileSystem.writeFile(op.path, op.data!);
+        return 'success';
+      }
+    })
+  );
+  
+  return results.map((result, index) => ({
+    success: result.status === 'fulfilled',
+    data: result.status === 'fulfilled' ? result.value : undefined,
+    error: result.status === 'rejected' ? result.reason.message : undefined
+  }));
+}
+```
+
+### 文件缓存
+```typescript
+// 文件内容缓存
+class FileCache {
+  private cache = new Map<string, {content: string, timestamp: number}>();
+  private maxAge = 5 * 60 * 1000; // 5分钟
+
+  async getFile(path: string): Promise<string> {
+    const cached = this.cache.get(path);
+    const now = Date.now();
+    
+    if (cached && (now - cached.timestamp) < this.maxAge) {
+      return cached.content;
+    }
+    
+    const content = await fileSystem.readFile(path);
+    this.cache.set(path, { content, timestamp: now });
+    
+    return content;
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+}
+```
+
+## 渲染性能优化
+
+### 虚拟滚动
+```vue
+<template>
+  <div class="mod-list" ref="container" @scroll="handleScroll">
+    <div :style="{ height: totalHeight + 'px' }">
+      <div 
+        v-for="mod in visibleMods" 
+        :key="mod.id"
+        :style="{ transform: `translateY(${mod.offset}px)` }"
+        class="mod-item"
+      >
+        <ModCard :mod="mod" />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+
+const container = ref<HTMLElement>();
+const scrollTop = ref(0);
+const itemHeight = 200;
+const visibleCount = 10;
+
+const totalHeight = computed(() => mods.value.length * itemHeight);
+
+const visibleMods = computed(() => {
+  const start = Math.floor(scrollTop.value / itemHeight);
+  const end = Math.min(start + visibleCount, mods.value.length);
+  
+  return mods.value.slice(start, end).map((mod, index) => ({
+    ...mod,
+    offset: (start + index) * itemHeight
+  }));
+});
+
+const handleScroll = (event: Event) => {
+  scrollTop.value = (event.target as HTMLElement).scrollTop;
+};
+</script>
+```
+
+### 防抖和节流
+```typescript
+// 防抖函数
+export function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout;
+  
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
+
+// 节流函数
+export function throttle<T extends (...args: any[]) => any>(
+  func: T,
+  limit: number
+): (...args: Parameters<T>) => void {
+  let inThrottle: boolean;
+  
+  return (...args: Parameters<T>) => {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+// 使用示例
+const debouncedSearch = debounce((query: string) => {
+  modService.searchMods(query);
+}, 300);
+
+const throttledScroll = throttle((event: Event) => {
+  // 处理滚动事件
+}, 16); // 60fps
+```
+
+## 网络优化
+
+### 请求缓存
+```typescript
+// API 请求缓存
+class ApiCache {
+  private cache = new Map<string, {data: any, timestamp: number}>();
+  private maxAge = 10 * 60 * 1000; // 10分钟
+
+  async get<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
+    const cached = this.cache.get(key);
+    const now = Date.now();
+    
+    if (cached && (now - cached.timestamp) < this.maxAge) {
+      return cached.data;
+    }
+    
+    const data = await fetcher();
+    this.cache.set(key, { data, timestamp: now });
+    
+    return data;
+  }
+}
+```
+
+### 并发控制
+```typescript
+// 限制并发请求数量
+class ConcurrencyLimiter {
+  private running = 0;
+  private queue: Array<() => Promise<any>> = [];
+
+  constructor(private maxConcurrent: number) {}
+
+  async execute<T>(task: () => Promise<T>): Promise<T> {
+    return new Promise((resolve, reject) => {
+      this.queue.push(async () => {
+        try {
+          const result = await task();
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      });
+      
+      this.processQueue();
+    });
+  }
+
+  private async processQueue() {
+    if (this.running >= this.maxConcurrent || this.queue.length === 0) {
+      return;
+    }
+    
+    this.running++;
+    const task = this.queue.shift()!;
+    
+    try {
+      await task();
+    } finally {
+      this.running--;
+      this.processQueue();
+    }
+  }
+}
+```
+
+## 性能监控
+
+### 性能指标收集
+```typescript
+// 性能监控
+class PerformanceMonitor {
+  private metrics = new Map<string, number[]>();
+
+  startTiming(name: string): () => void {
+    const start = performance.now();
+    
+    return () => {
+      const duration = performance.now() - start;
+      this.recordMetric(name, duration);
+    };
+  }
+
+  recordMetric(name: string, value: number) {
+    if (!this.metrics.has(name)) {
+      this.metrics.set(name, []);
+    }
+    
+    this.metrics.get(name)!.push(value);
+  }
+
+  getAverageTime(name: string): number {
+    const values = this.metrics.get(name) || [];
+    return values.reduce((sum, val) => sum + val, 0) / values.length;
+  }
+}
+
+// 使用示例
+const monitor = new PerformanceMonitor();
+
+const stopTiming = monitor.startTiming('mod-load');
+await modService.loadMods();
+stopTiming();
+
+console.log('Average mod load time:', monitor.getAverageTime('mod-load'));
+```
+
+### 内存使用监控
+```typescript
+// 内存使用监控
+class MemoryMonitor {
+  checkMemoryUsage(): void {
+    if (performance.memory) {
+      const memory = performance.memory;
+      console.log('Memory usage:', {
+        used: Math.round(memory.usedJSHeapSize / 1024 / 1024) + ' MB',
+        total: Math.round(memory.totalJSHeapSize / 1024 / 1024) + ' MB',
+        limit: Math.round(memory.jsHeapSizeLimit / 1024 / 1024) + ' MB'
+      });
+    }
+  }
+
+  startMonitoring(interval: number = 30000) {
+    setInterval(() => {
+      this.checkMemoryUsage();
+    }, interval);
+  }
+}
+```
