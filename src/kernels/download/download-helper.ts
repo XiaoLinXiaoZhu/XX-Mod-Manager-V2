@@ -5,7 +5,7 @@
 
 import { invoke } from "@tauri-apps/api/core";
 import { dirname } from '@tauri-apps/api/path';
-import { DownloadOptions } from './types';
+import type { DownloadOptions } from './types';
 
 // 通知下载进度的辅助函数
 function notifyProgress(

@@ -3,8 +3,9 @@
  * 提供版本相关的纯函数
  */
 
-import { VersionInfo, VersionComparison, UpdateConfig } from './types';
-import { Result, KernelError } from '@/kernels/types';
+import { VersionComparison } from './types';
+import type { VersionInfo, UpdateConfig } from './types';
+import type { Result, KernelError } from '@/kernels/types';
 
 // 版本号正则表达式
 const VERSION_REGEX = /^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9.-]+))?(?:\+([a-zA-Z0-9.-]+))?$/;

@@ -3,19 +3,9 @@
  * 负责配置的加载和初始化
  */
 
-import { 
-  ConfigType, 
-  ConfigValue, 
-  GlobalConfig, 
-  LocalConfig, 
-  RepositoryConfig,
-  ConfigServiceState,
-  ConfigLoadOptions,
-  ConfigValidationResult,
-  DEFAULT_GLOBAL_CONFIG,
-  DEFAULT_LOCAL_CONFIG
-} from './types';
-import { Result, KernelError } from '@/kernels/types';
+import { DEFAULT_GLOBAL_CONFIG, DEFAULT_LOCAL_CONFIG } from './types';
+import type { ConfigType, ConfigValue, GlobalConfig, LocalConfig, RepositoryConfig, ConfigServiceState, ConfigLoadOptions, ConfigValidationResult } from './types';
+import type { Result, KernelError } from '@/kernels/types';
 import { EventEmitter } from '@/kernels/event-system';
 
 /**

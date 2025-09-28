@@ -3,12 +3,8 @@
  * 负责仓库的搜索、过滤和统计功能
  */
 
-import { 
-  Repository,
-  RepositorySearchOptions,
-  RepositorySearchResult,
-  RepositoryStatistics
-} from './types';
+import { Repository, RepositoryStatistics } from './types';
+import type { RepositorySearchOptions, RepositorySearchResult } from './types';
 
 /**
  * 搜索仓库

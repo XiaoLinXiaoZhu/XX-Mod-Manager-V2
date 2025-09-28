@@ -14,19 +14,9 @@ import type {
   PluginValidationResult,
   PluginEnvironmentConfig
 } from '@/modules/plugin-management';
-import { 
-  PluginStatus, 
-  convertToKernelPlugin, 
-  createPluginEnvironment,
-  validatePluginInfo,
-  validatePluginCompatibility,
-  checkDependencyConflicts,
-  canLoadPlugin,
-  buildDependencyGraph,
-  sortPluginsByDependencies,
-  searchPlugins,
-  getPluginStatistics
-} from '@/modules/plugin-management';
+import { PluginStatus, convertToKernelPlugin, createPluginEnvironment, validatePluginCompatibility, checkDependencyConflicts, canLoadPlugin, buildDependencyGraph, sortPluginsByDependencies, searchPlugins, getPluginStatistics } from '@/modules/plugin-management';
+import { validatePluginInfo } from '@/modules/plugin-management';
+
 import { 
   loadPlugin, 
   unloadPlugin, 
@@ -35,13 +25,9 @@ import {
 import type { Result, KernelError } from '@/kernels/types';
 import { EventEmitter } from '@/kernels/event-system';
 import { ReactiveStore } from '@/kernels/state-manager';
-import type { 
-  PluginServiceState, 
-  PluginServiceOptions, 
-  PluginServiceEventType, 
-  PluginEventData, 
-  IPluginService 
-} from './types';
+
+import { PluginServiceEventType } from './types';
+import type { PluginServiceState, PluginServiceOptions, PluginEventData, IPluginService } from './types';
 import { DEFAULT_PLUGIN_SERVICE_OPTIONS } from './types';
 
 /**

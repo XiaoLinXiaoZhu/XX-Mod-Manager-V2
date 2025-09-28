@@ -3,24 +3,9 @@
  * 提供配置管理的核心功能
  */
 
-import { 
-  ConfigType, 
-  ConfigValue, 
-  GlobalConfig, 
-  LocalConfig, 
-  RepositoryConfig,
-  ConfigServiceState,
-  ConfigServiceOptions,
-  ConfigLoadOptions,
-  ConfigSaveOptions,
-  ConfigValidationResult,
-  ConfigServiceEventType,
-  ConfigStatistics,
-  DEFAULT_GLOBAL_CONFIG,
-  DEFAULT_LOCAL_CONFIG,
-  DEFAULT_CONFIG_SERVICE_OPTIONS
-} from './types';
-import { Result, KernelError } from '@/kernels/types';
+import { DEFAULT_GLOBAL_CONFIG, DEFAULT_LOCAL_CONFIG, DEFAULT_CONFIG_SERVICE_OPTIONS } from './types';
+import type { ConfigType, ConfigValue, GlobalConfig, LocalConfig, RepositoryConfig, ConfigServiceState, ConfigServiceOptions, ConfigLoadOptions, ConfigSaveOptions, ConfigValidationResult, ConfigServiceEventType, ConfigStatistics } from './types';
+import type { Result, KernelError } from '@/kernels/types';
 import { EventEmitter } from '@/kernels/event-system';
 import { ConfigLoader } from './config-loader';
 import { ConfigSaver } from './config-saver';

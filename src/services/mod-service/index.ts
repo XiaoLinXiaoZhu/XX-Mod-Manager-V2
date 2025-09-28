@@ -4,28 +4,18 @@
  */
 
 import { ReactiveStore } from '@/kernels';
-import { 
-  ModInfo, 
-  ModStatus, 
-  ModOperationResult
-} from '@/modules/mod-management';
-import { 
-  ModServiceState, 
-  ModServiceConfig, 
-  ModServiceOptions, 
-  ModServiceEvent,
-  ModService as IModService
-} from './types';
-import { 
-  loadModsEffect, 
-  addModToListEffect,
-  updateModStatusEffect
-} from './effect';
-import { 
-  DEFAULT_MOD_SERVICE_CONFIG, 
-  DEFAULT_MOD_SERVICE_OPTIONS,
-  mergeModServiceConfig
-} from './config';
+
+import { ModStatus } from '@/modules/mod-management';
+import type { ModInfo, ModOperationResult } from '@/modules/mod-management';
+import { ModService as IModService } from './types';
+import { ModServiceEvent } from './types';
+import type { ModServiceState, ModServiceConfig, ModServiceOptions } from './types';
+import { loadModsEffect, addModToListEffect } from './effect';
+import { updateModStatusEffect } from './effect';
+
+import { DEFAULT_MOD_SERVICE_CONFIG, DEFAULT_MOD_SERVICE_OPTIONS } from './config';
+import { mergeModServiceConfig } from './config';
+
 import { TauriFileSystem, EventEmitter } from '@/kernels';
 import { ModOperations } from './mod-operations';
 import { ModSearch } from './mod-search';

@@ -3,8 +3,9 @@
  * 提供 Mod 元数据的创建、验证、转换等纯函数
  */
 
-import { ModMetadata, ModConfig, ModInfo, ModStatus } from './types';
-import { Result, KernelError } from '@/kernels/types';
+import { ModMetadata } from './types';
+import type { ModConfig, ModInfo, ModStatus } from './types';
+import type { Result, KernelError } from '@/kernels/types';
 
 /**
  * 创建 Mod 元数据

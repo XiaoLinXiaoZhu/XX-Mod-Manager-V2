@@ -41,13 +41,23 @@ import {
   validateVersionInfo
 } from '@/modules/updater';
 
-// 临时导入旧系统（将在后续迁移中移除）
+// 导入路由和国际化
 import router from './features/router/index';
-import { i18nInstance } from './compat/legacy-bridge';
-import { GlobalConfig } from '@/compat/legacy-bridge';
+import { i18nInstance } from './features/i18n/index';
 
-// 使用兼容层替代旧的通知系统
-import { $t_snack } from './compat/legacy-bridge';
+// 导入通知系统
+import { createSuccessNotification } from '@/modules/notification';
+
+// 导入服务注入键
+import { 
+  ModServiceKey, 
+  AppServiceKey, 
+  ConfigServiceKey, 
+  PluginServiceKey, 
+  UiServiceKey, 
+  FileSystemKey, 
+  EventSystemKey 
+} from '@/composables/useServices';
 
 /**
  * 应用初始化类
@@ -143,10 +153,10 @@ class AppInitializer {
    * 加载全局配置
    */
   private async loadGlobalConfig(): Promise<void> {
-    if (this.argv?.custom_config_folder) {
-      await GlobalConfig.loadFrom(await path.resolve(".\\"));
-    } else {
-      await GlobalConfig.loadDefaultConfig();
+    // 使用新架构的配置服务加载配置
+    const configInitResult = await this.configService.initialize();
+    if (!configInitResult.success) {
+      throw new Error(`Failed to load global config: ${configInitResult.error.message}`);
     }
     console.log('⚙️ Global configuration loaded');
   }
@@ -247,7 +257,9 @@ class AppInitializer {
           languagePackResult.data
         );
         if (message.success) {
-          $t_snack(message.data, "success");
+          // 使用新架构的通知系统
+          const notification = createSuccessNotification(message.data);
+          this.uiService.showNotification(notification);
         }
       }
     });
@@ -260,11 +272,21 @@ class AppInitializer {
    */
   private async initializeVueApp(): Promise<void> {
     const vueApp = createApp(App);
+    
+    // 注入服务到 Vue 应用
+    vueApp.provide(ModServiceKey, this.modService);
+    vueApp.provide(AppServiceKey, this.appService);
+    vueApp.provide(ConfigServiceKey, this.configService);
+    vueApp.provide(PluginServiceKey, this.pluginService);
+    vueApp.provide(UiServiceKey, this.uiService);
+    vueApp.provide(FileSystemKey, this.fileSystem);
+    vueApp.provide(EventSystemKey, this.eventSystem);
+    
     vueApp.use(router);
     vueApp.use(i18nInstance);
     vueApp.mount('#app');
 
-    console.log('🎨 Vue application initialized');
+    console.log('🎨 Vue application initialized with service injection');
   }
 
   /**
@@ -312,7 +334,9 @@ class AppInitializer {
           languagePackResult.data
         );
         if (errorMessage.success) {
-          $t_snack(errorMessage.data, 'error');
+          // 使用新架构的通知系统
+          const notification = createSuccessNotification(errorMessage.data);
+          this.uiService.showNotification(notification);
         }
       }
     }

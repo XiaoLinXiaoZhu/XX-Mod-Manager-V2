@@ -3,7 +3,7 @@
  * 定义 Mod 服务的默认配置和配置验证
  */
 
-import { ModServiceConfig, ModServiceOptions } from './types';
+import type { ModServiceConfig, ModServiceOptions } from './types';
 
 /**
  * 默认 Mod 服务配置

@@ -2,8 +2,8 @@
  * UI 服务类型定义
  */
 
-import { RouteState } from '@/modules/router';
-import { NotificationState } from '@/modules/notification';
+import type { RouteState } from '@/modules/router';
+import type { NotificationState } from '@/modules/notification';
 
 /**
  * UI 服务状态

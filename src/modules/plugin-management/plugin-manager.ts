@@ -14,7 +14,7 @@ import type {
   BusinessPluginScope
 } from './types';
 import { PluginLoader } from '@/kernels/plugin';
-import { KernelError } from '@/kernels/types';
+import type { KernelError } from '@/kernels/types';
 
 /**
  * 业务插件管理器实现

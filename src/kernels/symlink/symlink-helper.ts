@@ -4,8 +4,8 @@
  */
 
 import { basename } from "@tauri-apps/api/path";
-import { ExtendedFileSystem } from '../file-system/types';
-import { SymlinkBatchOptions } from './types';
+import type { ExtendedFileSystem } from '../file-system/types';
+import type { SymlinkBatchOptions } from './types';
 
 /**
  * 批量创建符号链接

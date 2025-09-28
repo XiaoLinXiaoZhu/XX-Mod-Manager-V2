@@ -3,7 +3,7 @@
  * 提供配置文件的加载和解析功能
  */
 
-import { Result, KernelError } from '@/kernels/types';
+import type { Result, KernelError } from '@/kernels/types';
 import { TauriFileSystem } from '@/kernels/file-system';
 import { dirname } from '@tauri-apps/api/path';
 

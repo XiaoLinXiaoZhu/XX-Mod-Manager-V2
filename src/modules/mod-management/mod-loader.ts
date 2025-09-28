@@ -3,20 +3,11 @@
  * 提供 Mod 加载、验证、冲突检测等纯函数
  */
 
-import { 
-  ModMetadata, 
-  ModInfo, 
-  ModStatus, 
-  ModLoadOptions, 
-  ModConflict,
-  ModOperationResult 
-} from './types';
-import { Result, KernelError } from '@/kernels/types';
-import { 
-  createModMetadata, 
-  validateModMetadata, 
-  metadataToModInfo 
-} from './mod-metadata';
+import { ModMetadata, ModConflict } from './types';
+import type { ModInfo, ModStatus, ModLoadOptions, ModOperationResult } from './types';
+import type { Result, KernelError } from '@/kernels/types';
+import { createModMetadata, validateModMetadata } from './mod-metadata';
+import type { metadataToModInfo } from './mod-metadata';
 
 /**
  * 加载 Mod 元数据

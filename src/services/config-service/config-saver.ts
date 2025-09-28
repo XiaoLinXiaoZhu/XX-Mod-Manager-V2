@@ -3,18 +3,8 @@
  * 负责配置的保存和持久化
  */
 
-import { 
-  ConfigType, 
-  ConfigValue, 
-  GlobalConfig, 
-  LocalConfig, 
-  RepositoryConfig,
-  ConfigServiceState,
-  ConfigSaveOptions,
-  ConfigChangeEvent,
-  ConfigServiceEventType
-} from './types';
-import { Result, KernelError } from '@/kernels/types';
+import type { ConfigType, ConfigValue, GlobalConfig, LocalConfig, RepositoryConfig, ConfigServiceState, ConfigSaveOptions, ConfigChangeEvent, ConfigServiceEventType } from './types';
+import type { Result, KernelError } from '@/kernels/types';
 import { EventEmitter } from '@/kernels/event-system';
 
 /**

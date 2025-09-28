@@ -3,22 +3,11 @@
  * 提供应用更新检查相关的纯函数
  */
 
-import { 
-  UpdateInfo, 
-  UpdateCheckOptions, 
-  UpdateCheckResult, 
-  UpdateConfig,
-  UpdateStatus,
-  VersionInfo
-} from './types';
-import { Result, KernelError } from '@/kernels/types';
-import { 
-  compareVersions, 
-  validateVersionInfo, 
-  isVersionNewer,
-  isStableVersion,
-  isPrereleaseVersion
-} from './version-info';
+import { UpdateStatus } from './types';
+import type { UpdateInfo, UpdateCheckOptions, UpdateCheckResult, UpdateConfig, VersionInfo } from './types';
+import type { Result, KernelError } from '@/kernels/types';
+import { compareVersions, isVersionNewer, isStableVersion, isPrereleaseVersion } from './version-info';
+import type { validateVersionInfo } from './version-info';
 
 // 默认更新检查选项
 const DEFAULT_CHECK_OPTIONS: Required<UpdateCheckOptions> = {

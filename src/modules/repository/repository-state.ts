@@ -6,7 +6,7 @@
 import { 
   Repository
 } from './types';
-import { Result, KernelError } from '@/kernels/types';
+import type { Result, KernelError } from '@/kernels/types';
 
 /**
  * 激活仓库

@@ -3,7 +3,7 @@
  * 定义 Mod 服务相关的类型和接口
  */
 
-import { ModInfo, ModStatus, ModOperationResult } from '@/modules/mod-management';
+import type { ModInfo, ModStatus, ModOperationResult } from '@/modules/mod-management';
 
 // Mod 服务状态
 export interface ModServiceState {

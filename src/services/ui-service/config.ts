@@ -2,7 +2,7 @@
  * UI 服务配置
  */
 
-import { UiServiceConfig, UiServiceOptions } from './types';
+import type { UiServiceConfig, UiServiceOptions } from './types';
 
 /**
  * 默认 UI 服务配置

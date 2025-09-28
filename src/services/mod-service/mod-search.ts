@@ -3,9 +3,10 @@
  * 负责 Mod 的搜索、过滤和冲突检测
  */
 
-import { ModInfo } from '@/modules/mod-management';
-import { ModServiceState } from './types';
-import { EventEmitter, ReactiveStore } from '@/kernels';
+import type { ModInfo } from '@/modules/mod-management';
+import type { ModServiceState } from './types';
+import { EventEmitter } from '@/kernels';
+import type { ReactiveStore } from '@/kernels';
 import { searchModsEffect, detectConflictsEffect } from './effect';
 
 /**

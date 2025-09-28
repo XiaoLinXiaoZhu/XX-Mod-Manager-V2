@@ -3,7 +3,7 @@
  * 定义应用服务的默认配置和配置验证
  */
 
-import { AppConfig } from './types';
+import type { AppConfig } from './types';
 
 /**
  * 默认应用配置

@@ -4,8 +4,9 @@
  */
 
 import { ref, computed, watch, type Ref } from 'vue';
-import { StateManager, StateChangeInfo, StateSubscriber, StateUpdater } from './types';
-import { KernelError } from '../types';
+import { StateManager, StateSubscriber } from './types';
+import type { StateChangeInfo, StateUpdater } from './types';
+import type { KernelError } from '../types';
 
 /**
  * 响应式状态存储实现类

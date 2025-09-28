@@ -3,18 +3,8 @@
  * 处理与外部世界的交互，如文件系统操作、事件发射等
  */
 
-import { 
-  ModInfo, 
-  ModStatus, 
-  ModOperationResult, 
-  ModLoadOptions,
-  ModApplyOptions,
-  ModSearchOptions 
-} from '@/modules/mod-management';
-import { 
-  ModServiceConfig, 
-  ModServiceEvent 
-} from './types';
+import type { ModInfo, ModStatus, ModOperationResult, ModLoadOptions, ModApplyOptions, ModSearchOptions } from '@/modules/mod-management';
+import type { ModServiceConfig, ModServiceEvent } from './types';
 import { 
   loadMods, 
   detectModConflicts, 
@@ -35,7 +25,7 @@ import {
   TauriFileSystem, 
   EventEmitter 
 } from '@/kernels';
-import { Result, KernelError } from '@/kernels/types';
+import type { Result, KernelError } from '@/kernels/types';
 
 /**
  * 加载 Mod 列表

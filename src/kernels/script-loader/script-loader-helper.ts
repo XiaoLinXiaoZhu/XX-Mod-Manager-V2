@@ -4,8 +4,8 @@
  */
 
 import { path } from '@tauri-apps/api';
-import { ExtendedFileSystem } from '../file-system/types';
-import { ScriptLoadOptions, ScriptLoadResult } from './types';
+import type { ExtendedFileSystem } from '../file-system/types';
+import type { ScriptLoadOptions, ScriptLoadResult } from './types';
 
 /**
  * 加载外部脚本

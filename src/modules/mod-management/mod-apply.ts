@@ -3,9 +3,10 @@
  * 提供 Mod 应用、移除、状态检查等纯函数
  */
 
-import { ModMetadata, ModOperationResult, ModApplyOptions, ModStatus } from './types';
-import { Result, KernelError } from '@/kernels/types';
-import { ExtendedFileSystem } from '@/kernels/file-system';
+import { ModMetadata } from './types';
+import type { ModOperationResult, ModApplyOptions, ModStatus } from './types';
+import type { Result, KernelError } from '@/kernels/types';
+import type { ExtendedFileSystem } from '@/kernels/file-system';
 
 // Mod 应用状态
 export interface ModApplyStatus {

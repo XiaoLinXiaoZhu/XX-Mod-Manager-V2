@@ -5,7 +5,7 @@
 
 import { invoke } from '@tauri-apps/api/core';
 import { join, basename, dirname, normalize } from '@tauri-apps/api/path';
-import { 
+import type { 
   ExtendedFileSystem, 
   FileInfo, 
   FileSystemResult, 
@@ -13,7 +13,7 @@ import {
   FileOptions,
   DirectoryOptions 
 } from './types';
-import { KernelError } from '../types';
+import type { KernelError } from '../types';
 
 /**
  * Tauri 文件系统实现类

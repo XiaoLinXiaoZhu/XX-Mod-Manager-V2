@@ -3,15 +3,10 @@
  * 负责仓库的创建、更新、删除等基本操作
  */
 
-import { 
-  Repository, 
-  RepositoryConfig, 
-  RepositoryCreateOptions, 
-  RepositoryUpdateOptions,
-  RepositoryOperationResult
-} from './types';
-import { Result, KernelError } from '@/kernels/types';
-import { validateRepositoryConfig } from './repository-validator';
+import { Repository } from './types';
+import type { RepositoryConfig, RepositoryCreateOptions, RepositoryUpdateOptions, RepositoryOperationResult } from './types';
+import type { Result, KernelError } from '@/kernels/types';
+import type { validateRepositoryConfig } from './repository-validator';
 
 /**
  * 创建仓库

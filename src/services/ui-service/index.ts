@@ -4,41 +4,17 @@
  */
 
 import { ReactiveStore } from '@/kernels';
-import { 
-  createRouteConfig,
-  validateRouteConfig,
-  createInitialRouteState,
-  updateRouteState,
-  type RouteConfig,
-  type RouteState
-} from '@/modules/router';
-import { 
-  createNotificationConfig,
-  validateNotificationConfig,
-  createInitialNotificationState,
-  addNotificationToState,
-  removeNotificationFromState,
-  clearAllNotifications,
-  createSuccessNotification,
-  createErrorNotification,
-  createWarningNotification,
-  createInfoNotification,
-  type NotificationConfig,
-  type NotificationState,
-  type NotificationType
-} from '@/modules/notification';
-import { 
-  UiServiceState, 
-  UiServiceConfig, 
-  UiServiceOptions, 
-  UiServiceEvent,
-  UiService as IUiService
-} from './types';
-import { 
-  DEFAULT_UI_SERVICE_CONFIG, 
-  DEFAULT_UI_SERVICE_OPTIONS,
-  mergeUiServiceConfig
-} from './config';
+
+import { createRouteConfig, validateRouteConfig, createInitialRouteState, updateRouteState } from '@/modules/router';
+import type { type RouteConfig, type RouteState } from '@/modules/router';
+import { clearAllNotifications, createSuccessNotification, createErrorNotification, createWarningNotification, createInfoNotification } from '@/modules/notification';
+import { createNotificationConfig, validateNotificationConfig, createInitialNotificationState, addNotificationToState, removeNotificationFromState, type NotificationType } from '@/modules/notification';
+import type { type NotificationConfig, type NotificationState } from '@/modules/notification';
+import { UiServiceEvent } from './types';
+import type { UiServiceState, UiServiceConfig, UiServiceOptions, UiService as IUiService } from './types';
+import { DEFAULT_UI_SERVICE_CONFIG, DEFAULT_UI_SERVICE_OPTIONS } from './config';
+import { mergeUiServiceConfig } from './config';
+
 import { EventEmitter } from '@/kernels';
 
 /**
@@ -95,9 +71,10 @@ export class UiService implements IUiService {
     const currentState = this.stateStore.getState();
     const newRouteState = updateRouteState(currentState.routeState, route);
     
-    this.stateStore.updateState({
-      routeState: newRouteState
-    });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        routeState: newRouteState
+      }));
 
     this.eventSystem.emit(UiServiceEvent.ROUTE_CHANGED, route);
   }
@@ -117,9 +94,10 @@ export class UiService implements IUiService {
     const currentState = this.stateStore.getState();
     const newNotificationState = addNotificationToState(currentState.notificationState, notification);
     
-    this.stateStore.updateState({
-      notificationState: newNotificationState
-    });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        notificationState: newNotificationState
+      }));
 
     this.eventSystem.emit(UiServiceEvent.NOTIFICATION_SHOWN, notification);
   }
@@ -159,9 +137,10 @@ export class UiService implements IUiService {
     const currentState = this.stateStore.getState();
     const newNotificationState = removeNotificationFromState(currentState.notificationState, index);
     
-    this.stateStore.updateState({
-      notificationState: newNotificationState
-    });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        notificationState: newNotificationState
+      }));
 
     this.eventSystem.emit(UiServiceEvent.NOTIFICATION_REMOVED, index);
   }
@@ -173,9 +152,10 @@ export class UiService implements IUiService {
     const currentState = this.stateStore.getState();
     const newNotificationState = clearAllNotifications(currentState.notificationState);
     
-    this.stateStore.updateState({
-      notificationState: newNotificationState
-    });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        notificationState: newNotificationState
+      }));
 
     this.eventSystem.emit(UiServiceEvent.ALL_NOTIFICATIONS_CLEARED);
   }
@@ -184,7 +164,10 @@ export class UiService implements IUiService {
    * 设置加载状态
    */
   setLoading(loading: boolean): void {
-    this.stateStore.updateState({ loading });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        loading
+      }));
     this.eventSystem.emit(UiServiceEvent.LOADING_STATE_CHANGED, loading);
   }
 
@@ -192,7 +175,10 @@ export class UiService implements IUiService {
    * 设置错误状态
    */
   setError(error: string | null): void {
-    this.stateStore.updateState({ error });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        error
+      }));
     this.eventSystem.emit(UiServiceEvent.ERROR_STATE_CHANGED, error);
   }
 

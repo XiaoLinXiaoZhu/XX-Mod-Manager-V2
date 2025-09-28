@@ -3,17 +3,16 @@
  * 负责 Mod 的增删改查等基本操作
  */
 
-import { ModInfo, ModStatus, ModOperationResult } from '@/modules/mod-management';
-import { ModServiceState, ModServiceConfig, ModServiceEvent } from './types';
-import { TauriFileSystem, EventEmitter, ReactiveStore } from '@/kernels';
-import { 
-  applyModEffect, 
-  removeModEffect, 
-  refreshModEffect,
-  addModToListEffect,
-  removeModFromListEffect,
-  updateModStatusEffect
-} from './effect';
+import { ModStatus } from '@/modules/mod-management';
+import type { ModInfo, ModOperationResult } from '@/modules/mod-management';
+import { ModServiceEvent } from './types';
+import type { ModServiceState, ModServiceConfig } from './types';
+import { TauriFileSystem, EventEmitter } from '@/kernels';
+import { ReactiveStore } from '@/kernels';
+
+import { applyModEffect, removeModEffect, refreshModEffect, addModToListEffect, removeModFromListEffect } from './effect';
+import { updateModStatusEffect } from './effect';
+
 
 /**
  * Mod 操作管理器类

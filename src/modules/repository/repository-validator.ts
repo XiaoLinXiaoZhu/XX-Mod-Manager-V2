@@ -3,12 +3,9 @@
  * 负责仓库配置和数据的验证
  */
 
-import { 
-  Repository, 
-  RepositoryConfig, 
-  RepositoryValidationResult
-} from './types';
-import { Result, KernelError } from '@/kernels/types';
+import { Repository } from './types';
+import type { RepositoryConfig, RepositoryValidationResult } from './types';
+import type { Result, KernelError } from '@/kernels/types';
 import { 
   validateNonEmptyString, 
   validateStringLength, 

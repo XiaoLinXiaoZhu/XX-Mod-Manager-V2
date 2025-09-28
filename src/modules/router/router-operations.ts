@@ -3,8 +3,8 @@
  * 提供路由相关的纯函数操作
  */
 
-import { RouteConfig, RouteState, RouteOperationResult } from './types';
-import { Result, KernelError } from '@/kernels/types';
+import type { RouteConfig, RouteState, RouteOperationResult } from './types';
+import type { Result, KernelError } from '@/kernels/types';
 
 /**
  * 创建路由配置

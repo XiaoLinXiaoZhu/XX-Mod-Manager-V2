@@ -3,8 +3,8 @@
  * 提供通知相关的纯函数操作
  */
 
-import { NotificationConfig, NotificationState, NotificationType } from './types';
-import { Result, KernelError } from '@/kernels/types';
+import type { NotificationConfig, NotificationState, NotificationType } from './types';
+import type { Result, KernelError } from '@/kernels/types';
 
 /**
  * 创建通知配置

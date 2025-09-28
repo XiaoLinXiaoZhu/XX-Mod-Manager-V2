@@ -3,8 +3,10 @@
  * 提供 Mod 服务的响应式状态管理功能
  */
 
-import { ModServiceState, ModServiceEvent } from './types';
-import { ModInfo, ModMetadata } from '@/modules/mod-management';
+import { ModServiceEvent } from './types';
+import type { ModServiceState } from './types';
+import { ModMetadata } from '@/modules/mod-management';
+import type { ModInfo } from '@/modules/mod-management';
 import { 
   calculateCategoryIndex, 
   calculateTagIndex, 
@@ -15,6 +17,7 @@ import {
   getModsByTagsUnion
 } from '@/modules/mod-management';
 import { ReactiveStore } from '@/kernels';
+
 import { EventEmitter } from '@/kernels';
 
 /**
@@ -57,13 +60,14 @@ export class ModStateManager {
     const categoryIndex = calculateCategoryIndex(mods);
     const tagIndex = calculateTagIndex(mods);
 
-    this.stateStore.updateState({
-      mods,
-      categoryIndex,
-      tagIndex,
-      loading: false,
-      error: null
-    });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        mods,
+        categoryIndex,
+        tagIndex,
+        loading: false,
+        error: null
+      }));
 
     this.eventEmitter.emit(ModServiceEvent.MODS_LOADED, { mods });
   }
@@ -83,11 +87,12 @@ export class ModStateManager {
       []
     );
 
-    this.stateStore.updateState({
-      mods: newMods,
-      categoryIndex,
-      tagIndex
-    });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        mods: newMods,
+        categoryIndex,
+        tagIndex
+      }));
 
     this.eventEmitter.emit(ModServiceEvent.MOD_ADDED, { mod });
   }
@@ -111,12 +116,13 @@ export class ModStateManager {
       [modToRemove]
     );
 
-    this.stateStore.updateState({
-      mods: newMods,
-      categoryIndex,
-      tagIndex,
-      selectedMods: currentState.selectedMods.filter(id => id !== modId)
-    });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        mods: newMods,
+        categoryIndex,
+        tagIndex,
+        selectedMods: currentState.selectedMods.filter(id => id !== modId)
+      }));
 
     this.eventEmitter.emit(ModServiceEvent.MOD_REMOVED, { modId });
   }
@@ -133,9 +139,10 @@ export class ModStateManager {
     const updatedMods = [...currentState.mods];
     updatedMods[modIndex] = { ...updatedMods[modIndex], status: status as any };
 
-    this.stateStore.updateState({
-      mods: updatedMods
-    });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        mods: updatedMods
+      }));
 
     this.eventEmitter.emit(ModServiceEvent.MOD_STATUS_CHANGED, { modId, status });
   }
@@ -144,28 +151,40 @@ export class ModStateManager {
    * 设置加载状态
    */
   setLoading(loading: boolean): void {
-    this.stateStore.updateState({ loading });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        loading
+      }));
   }
 
   /**
    * 设置错误状态
    */
   setError(error: string | null): void {
-    this.stateStore.updateState({ error });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        error
+      }));
   }
 
   /**
    * 设置源文件夹
    */
   updateSourceFolders(sourceFolders: string[]): void {
-    this.stateStore.updateState({ sourceFolders });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        sourceFolders
+      }));
   }
 
   /**
    * 设置选中的Mods
    */
   setSelectedMods(selectedMods: string[]): void {
-    this.stateStore.updateState({ selectedMods });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        selectedMods
+      }));
   }
 
   /**
@@ -174,9 +193,11 @@ export class ModStateManager {
   addSelectedMod(modId: string): void {
     const currentState = this.stateStore.getState();
     if (!currentState.selectedMods.includes(modId)) {
-      this.stateStore.updateState({
-        selectedMods: [...currentState.selectedMods, modId]
-      });
+      this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        selectedMods: [...currentState.selectedMods,
+        modId]
+      }));
     }
   }
 
@@ -185,30 +206,40 @@ export class ModStateManager {
    */
   removeSelectedMod(modId: string): void {
     const currentState = this.stateStore.getState();
-    this.stateStore.updateState({
-      selectedMods: currentState.selectedMods.filter(id => id !== modId)
-    });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        selectedMods: currentState.selectedMods.filter(id => id !== modId)
+      }));
   }
 
   /**
    * 设置搜索查询
    */
   setSearchQuery(query: string): void {
-    this.stateStore.updateState({ searchQuery: query });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        searchQuery: query
+      }));
   }
 
   /**
    * 设置分类过滤器
    */
   setFilterCategory(category: string | null): void {
-    this.stateStore.updateState({ filterCategory: category });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        filterCategory: category
+      }));
   }
 
   /**
    * 设置标签过滤器
    */
   setFilterTags(tags: string[]): void {
-    this.stateStore.updateState({ filterTags: tags });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        filterTags: tags
+      }));
   }
 
   /**
@@ -295,11 +326,12 @@ export class ModStateManager {
    * 清空所有过滤器
    */
   clearFilters(): void {
-    this.stateStore.updateState({
-      searchQuery: '',
-      filterCategory: null,
-      filterTags: []
-    });
+    this.stateStore.updateState((currentState) => ({
+        ...currentState,
+        searchQuery: '',
+        filterCategory: null,
+        filterTags: []
+      }));
   }
 
   /**

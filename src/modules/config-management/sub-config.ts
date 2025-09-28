@@ -3,9 +3,10 @@
  * 提供项目特定配置的加载、保存和管理功能
  */
 
-import { Result, KernelError } from '@/kernels/types';
+import type { Result, KernelError } from '@/kernels/types';
 import { TauriFileSystem } from '@/kernels/file-system';
-import { loadConfigFromFile, saveConfigToFile, mergeConfig, validateConfigStructure } from './config-loader';
+import { loadConfigFromFile, saveConfigToFile, validateConfigStructure } from './config-loader';
+import type { mergeConfig } from './config-loader';
 import { join, dirname } from '@tauri-apps/api/path';
 
 /**
