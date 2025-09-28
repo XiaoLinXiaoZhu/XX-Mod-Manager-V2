@@ -1,4 +1,4 @@
-import { globalServiceContainer } from "@/shared/services/ServiceContainer";
+import { defaultModService } from "@/services";
 import { basename } from "@tauri-apps/api/path";
 
 export async function createSymlinkBatch(
@@ -15,11 +15,11 @@ export async function createSymlinkBatch(
                 }
                 const toFile = `${toFolder}/${fileName}`;
                 // 如果目标文件已存在，跳过
-                if (await globalServiceContainer.fs.checkDirectoryExists(toFile)) {
+                if (await defaultModService.getFileSystem().checkDirectoryExists(toFile)) {
                     console.warn(`Symlink target already exists: ${toFile}`);
                     return;
                 }
-                await globalServiceContainer.fs.createSymlink(fromFile, toFile);
+                await defaultModService.getFileSystem().createSymlink(fromFile, toFile);
             } catch (error) {
                 console.error(`Failed to create symlink from ${fromFile} to ${toFolder}`, error);
             }

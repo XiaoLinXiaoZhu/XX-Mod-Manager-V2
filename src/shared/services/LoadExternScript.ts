@@ -1,4 +1,4 @@
-import { globalServiceContainer } from "./ServiceContainer";
+import { defaultModService } from "@/services";
 import { path } from '@tauri-apps/api';
 
 // async function loadPlugins(folder: string, files: string[]) {
@@ -29,7 +29,7 @@ export async function loadExternScript(scriptPath: string): Promise<Object> {
     const normalizedPath = await path.normalize(fullPath); // 转换 UNC 路径
     console.log('Loading external script from:', normalizedPath);
 
-    const code = await globalServiceContainer.fs.readFile(normalizedPath);
+    const code = await defaultModService.getFileSystem().readFile(normalizedPath);
     // 将代码中的 export default 替换为 return，以便直接执行
     // 这假设脚本是一个模块，且导出了一个默认函数
     const modifiedCode = code.replace(/export default /, 'return ');

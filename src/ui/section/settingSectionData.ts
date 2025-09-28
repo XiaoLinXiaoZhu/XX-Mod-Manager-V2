@@ -1,6 +1,6 @@
 import { SettingBarData, SettingBarDataMulitiDir, router } from "@/compat/legacy-bridge";
 import { setI18nLocale } from "@/compat/legacy-bridge";
-import { I18nLocaleList } from "@/shared/types/local";
+import { I18nLocaleList } from "@/modules/i18n";
 import { ref } from 'vue';
 import { SubConfig } from "@/compat/legacy-bridge";
 import { Theme, setTheme } from "@/assets/styles/styleController";

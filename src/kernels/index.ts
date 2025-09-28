@@ -21,14 +21,8 @@ export * from './plugin';
 // 验证工具
 export * from './validation';
 
-// 通用类型
-export * from './types';
-
-// 配置存储
-export * from './config-storage';
-
-// 验证器
-export * from './validation';
+// 工具函数
+export * from './utils';
 
 // 通用类型
 export * from './types';

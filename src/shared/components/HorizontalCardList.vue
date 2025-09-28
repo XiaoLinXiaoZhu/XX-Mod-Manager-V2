@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
-import { MouseEventBinder, MouseEventBinderBatch } from '@/shared/utils/MouseEventBinder';
+import { MouseEventBinder, MouseEventBinderBatch } from '@/shared/utils/mouse-event-binder';
 const focusedIndex = defineModel<number>('focusedIndex', {
     default: 0,
     type: Number

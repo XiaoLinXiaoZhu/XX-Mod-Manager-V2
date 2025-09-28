@@ -14,7 +14,7 @@
 //debug
 import { onMounted, ref } from 'vue';
 import { RouteList } from '@/compat/legacy-bridge';
-import { globalServiceContainer } from '@/shared/services/ServiceContainer';
+import { defaultModService } from '@/services';
 import { loadImage,writeImageFromUrl } from '@/shared/services/ImageHelper';
 
 console.log("TestRW loaded");
@@ -23,12 +23,12 @@ const content = ref('');
 const filePath = ref('test.txt');
 
 const handleTestRead = async () => {
-    const result = await globalServiceContainer.fs.readFile(filePath.value);
+    const result = await defaultModService.getFileSystem().readFile(filePath.value);
     content.value = result as string;
 };
 
 const handleTestWrite = async () => {
-    const result = await globalServiceContainer.fs.writeFile(filePath.value, content.value);
+    const result = await defaultModService.getFileSystem().writeFile(filePath.value, content.value);
     console.log("write result", result);
 };
 

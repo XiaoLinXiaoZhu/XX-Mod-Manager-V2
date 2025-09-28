@@ -1,6 +1,6 @@
 import { SettingBarData } from "@/compat/legacy-bridge";
 import { setI18nLocale } from "@/compat/legacy-bridge";
-import { I18nLocaleList ,type I18nLocale} from "@/shared/types/local";
+import { I18nLocaleList ,type I18nLocale} from "@/modules/i18n";
 import { setTheme, Theme } from "@/assets/styles/styleController";
 import { GlobalConfig } from "@/compat/legacy-bridge";
 import { getCurrentWebview } from "@tauri-apps/api/webview";

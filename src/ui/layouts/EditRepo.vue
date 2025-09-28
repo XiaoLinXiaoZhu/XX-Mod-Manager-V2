@@ -16,7 +16,7 @@
                 <p @dblclick="console.log('repo', Repo)">{{ $t('editRepo.uid') }}: <span> {{ Repo.uid }} </span></p>
                 <p>{{ $t('editRepo.createdAt') }}: <span> {{ Repo.createdAt || "unknown" }} </span></p>
                 <p>{{ $t('editRepo.updatedAt') }}: <span> {{ Repo.updatedAt || "unknown" }} </span></p>
-                <p @dblclick="globalServiceContainer.fs.showDirectoryInExplorer(repo.configLocation)">{{ $t('editRepo.location') }}: <span> <s-tooltip
+                <p @dblclick="defaultModService.getFileSystem().showDirectoryInExplorer(repo.configLocation)">{{ $t('editRepo.location') }}: <span> <s-tooltip
                             style="width: calc(25% + 10px);">
                             <span slot="trigger">{{ Repo.configLocation }}</span>
                             <span>{{ $t('editRepo.locationTip') }}</span>
@@ -72,7 +72,7 @@ import { FileDialogOption, openFileDialog } from '@/shared/services/FileDialogHe
 import { $t } from '@/compat/legacy-bridge';
 import { $t_snack, snack } from '@/shared/composables/use-snack';
 import { basename, isAbsolute, join } from '@tauri-apps/api/path';
-import { globalServiceContainer } from '@/shared/services/ServiceContainer';
+import { defaultModService } from '@/services';
 import DialogTemplate from '@/ui/dialogs/dialogTemplate.vue';
 
 const Repo = defineModel('repo', {

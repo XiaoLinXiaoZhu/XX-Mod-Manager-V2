@@ -4,7 +4,7 @@ import 'sober';
 import { GlobalConfig, useGlobalConfig } from '@/compat/legacy-bridge';
 import { SubConfig } from '@/compat/legacy-bridge';
 
-import { getArgv, type Argv } from './shared/utils/Argv';
+import { getArgv, type Argv } from '@/kernels/utils';
 import * as path from '@tauri-apps/api/path';
 import { listen } from '@tauri-apps/api/event';
 import { $t_snack } from './shared/composables/use-snack';
@@ -78,7 +78,7 @@ if (argv.custom_config_folder) {
 //-===============================
 import { createApp } from 'vue'
 import App from './App.vue'
-import router from './features/router/index';
+import router from './modules/router';
 import { i18nInstance } from './compat/legacy-bridge';
 
 const vueApp = createApp(App);
@@ -91,7 +91,7 @@ vueApp.mount('#app');
 //-===============================
 //-🧐 响应Argv参数
 //-===============================
-import { repos, getRepos } from './features/repository/Repo.ts';
+import { repos, getRepos } from './modules/repository';
 // 如果有 repo 参数，则设置为当前仓库
 await getRepos(); // 确保仓库列表已加载
 if (argv.repo) {
@@ -123,7 +123,7 @@ EventSystem.on(EventType.initDone, () => {
 EventSystem.trigger(EventType.initDone);
 
 //- updatecheck
-import { checkForUpdates } from './features/updater/UpdateChecker';
+import { checkForUpdates } from './modules/updater';
 const ifCheckUpdatesOnStart = GlobalConfig.checkUpdatesOnStart;
 EventSystem.on(EventType.wakeUp, async () => {
 // debug

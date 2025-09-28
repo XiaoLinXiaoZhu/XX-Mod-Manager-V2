@@ -26,7 +26,7 @@ import {
 // 导入 Tauri API
 import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
-import { getArgv, type Argv } from './shared/utils/Argv';
+import { getArgv, type Argv } from '@/kernels/utils';
 import * as path from '@tauri-apps/api/path';
 
 // 导入新架构的模块

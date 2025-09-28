@@ -1,6 +1,6 @@
 import { Snackbar } from "sober";
 import { $t,currentLanguageRef } from "../../compat/legacy-bridge";
-import { type TranslatedText } from "@/shared/types/local";
+import { type TranslatedText } from "@/modules/i18n";
 
 /** @enum
  * @desc 用于标记 Snack 的类型

@@ -3,7 +3,7 @@
  * 提供与业务解耦的插件系统类型
  */
 
-import { TranslatedText } from '@/shared/types/local';
+import { TranslatedText } from '@/modules/i18n';
 import { SettingBarData } from '@/compat/legacy-bridge';
 
 /**

@@ -1,15 +1,10 @@
-// 因为 之前的 鼠标事件绑定非常麻烦，它的逻辑是按照 “鼠标事件” 来绑定的，
-// 但是 更多的时候，我的需求实际上是让我的某个值响应 鼠标事件的变化，
-// 原来的是：
-// 1. mouse down ——> Action1 ——> Action2 ——> Action3
-// 2. mouse up ——> Action4 ——> Action5 ——> Action6
+/**
+ * 鼠标事件绑定工具
+ * 提供响应式的鼠标事件处理功能
+ */
 
-// 现在想要将其简化为：
-// 1. Value1 :{
-//    mouse down ——> Action1
-//    mouse up ——> Action2
-//  }
 import { Ref, ref, UnwrapRef } from "vue";
+
 export type MouseEventBindedValue<T> = {
     valueRef: Ref<T> | Ref<UnwrapRef<T>>;
     onMouseDown?: MouseEventCallback<T> | null;
@@ -24,16 +19,21 @@ export type MouseEventBindedValue<T> = {
     onClick?: MouseEventCallback<T> | null;
     onDblClick?: MouseEventCallback<T> | null;
 };
+
 export type MouseEventCallback<T> = (event: MouseEvent, value: Ref<T> | Ref<UnwrapRef<T>>) => void;
+
 export class MouseEventBinder<T> {
     public mouseEventBindedValue: MouseEventBindedValue<T>;
     public valueRef: Ref<T> | Ref<UnwrapRef<T>>;
+    
     get value(): T | UnwrapRef<T> {
         return this.valueRef.value;
     }
+    
     set value(newValue: T) {
         this.valueRef.value = newValue;
     }
+    
     constructor(value: T) {
         this.valueRef = ref(value);
         this.mouseEventBindedValue = {
@@ -56,46 +56,57 @@ export class MouseEventBinder<T> {
         this.mouseEventBindedValue.onMouseDown = callback;
         return this;
     }
+    
     public bindMouseUp(callback: MouseEventCallback<T>): MouseEventBinder<T> {
         this.mouseEventBindedValue.onMouseUp = callback;
         return this;
     }
+    
     public bindMouseEnter(callback: MouseEventCallback<T>): MouseEventBinder<T> {
         this.mouseEventBindedValue.onMouseEnter = callback;
         return this;
     }
+    
     public bindMouseLeave(callback: MouseEventCallback<T>): MouseEventBinder<T> {
         this.mouseEventBindedValue.onMouseLeave = callback;
         return this;
     }
+    
     public bindMouseMove(callback: MouseEventCallback<T>): MouseEventBinder<T> {
         this.mouseEventBindedValue.onMouseMove = callback;
         return this;
     }
+    
     public bindMouseOver(callback: MouseEventCallback<T>): MouseEventBinder<T> {
         this.mouseEventBindedValue.onMouseOver = callback;
         return this;
     }
+    
     public bindMouseOut(callback: MouseEventCallback<T>): MouseEventBinder<T> {
         this.mouseEventBindedValue.onMouseOut = callback;
         return this;
     }
+    
     public bindWheel(callback: MouseEventCallback<T>): MouseEventBinder<T> {
         this.mouseEventBindedValue.onWheel = callback;
         return this;
     }
+    
     public bindContextMenu(callback: MouseEventCallback<T>): MouseEventBinder<T> {
         this.mouseEventBindedValue.onContextMenu = callback;
         return this;
     }
+    
     public bindClick(callback: MouseEventCallback<T>): MouseEventBinder<T> {
         this.mouseEventBindedValue.onClick = callback;
         return this;
     }
+    
     public bindDblClick(callback: MouseEventCallback<T>): MouseEventBinder<T> {
         this.mouseEventBindedValue.onDblClick = callback;
         return this;
     }
+    
     public getRef(): Ref<T> | Ref<UnwrapRef<T>> {
         return this.mouseEventBindedValue.valueRef;
     }
@@ -124,14 +135,17 @@ export class MouseEventBinder<T> {
 export class MouseEventBinderBatch {
     // 批量绑定鼠标事件的值
     public mouseEventBinders: MouseEventBinder<any>[] = [];
+    
     public add(value: MouseEventBinder<any>): MouseEventBinderBatch {
         this.mouseEventBinders.push(value);
         return this;
     }
+    
     public listAll(): MouseEventBinder<any>[] {
         console.log('Listing all mouse event binded values:', this.mouseEventBinders);
         return this.mouseEventBinders;
     }
+    
     public mountAll(element: HTMLElement): void {
         // 只为每种事件类型绑定一个监听器，触发所有对应的回调
         const eventNames: (keyof MouseEventBindedValue<any>)[] = [

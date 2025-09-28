@@ -6,6 +6,11 @@
 // 语言代码
 export type LanguageCode = 'zh-CN' | 'en-US' | 'ja-JP' | 'ko-KR';
 
+// 兼容旧版本的国际化类型
+export type I18nLocale = 'en-US' | 'zh-CN';
+export type TranslatedText = Record<I18nLocale, string>;
+export const I18nLocaleList: I18nLocale[] = ['en-US', 'zh-CN'];
+
 // 本地化键值
 export type LocalizationKey = string;
 
