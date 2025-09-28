@@ -1,24 +1,14 @@
+/**
+ * 图片处理工具函数
+ * 提供图片加载、缓存和转换功能
+ */
+
 import { invoke } from "@tauri-apps/api/core";
 import axios from "axios";
-
-// 更精确的类型定义
-export type FilePath = string;
-export type HttpUrl = string;
-export type BlobUrl = string;
-export type Base64DataUrl = string;
-export type ImageUrl = BlobUrl | Base64DataUrl | HttpUrl;
-
-// 路径或URL的联合类型
-export type PathOrUrl = FilePath | HttpUrl;
-
-// URL类型枚举
-export type UrlType = "blob" | "http" | "base64" | "pathOrUnknown";
+import { FilePath, HttpUrl, BlobUrl, Base64DataUrl, ImageUrl, PathOrUrl, UrlType, EmptyImage } from './types';
 
 // 图片缓存：文件路径映射到 Blob URL
 const imageCache: Map<PathOrUrl, BlobUrl> = new Map();
-
-// 空图片的 Base64 Data URL
-export const EmptyImage: Base64DataUrl = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
 /**
  * 获取图片，返回可用于 <img> 标签的 URL
@@ -61,8 +51,6 @@ export async function loadImage(filePath: PathOrUrl, ifCreate: boolean = false):
     }
     
     try {
-        //debug
-        // console.log('Step2: load image', filePath, "\n" ,new Error().stack);
         const binaryData = await invoke<number[]>('read_binary_file', { pathStr: filePath, ifCreate: ifCreate });
         // 检查数据是否为数组
         if (!Array.isArray(binaryData)) {
@@ -94,8 +82,6 @@ export async function loadImage(filePath: PathOrUrl, ifCreate: boolean = false):
         const url = URL.createObjectURL(blob) as BlobUrl;
         // cache the image
         imageCache.set(filePath, url);
-        // debug
-        // console.log('Step3: load image success', filePath, url);
         return url;
     } catch (error) {
         console.error("Error loading image:", filePath, error);
@@ -103,17 +89,6 @@ export async function loadImage(filePath: PathOrUrl, ifCreate: boolean = false):
         return EmptyImage;
     }
 }
-
-// export async function writeImage(filePath: PathOrUrl, data: ImageBase64, ifCreate: boolean = false): Promise<void> {
-//     try {
-//         await invoke('write_image_file', { pathStr: filePath, data, ifCreate });
-//     } catch (error) {
-//         console.error('Error writing image file:', error);
-//         // don't throw error, just return
-//         // throw error;
-//         return;
-//     }
-// }
 
 /**
  * 判断 URL 的类型
@@ -161,10 +136,7 @@ export async function writeImageFromUrl(filePath: PathOrUrl, url: PathOrUrl, ifC
         }
         // 如果不是 blob url，则认为是 http url
         // 直接下载
-        // 这里需要考虑跨域问题，可能需要设置请求头
-        // 这里使用 fetch 下载图片
         if (type === "http") {
-
             // use axios to download image
             const response = await axios.get(url, {
                 responseType: 'arraybuffer',
@@ -184,8 +156,6 @@ export async function writeImageFromUrl(filePath: PathOrUrl, url: PathOrUrl, ifC
         await invoke('copy_file', { oldPathStr: url, newPathStr: filePath });
     } catch (error) {
         console.error(`Error writing image file from url[${type},${url}]:`, error);
-        // don't throw error, just return
-        // throw error;
         return;
     }
 }
@@ -213,8 +183,6 @@ export async function writeImageFromBase64(filePath: PathOrUrl, base64: Base64Da
         await invoke('write_binary_file', { pathStr: filePath, data: bytes, ifCreate });
     } catch (error) {
         console.error('Error writing image file from base64:', error);
-        // don't throw error, just return
-        // throw error;
         return;
     }
 }

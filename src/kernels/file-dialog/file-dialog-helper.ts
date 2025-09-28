@@ -1,18 +1,10 @@
+/**
+ * 文件对话框工具函数
+ * 提供文件选择对话框功能
+ */
+
 import { invoke } from '@tauri-apps/api/core';
-
-export type FileFilter = {
-  name: string,
-  extensions: string[]
-}
-
-export type FileDialogOption = {
-  title?: string
-  startingPath?: string
-  filters?: FileFilter[]
-  multiple?: boolean
-  folder?: boolean
-  save?: boolean
-}
+import { FileDialogOption } from './types';
 
 // 默认值处理逻辑
 const DEFAULT_OPTIONS: Required<Omit<FileDialogOption, 'filters' | 'startingPath'>> = {
@@ -21,7 +13,6 @@ const DEFAULT_OPTIONS: Required<Omit<FileDialogOption, 'filters' | 'startingPath
   folder: false,
   save: false
 }
-
 
 /**
  * 打开文件/文件夹/保存对话框

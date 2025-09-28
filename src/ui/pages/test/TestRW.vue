@@ -15,7 +15,7 @@
 import { onMounted, ref } from 'vue';
 import { RouteList } from '@/compat/legacy-bridge';
 import { defaultModService } from '@/services';
-import { loadImage,writeImageFromUrl } from '@/shared/services/ImageHelper';
+import { loadImage,writeImageFromUrl } from '@/kernels/image';
 
 console.log("TestRW loaded");
 

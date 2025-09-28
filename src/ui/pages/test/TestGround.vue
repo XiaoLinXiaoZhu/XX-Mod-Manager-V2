@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import AutoRecommend from '@/shared/components/AutoRecommend.vue';
-import { type AutoRecommendItem } from '@/shared/types/auto-recommend';
+import { type AutoRecommendItem } from '@/modules/mod-management';
 import { ref, watch } from 'vue';
 const recommendList = ref<AutoRecommendItem[]>([
     {

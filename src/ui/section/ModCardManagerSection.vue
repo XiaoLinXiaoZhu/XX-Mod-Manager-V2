@@ -25,7 +25,7 @@ import TagSearch from '@/shared/components/TagSearch.vue';
 import { ModLoader, ModInfo, ModMetadata } from '@/compat/legacy-bridge';
 import { ref, computed, nextTick, watch } from 'vue';
 import ModCard from '@/shared/components/modCard.vue';
-import { SearchTag } from '@/shared/types/search-tag';
+import { SearchTag } from '@/modules/mod-management';
 import { currentLanguageRef } from '@/compat/legacy-bridge';
 
 const tagSearchRef = ref<InstanceType<typeof TagSearch> | null>(null);

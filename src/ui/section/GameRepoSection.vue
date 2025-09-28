@@ -52,7 +52,7 @@ import { $t } from '@/compat/legacy-bridge';
 import { EventSystem, EventType } from '@/compat/legacy-bridge';
 import CreateGameRepo from '@/ui/dialogs/CreateGameRepo.vue';
 import EditGameRepo from '@/ui/dialogs/EditGameRepo.vue';
-import { loadImage } from '@/shared/services/ImageHelper';
+import { loadImage } from '@/kernels/image';
 import { join } from '@tauri-apps/api/path';
 
 

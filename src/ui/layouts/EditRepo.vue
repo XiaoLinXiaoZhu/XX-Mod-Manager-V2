@@ -67,8 +67,8 @@
 
 import { ref, onMounted,watch } from 'vue';
 import { type repo } from '@/compat/legacy-bridge';
-import { EmptyImage, getImage, releaseImage, writeImageFromBase64, writeImageFromUrl, type ImageUrl } from '@/shared/services/ImageHelper';
-import { FileDialogOption, openFileDialog } from '@/shared/services/FileDialogHelper';
+import { EmptyImage, getImage, releaseImage, writeImageFromBase64, writeImageFromUrl, type ImageUrl } from '@/kernels/image';
+import { FileDialogOption, openFileDialog } from '@/kernels/file-dialog';
 import { $t } from '@/compat/legacy-bridge';
 import { $t_snack, snack } from '@/shared/composables/use-snack';
 import { basename, isAbsolute, join } from '@tauri-apps/api/path';

@@ -1,25 +1,15 @@
+/**
+ * 下载工具函数
+ * 提供文件下载功能
+ */
+
 import { invoke } from "@tauri-apps/api/core";
 import { dirname } from '@tauri-apps/api/path';
-
-export type downloadOptions = {
-    url: string; // 下载链接
-    targetPath: string; // 下载保存路径
-    onProgress: (progress: { event: string; data: any }) => void; // 进度回调函数
-    onError?: (error: Error) => void; // 错误回调函数
-    onSuccess?: (data: ArrayBuffer) => void; // 成功回调函数
-    onComplete?: () => void; // 完成回调函数
-    onCancel?: () => void; // 取消回调函数
-    onRetry?: () => void; // 重试回调函数
-    onAbort?: () => void; // 中止回调函数
-    onTimeout?: () => void; // 超时回调函数
-    timeout?: number; // 超时时间，单位毫秒
-    retryCount?: number; // 重试次数
-    retryDelay?: number; // 重试延迟，单位毫秒
-}
+import { DownloadOptions } from './types';
 
 // 通知下载进度的辅助函数
 function notifyProgress(
-    onProgress: downloadOptions['onProgress'], 
+    onProgress: DownloadOptions['onProgress'], 
     event: 'Started' | 'Progress' | 'Finished',
     data: any
 ): void {
@@ -33,7 +23,7 @@ function notifyProgress(
 async function downloadToMemory(
     url: string, 
     timeout: number,
-    onProgress: downloadOptions['onProgress']
+    onProgress: DownloadOptions['onProgress']
 ): Promise<ArrayBuffer> {
     console.log(`Trying to download to memory...`);
     const binaryData = await invoke<number[]>('download_file_to_binary', {
@@ -60,7 +50,7 @@ async function downloadToFile(
     url: string, 
     filePath: string, 
     timeout: number,
-    onProgress: downloadOptions['onProgress']
+    onProgress: DownloadOptions['onProgress']
 ): Promise<ArrayBuffer> {
     console.log(`Starting download to ${filePath}...`);
     
@@ -101,7 +91,7 @@ async function downloadToFile(
 }
 
 // 尝试多种方式下载文件
-export async function downloadFile(options: downloadOptions): Promise<ArrayBuffer> {
+export async function downloadFile(options: DownloadOptions): Promise<ArrayBuffer> {
     const {
         url,
         targetPath,
@@ -116,7 +106,9 @@ export async function downloadFile(options: downloadOptions): Promise<ArrayBuffe
         timeout = 30000, // 默认超时时间为 30 秒
         retryCount = 3, // 默认重试次数为 3 次
         retryDelay = 1000 // 默认重试延迟为 1 秒
-    } = options;    return new Promise<ArrayBuffer>(async (resolve, reject) => {
+    } = options;
+
+    return new Promise<ArrayBuffer>(async (resolve, reject) => {
         let currentRetry = 0;
         let lastError: Error | null = null;
         let aborted = false;

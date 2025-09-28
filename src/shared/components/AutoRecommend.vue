@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { type AutoRecommendItem } from '@/shared/types/auto-recommend';
+import { type AutoRecommendItem } from '@/modules/mod-management';
 
 const recommendList = defineModel<AutoRecommendItem[]>('recommendList', {
     type: Array as () => AutoRecommendItem[],

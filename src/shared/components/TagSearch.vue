@@ -33,7 +33,7 @@
 // 暴露一个函数 用于外部判断 是否符合搜索条件
 
 import { computed, ref } from 'vue';
-import { SearchTag, TagType } from '@/shared/types/search-tag';
+import { SearchTag, TagType } from '@/modules/mod-management';
 import { ModLoader, ModMetadata } from '@/compat/legacy-bridge';
 import { AutoRecommendItem } from '../types/auto-recommend';
 import AutoRecommend from './AutoRecommend.vue';

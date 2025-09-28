@@ -5,4 +5,5 @@
 
 export * from './hash-utils';
 export * from './argv-utils';
+export * from './data-structure-utils';
 export * from './types';

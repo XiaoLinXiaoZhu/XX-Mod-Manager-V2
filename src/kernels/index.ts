@@ -24,5 +24,23 @@ export * from './validation';
 // 工具函数
 export * from './utils';
 
+// 图片处理
+export * from './image';
+
+// 文件对话框
+export * from './file-dialog';
+
+// 下载功能
+export * from './download';
+
+// 窗口管理
+export * from './window';
+
+// 符号链接
+export * from './symlink';
+
+// 脚本加载
+export * from './script-loader';
+
 // 通用类型
 export * from './types';

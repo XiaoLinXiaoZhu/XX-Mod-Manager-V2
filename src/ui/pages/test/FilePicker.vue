@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { openFileDialog,FileDialogOption } from '@/shared/services/FileDialogHelper';
+import { openFileDialog,FileDialogOption } from '@/kernels/file-dialog';
 
 const openFilePicker = async () => {
     const dialogSettings: FileDialogOption = {

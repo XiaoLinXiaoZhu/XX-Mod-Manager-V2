@@ -1,18 +1,17 @@
-import { getCurrentWindow,LogicalPosition,LogicalSize,currentMonitor } from "@tauri-apps/api/window";
+/**
+ * 窗口管理工具函数
+ * 提供窗口位置和大小管理功能
+ */
+
+import { getCurrentWindow, LogicalPosition, LogicalSize, currentMonitor } from "@tauri-apps/api/window";
+import { Bounds } from './types';
 
 ///@ts-ignore
-const clamp = function(value, min, max) {
+const clamp = function(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
-export type bounds = {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-};
-
-export async function getWindowBounds(): Promise<bounds> {
+export async function getWindowBounds(): Promise<Bounds> {
     const window = await getCurrentWindow();
     const { x, y } = await window.outerPosition();
     const { width, height } = await window.innerSize();
@@ -20,7 +19,8 @@ export async function getWindowBounds(): Promise<bounds> {
 }
 
 const screenOverflowTolerance = 0.7; // 70% of the screen size
-export async function setWindowBounds(bounds: bounds): Promise<void> {
+
+export async function setWindowBounds(bounds: Bounds): Promise<void> {
     const window = await getCurrentWindow();
     let { x, y, width, height } = bounds;
     // 调整 x, y, width, height 的值，确保它们在合理范围内
