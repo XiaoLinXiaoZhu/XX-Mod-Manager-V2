@@ -1,15 +1,8 @@
 /**
  * 插件系统 Kernel 模块类型定义
- * 提供与业务解耦的插件系统类型
+ * 提供与业务完全解耦的通用插件系统类型
+ * 支持泛型，让使用者可以定义自己的插件类型和环境
  */
-
-import { TranslatedText } from '@/modules/i18n';
-import { SettingBarData } from '@/compat/legacy-bridge';
-
-/**
- * 插件作用域
- */
-export type PluginScope = 'global' | 'local' | 'all';
 
 /**
  * 插件状态
@@ -17,77 +10,54 @@ export type PluginScope = 'global' | 'local' | 'all';
 export type PluginStatus = 'enabled' | 'disabled' | 'loading' | 'error';
 
 /**
- * 插件配置数据类型
+ * 通用插件接口定义
+ * 支持泛型，让使用者可以定义自己的插件类型
  */
-export type PluginData = SettingBarData;
-
-/**
- * 插件接口定义
- */
-export interface Plugin {
+export interface Plugin<TEnvironment = any> {
   /**
    * 插件名称
    */
   name: string;
   
   /**
-   * 插件显示名称，用于多语言支持
+   * 插件版本
    */
-  displayName?: TranslatedText;
-  
-  /**
-   * 插件作用域
-   * - global: 全局插件，影响所有项目
-   * - local: 局部插件，只影响当前项目
-   * - all: 同时影响全局和局部
-   */
-  scope: PluginScope;
+  version: string;
   
   /**
    * 插件初始化函数
-   * @param environment 可以在插件中使用的工具
+   * @param environment 插件运行环境
    */
-  init: (environment: PluginEnvironment) => void;
+  init: (environment: TEnvironment) => void;
+  
+  /**
+   * 插件销毁函数
+   */
+  destroy?: () => void;
 }
 
 /**
- * 插件环境接口
- * 提供给插件使用的工具和API
+ * 通用插件环境接口
+ * 支持泛型，让使用者可以定义自己的环境类型
  */
-export interface PluginEnvironment {
-  // 文件系统操作
-  fs: {
-    readFile: (path: string) => Promise<string>;
-    writeFile: (path: string, content: string) => Promise<void>;
-    exists: (path: string) => Promise<boolean>;
-    createDirectory: (path: string) => Promise<void>;
-    listDirectory: (path: string) => Promise<string[]>;
-  };
-  
-  // 事件系统
-  events: {
-    on: (event: string, listener: (...args: any[]) => void) => string;
-    off: (event: string, listenerId: string) => void;
-    emit: (event: string, data: any) => void;
-  };
-  
-  // 配置管理
-  config: {
-    get: (key: string) => any;
-    set: (key: string, value: any) => void;
-    has: (key: string) => boolean;
-  };
-  
-  // 日志系统
+export interface PluginEnvironment<TEventType extends string = string> {
+  // 基础日志能力
   log: {
     info: (message: string, ...args: any[]) => void;
     warn: (message: string, ...args: any[]) => void;
     error: (message: string, ...args: any[]) => void;
   };
+  
+  // 基础事件能力（使用泛型事件类型）
+  events: {
+    on: <T = any>(event: TEventType, listener: (data: T) => void) => string;
+    off: (event: TEventType, listenerId: string) => void;
+    emit: <T = any>(event: TEventType, data: T) => void;
+  };
 }
 
 /**
- * 插件加载选项
+ * 通用插件加载选项
  */
 export interface PluginLoadOptions {
   /**
@@ -104,15 +74,10 @@ export interface PluginLoadOptions {
    * 插件依赖
    */
   dependencies?: string[];
-  
-  /**
-   * 插件配置
-   */
-  config?: Record<string, any>;
 }
 
 /**
- * 插件加载结果
+ * 通用插件加载结果
  */
 export interface PluginLoadResult {
   /**
@@ -137,7 +102,7 @@ export interface PluginLoadResult {
 }
 
 /**
- * 插件统计信息
+ * 通用插件统计信息
  */
 export interface PluginStatistics {
   /**
@@ -159,13 +124,4 @@ export interface PluginStatistics {
    * 错误插件数
    */
   error: number;
-  
-  /**
-   * 按作用域分类
-   */
-  byScope: {
-    global: number;
-    local: number;
-    all: number;
-  };
 }

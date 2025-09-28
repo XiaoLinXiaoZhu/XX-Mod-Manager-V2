@@ -3,14 +3,14 @@
  * 提供类型安全的事件系统
  */
 
-import { EventSystem, EventListener, EventListenerInfo, EventListenerOptions } from './types';
-import { KernelError } from '../types';
+import type { EventSystem, EventListener, EventListenerInfo, EventListenerOptions } from './types';
 
 /**
  * 事件发射器实现类
  * 提供类型安全、高性能的事件系统
+ * 支持泛型事件类型，让使用者可以定义自己的事件类型
  */
-export class EventEmitter implements EventSystem {
+export class EventEmitter<TEventType extends string = string> implements EventSystem<TEventType> {
   private listeners = new Map<string, Map<string, EventListenerInfo>>();
   private listenerCounter = 0;
 
@@ -18,7 +18,7 @@ export class EventEmitter implements EventSystem {
    * 注册事件监听器
    */
   on<T = any>(
-    event: string, 
+    event: TEventType, 
     listener: EventListener<T>, 
     options: EventListenerOptions = {}
   ): string {
@@ -41,7 +41,7 @@ export class EventEmitter implements EventSystem {
   /**
    * 移除事件监听器
    */
-  off(event: string, listenerId: string): void {
+  off(event: TEventType, listenerId: string): void {
     const eventListeners = this.listeners.get(event);
     if (eventListeners) {
       eventListeners.delete(listenerId);
@@ -54,7 +54,7 @@ export class EventEmitter implements EventSystem {
   /**
    * 发射事件
    */
-  emit<T = any>(event: string, data: T): void {
+  emit<T = any>(event: TEventType, data: T): void {
     const eventListeners = this.listeners.get(event);
     if (!eventListeners || eventListeners.size === 0) {
       return;
@@ -74,7 +74,8 @@ export class EventEmitter implements EventSystem {
         }
       } catch (error) {
         // 发射错误事件，但不中断其他监听器的执行
-        this.emit('error:occurred', {
+        // 使用类型断言来处理泛型约束
+        this.emit('error:occurred' as TEventType, {
           event,
           listenerId: listenerInfo.id,
           error: error instanceof Error ? error : new Error(String(error))
@@ -86,14 +87,14 @@ export class EventEmitter implements EventSystem {
   /**
    * 注册一次性事件监听器
    */
-  once<T = any>(event: string, listener: EventListener<T>): string {
+  once<T = any>(event: TEventType, listener: EventListener<T>): string {
     return this.on(event, listener, { once: true });
   }
 
   /**
    * 移除所有监听器
    */
-  removeAllListeners(event?: string): void {
+  removeAllListeners(event?: TEventType): void {
     if (event) {
       this.listeners.delete(event);
     } else {
@@ -104,7 +105,7 @@ export class EventEmitter implements EventSystem {
   /**
    * 获取指定事件的监听器数量
    */
-  getListenerCount(event: string): number {
+  getListenerCount(event: TEventType): number {
     const eventListeners = this.listeners.get(event);
     return eventListeners ? eventListeners.size : 0;
   }
@@ -112,8 +113,8 @@ export class EventEmitter implements EventSystem {
   /**
    * 获取所有事件名称
    */
-  getEventNames(): string[] {
-    return Array.from(this.listeners.keys());
+  getEventNames(): TEventType[] {
+    return Array.from(this.listeners.keys()) as TEventType[];
   }
 
   /**
@@ -126,7 +127,7 @@ export class EventEmitter implements EventSystem {
   /**
    * 获取指定事件的所有监听器信息
    */
-  getListeners(event: string): EventListenerInfo[] {
+  getListeners(event: TEventType): EventListenerInfo[] {
     const eventListeners = this.listeners.get(event);
     return eventListeners ? Array.from(eventListeners.values()) : [];
   }
@@ -134,7 +135,7 @@ export class EventEmitter implements EventSystem {
   /**
    * 检查是否有指定事件的监听器
    */
-  hasListeners(event: string): boolean {
+  hasListeners(event: TEventType): boolean {
     return this.getListenerCount(event) > 0;
   }
 }

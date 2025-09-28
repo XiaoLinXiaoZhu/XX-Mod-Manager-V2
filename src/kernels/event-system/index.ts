@@ -1,14 +1,16 @@
 /**
  * 事件系统 Kernel 模块
- * 提供与业务解耦的事件系统能力
+ * 提供与业务解耦的通用事件系统能力
+ * 支持泛型事件类型，让使用者可以定义自己的事件类型
  */
 
 export { EventEmitter } from './event-emitter';
-export { EventType } from './types';
+export { SYSTEM_EVENTS } from './types';
 export type { 
-  EventSystem, 
+  EventSystem,
   EventListener, 
   EventListenerOptions, 
-  EventListenerInfo 
+  EventListenerInfo,
+  SystemEventType
 } from './types';
 

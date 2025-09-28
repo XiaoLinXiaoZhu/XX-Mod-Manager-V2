@@ -12,6 +12,9 @@ export * from './config-management';
 // 事件管理模块
 export * from './event-management';
 
+// 插件管理模块
+export * from './plugin-management';
+
 // 国际化模块
 export * from './i18n';
 

@@ -3,8 +3,9 @@
  * 基于文件系统的配置存储实现
  */
 
-import { FileSystem } from '../types';
-import { ConfigStorage, ConfigStorageOptions, ConfigStorageError } from './types';
+import type { FileSystem } from '../types';
+import type { ConfigStorage, ConfigStorageOptions } from './types';
+import { ConfigStorageError } from './types';
 import { join } from '@tauri-apps/api/path';
 
 /**
@@ -18,7 +19,13 @@ export class FileSystemConfigStorage<T = any> implements ConfigStorage<T> {
     private fileSystem: FileSystem,
     private options: ConfigStorageOptions
   ) {
-    this.backupDir = this.getBackupDir();
+    this.backupDir = '';
+  }
+
+  private async initializeBackupDir(): Promise<void> {
+    if (!this.backupDir) {
+      this.backupDir = await this.getBackupDir();
+    }
   }
 
   /**
@@ -111,6 +118,8 @@ export class FileSystemConfigStorage<T = any> implements ConfigStorage<T> {
    */
   async backup(): Promise<string> {
     try {
+      await this.initializeBackupDir();
+      
       if (!(await this.exists())) {
         throw new ConfigStorageError(
           'Cannot backup non-existent config file',
@@ -125,7 +134,7 @@ export class FileSystemConfigStorage<T = any> implements ConfigStorage<T> {
 
       // 确保备份目录存在
       if (!(await this.fileSystem.checkDirectoryExists(this.backupDir))) {
-        await this.fileSystem.createDirectory(this.backupDir, { recursive: true });
+        await this.fileSystem.createDirectory(this.backupDir);
       }
 
       // 复制文件到备份目录
@@ -188,14 +197,18 @@ export class FileSystemConfigStorage<T = any> implements ConfigStorage<T> {
    */
   async getBackups(): Promise<string[]> {
     try {
+      await this.initializeBackupDir();
+      
       if (!(await this.fileSystem.checkDirectoryExists(this.backupDir))) {
         return [];
       }
 
       const files = await this.fileSystem.listDirectory(this.backupDir);
-      return files
+      const filteredFiles = files
         .filter(file => file.startsWith('config_backup_') && file.endsWith('.json'))
         .map(file => join(this.backupDir, file));
+      
+      return Promise.all(filteredFiles);
     } catch (error) {
       throw new ConfigStorageError(
         `Failed to get backups: ${this.backupDir}`,
@@ -232,9 +245,9 @@ export class FileSystemConfigStorage<T = any> implements ConfigStorage<T> {
   /**
    * 获取备份目录路径
    */
-  private getBackupDir(): string {
+  private async getBackupDir(): Promise<string> {
     const configDir = this.options.filePath.split('/').slice(0, -1).join('/');
-    return join(configDir, 'backups');
+    return await join(configDir, 'backups');
   }
 
   /**

@@ -3,76 +3,25 @@
  * 定义业务相关的事件类型和接口
  */
 
-/**
- * 应用生命周期事件
- */
-export enum AppLifecycleEvent {
-  WAKE_UP = 'wakeUp',
-  INIT_DONE = 'initDone',
-  START_DONE = 'startDone',
-}
+// 重新导出业务事件类型
+export type {
+  BusinessEventType,
+  AppEventType,
+  ConfigEventType,
+  ModEventType,
+  PresetEventType,
+  CharacterEventType,
+  PluginEventType,
+  FileSystemEventType,
+  WindowEventType,
+  RouteEventType
+} from './business-events';
 
-/**
- * 插件相关事件
- */
-export enum PluginEvent {
-  PLUGIN_LOADED = 'pluginLoaded',
-  PLUGIN_ENABLED = 'pluginEnabled',
-  PLUGIN_DISABLED = 'pluginDisabled',
-}
+// 导入 BusinessEventType 用于类型定义
+import type { BusinessEventType } from './business-events';
 
-/**
- * 状态变更事件
- */
-export enum StateChangeEvent {
-  THEME_CHANGE = 'themeChange',
-  LANGUAGE_CHANGE = 'languageChange',
-  LAST_CLICKED_MOD_CHANGED = 'lastClickedModChanged',
-  MOD_INFO_CHANGED = 'modInfoChanged',
-  CURRENT_CHARACTER_CHANGED = 'currentCharacterChanged',
-  CURRENT_PRESET_CHANGED = 'currentPresetChanged',
-  CURRENT_MOD_CHANGED = 'currentModChanged',
-  MOD_LIST_CHANGED = 'modListChanged',
-  CURRENT_TAB_CHANGED = 'currentTabChanged',
-}
-
-/**
- * Mod操作事件
- */
-export enum ModOperationEvent {
-  MODS_APPLIED = 'modsApplied',
-  ADD_MOD = 'addMod',
-  ADD_PRESET = 'addPreset',
-  TOGGLED_MOD = 'toggledMod',
-}
-
-/**
- * 窗口相关事件
- */
-export enum WindowEvent {
-  WINDOW_BLUR = 'windowBlur',
-  WINDOW_FOCUS = 'windowFocus',
-  WINDOW_SLEEP = 'windowSleep',
-  WINDOW_WAKE = 'windowWake',
-}
-
-/**
- * 路由相关事件
- */
-export enum RouteEvent {
-  ROUTE_CHANGED = 'routeChanged',
-}
-
-/**
- * 所有业务事件类型的联合类型
- */
-export type BusinessEvent = 
-  | AppLifecycleEvent
-  | PluginEvent
-  | StateChangeEvent
-  | ModOperationEvent
-  | WindowEvent
-  | RouteEvent;
+// 为了向后兼容，保留 BusinessEvent 类型别名
+export type BusinessEvent = BusinessEventType;
 
 /**
  * 事件数据接口
@@ -90,40 +39,41 @@ export interface EventListener<T = any> {
 
 /**
  * 事件管理器接口
+ * 支持泛型事件类型，让使用者可以定义自己的事件类型
  */
-export interface EventManager {
+export interface EventManager<TEventType extends string = BusinessEventType> {
   /**
    * 注册事件监听器
    */
-  on<T = any>(event: BusinessEvent, listener: EventListener<T>): string;
+  on<T = any>(event: TEventType, listener: EventListener<T>): string;
   
   /**
    * 移除事件监听器
    */
-  off(event: BusinessEvent, listenerId: string): void;
+  off(event: TEventType, listenerId: string): void;
   
   /**
    * 发射事件
    */
-  emit<T = any>(event: BusinessEvent, data: T): void;
+  emit<T = any>(event: TEventType, data: T): void;
   
   /**
    * 异步发射事件
    */
-  emitAsync<T = any>(event: BusinessEvent, data: T): Promise<void>;
+  emitAsync<T = any>(event: TEventType, data: T): Promise<void>;
   
   /**
    * 移除所有监听器
    */
-  removeAllListeners(event?: BusinessEvent): void;
+  removeAllListeners(event?: TEventType): void;
   
   /**
    * 获取监听器数量
    */
-  getListenerCount(event: BusinessEvent): number;
+  getListenerCount(event: TEventType): number;
   
   /**
    * 检查是否有监听器
    */
-  hasListeners(event: BusinessEvent): boolean;
+  hasListeners(event: TEventType): boolean;
 }
