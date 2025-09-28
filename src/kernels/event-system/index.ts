@@ -14,3 +14,6 @@ export type {
   SystemEventType
 } from './types';
 
+// 为了向后兼容，导出 EventType 作为 SystemEventType 的别名
+export type EventType = SystemEventType;
+

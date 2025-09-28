@@ -2,7 +2,7 @@
  * 文件系统 Kernel 类型定义
  */
 
-import { FileSystem } from '../types';
+import type { FileSystem } from '../types';
 
 // 文件操作选项
 export interface FileOptions {

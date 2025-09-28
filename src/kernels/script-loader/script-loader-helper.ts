@@ -22,7 +22,7 @@ export async function loadExternScript(
     const { 
         normalizePath = true, 
         replaceExportDefault = true,
-        timeout = 30000 
+        timeout: _timeout = 30000 
     } = options;
 
     try {

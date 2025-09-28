@@ -5,7 +5,8 @@
 
 import { invoke } from "@tauri-apps/api/core";
 import axios from "axios";
-import { FilePath, HttpUrl, BlobUrl, Base64DataUrl, ImageUrl, PathOrUrl, EmptyImage } from './types';
+import type { FilePath, HttpUrl, BlobUrl, Base64DataUrl, ImageUrl, PathOrUrl } from './types';
+import { EmptyImage } from './types';
 import type { UrlType } from './types';
 
 // 图片缓存：文件路径映射到 Blob URL

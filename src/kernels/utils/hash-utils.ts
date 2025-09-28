@@ -119,6 +119,12 @@ export class SimpleHash {
     // 初始化工作变量
     let [a, b, c, d, e, f, g, h0] = h;
     
+    // 确保所有变量都已定义
+    if (a === undefined || b === undefined || c === undefined || d === undefined || 
+        e === undefined || f === undefined || g === undefined || h0 === undefined) {
+      throw new Error('Invalid hash state');
+    }
+    
     // 主循环
     for (let i = 0; i < 64; i++) {
       const S1 = this.rotr(e, 6) ^ this.rotr(e, 11) ^ this.rotr(e, 25);

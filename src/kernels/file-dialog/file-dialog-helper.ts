@@ -4,7 +4,7 @@
  */
 
 import { invoke } from '@tauri-apps/api/core';
-import { FileDialogOption } from './types';
+import type { FileDialogOption } from './types';
 
 // 默认值处理逻辑
 const DEFAULT_OPTIONS: Required<Omit<FileDialogOption, 'filters' | 'startingPath'>> = {

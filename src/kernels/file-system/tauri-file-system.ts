@@ -479,4 +479,94 @@ export class TauriFileSystem implements ExtendedFileSystem {
       );
     }
   }
+
+  /**
+   * 删除目录
+   */
+  async deleteDirectory(path: string): Promise<void> {
+    try {
+      await invoke('delete_directory', { path_str: path });
+    } catch (error) {
+      throw new KernelError(
+        `Failed to delete directory: ${path}`,
+        'DIR_DELETE_ERROR',
+        { path, error: error instanceof Error ? error.message : String(error) }
+      );
+    }
+  }
+
+  /**
+   * 检查文件是否存在
+   */
+  async checkFileExists(path: string): Promise<boolean> {
+    try {
+      return await invoke<boolean>('is_file_exists', { path_str: path });
+    } catch (error) {
+      throw new KernelError(
+        `Failed to check file existence: ${path}`,
+        'FILE_EXISTS_ERROR',
+        { path, error: error instanceof Error ? error.message : String(error) }
+      );
+    }
+  }
+
+  /**
+   * 标准化路径
+   */
+  async normalizePath(path: string): Promise<string> {
+    try {
+      return await invoke<string>('normalize_path', { path_str: path });
+    } catch (error) {
+      throw new KernelError(
+        `Failed to normalize path: ${path}`,
+        'NORMALIZE_PATH_ERROR',
+        { path, error: error instanceof Error ? error.message : String(error) }
+      );
+    }
+  }
+
+  /**
+   * 获取文件名
+   */
+  async getBaseName(filePath: string): Promise<string> {
+    try {
+      return await invoke<string>('get_base_name', { path_str: filePath });
+    } catch (error) {
+      throw new KernelError(
+        `Failed to get base name: ${filePath}`,
+        'BASE_NAME_ERROR',
+        { filePath, error: error instanceof Error ? error.message : String(error) }
+      );
+    }
+  }
+
+  /**
+   * 获取目录名
+   */
+  async getDirName(filePath: string): Promise<string> {
+    try {
+      return await invoke<string>('get_dir_name', { path_str: filePath });
+    } catch (error) {
+      throw new KernelError(
+        `Failed to get dir name: ${filePath}`,
+        'DIR_NAME_ERROR',
+        { filePath, error: error instanceof Error ? error.message : String(error) }
+      );
+    }
+  }
+
+  /**
+   * 获取文件扩展名
+   */
+  async getExtension(filePath: string): Promise<string> {
+    try {
+      return await invoke<string>('get_extension', { path_str: filePath });
+    } catch (error) {
+      throw new KernelError(
+        `Failed to get extension: ${filePath}`,
+        'EXTENSION_ERROR',
+        { filePath, error: error instanceof Error ? error.message : String(error) }
+      );
+    }
+  }
 }

@@ -3,7 +3,7 @@
  * 提供与业务解耦的文件系统操作能力
  */
 
-export { TauriFileSystem } from './tauri-file-system';
+export { TauriFileSystem } from './tauri-file-system-new';
 export type { 
   FileInfo, 
   FileSystemResult, 

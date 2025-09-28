@@ -4,7 +4,7 @@
  */
 
 import { invoke } from '@tauri-apps/api/core';
-import { Argv } from './types';
+import type { Argv } from './types';
 
 /**
  * 获取命令行参数

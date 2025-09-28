@@ -1,5 +1,5 @@
 // 辅助管理css 的 变量
-import { ref,Ref } from "vue"
+import { ref, type Ref } from "vue"
 const defaultZIndex = 1000
 const zIndex = ref(defaultZIndex)
 export let CSSVariable: Record<string, Ref<any>> = {
