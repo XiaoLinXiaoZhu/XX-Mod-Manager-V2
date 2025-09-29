@@ -100,7 +100,7 @@ export function updateRepository(
     description: updates.description ?? repository.description,
     modSourceFolders: updates.modSourceFolders || repository.modSourceFolders,
     modTargetFolder: updates.modTargetFolder || repository.modTargetFolder,
-    settings: updates.settings ?? repository.settings ?? {}
+    settings: updates.settings ?? repository.settings
   };
 
   const configValidation = validateRepositoryConfig(updatedConfig);

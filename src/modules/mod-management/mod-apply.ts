@@ -8,6 +8,7 @@ import type { ModOperationResult, ModApplyOptions, ModStatus } from './types';
 import type { Result } from '@/kernels/types';
 import { KernelError } from '@/kernels/types';
 import type { ExtendedFileSystem } from '@/kernels/file-system';
+import { join, basename } from '@tauri-apps/api/path';
 
 // Mod 应用状态
 export interface ModApplyStatus {
@@ -408,7 +409,7 @@ export async function applyModBySymlink(
     const { join, dirname, basename } = await import('@tauri-apps/api/path');
     
     // 检查目标目录是否存在
-    if (!(await fileSystem.exists(targetDir))) {
+    if (!(await fileSystem.checkDirectoryExists(targetDir))) {
       return {
         success: false,
         error: new KernelError(
@@ -445,7 +446,7 @@ export async function applyModBySymlink(
     }
 
     // 创建软链接
-    const symlinkPath = await join(targetDir, basename(mod.location));
+    const symlinkPath = await join(targetDir, await basename(mod.location));
     await fileSystem.createSymlink(mod.location, symlinkPath);
 
     return {
@@ -487,7 +488,7 @@ export async function applyModTraditionally(
     const { join, basename } = await import('@tauri-apps/api/path');
     
     // 检查目标目录是否存在
-    if (!(await fileSystem.exists(targetDir))) {
+    if (!(await fileSystem.checkDirectoryExists(targetDir))) {
       return {
         success: false,
         error: new KernelError(
@@ -499,13 +500,13 @@ export async function applyModTraditionally(
     }
 
     // 传统模式：通过重命名文件夹来启用/禁用Mod
-    const modFolderName = basename(mod.location);
+    const modFolderName = await basename(mod.location);
     const enabledPath = await join(targetDir, modFolderName);
     const disabledPath = await join(targetDir, `disable_${modFolderName}`);
 
     // 检查是否已经存在启用或禁用的版本
-    const enabledExists = await fileSystem.exists(enabledPath);
-    const disabledExists = await fileSystem.exists(disabledPath);
+    const enabledExists = await fileSystem.checkDirectoryExists(enabledPath);
+    const disabledExists = await fileSystem.checkDirectoryExists(disabledPath);
 
     if (enabledExists) {
       // 已经启用，无需操作
@@ -567,7 +568,7 @@ export async function removeModBySymlink(
   try {
     const { join, basename } = await import('@tauri-apps/api/path');
     
-    const symlinkPath = await join(targetDir, basename(mod.location));
+    const symlinkPath = await join(targetDir, await basename(mod.location));
     
     // 检查软链接是否存在
     if (await fileSystem.checkSymlinkExists(symlinkPath)) {
@@ -610,12 +611,12 @@ export async function removeModTraditionally(
   try {
     const { join, basename } = await import('@tauri-apps/api/path');
     
-    const modFolderName = basename(mod.location);
+    const modFolderName = await basename(mod.location);
     const enabledPath = await join(targetDir, modFolderName);
     const disabledPath = await join(targetDir, `disable_${modFolderName}`);
 
     // 检查是否存在启用的版本
-    if (await fileSystem.exists(enabledPath)) {
+    if (await fileSystem.checkDirectoryExists(enabledPath)) {
       // 重命名为禁用状态
       await fileSystem.renameDirectory(enabledPath, disabledPath);
     }
@@ -668,8 +669,9 @@ export async function applyModsBatch(
       } else {
         results.push({
           success: false,
-          error: result.error.message,
-          modId: mod.id
+          message: result.error.message,
+          modId: mod.id,
+          error: result.error.message
         });
       }
     }

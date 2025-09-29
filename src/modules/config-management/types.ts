@@ -5,9 +5,8 @@
 
 // 全局配置接口
 export interface GlobalConfig {
-  readonly version: string;
   readonly language: string;
-  readonly theme: 'light' | 'dark' | 'auto';
+  readonly theme: string;
   readonly ifStartWithLastPreset: boolean;
   readonly modSourceFolders: string[];
   readonly modTargetFolder: string;
@@ -22,12 +21,16 @@ export interface GlobalConfig {
 
 // 子配置接口
 export interface SubConfig {
-  readonly version: string;
-  readonly gameName: string;
-  readonly gamePath: string;
-  readonly mods: string[];
-  readonly presets: string[];
-  readonly settings: Record<string, unknown>;
+  readonly language: string;
+  readonly theme: string;
+  readonly ifStartWithLastPreset: boolean;
+  readonly modSourceFolders: string[];
+  readonly modTargetFolder: string;
+  readonly presetFolder: string;
+  readonly ifUseTraditionalApply: boolean;
+  readonly ifKeepModNameAsModFolderName: boolean;
+  readonly firstLoad: boolean;
+  readonly disabledPlugins: string[];
 }
 
 // 配置验证结果

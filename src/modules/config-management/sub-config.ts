@@ -9,61 +9,7 @@ import { TauriFileSystem } from '@/kernels/file-system';
 import { loadConfigFromFile, saveConfigToFile, validateConfigStructure } from './config-loader';
 import { mergeConfig } from './config-loader';
 import { join, dirname } from '@tauri-apps/api/path';
-
-/**
- * 子配置接口
- */
-export interface SubConfig {
-  /**
-   * 语言设置
-   */
-  language: string;
-  
-  /**
-   * 主题设置
-   */
-  theme: string;
-  
-  /**
-   * 是否在启动时使用最后一个预设
-   */
-  ifStartWithLastPreset: boolean;
-  
-  /**
-   * Mod源文件夹列表
-   */
-  modSourceFolders: string[];
-  
-  /**
-   * Mod目标文件夹
-   */
-  modTargetFolder: string;
-  
-  /**
-   * 预设文件夹
-   */
-  presetFolder: string;
-  
-  /**
-   * 是否使用传统应用方式
-   */
-  ifUseTraditionalApply: boolean;
-  
-  /**
-   * 是否保持Mod名称作为文件夹名称
-   */
-  ifKeepModNameAsModFolderName: boolean;
-  
-  /**
-   * 是否首次加载
-   */
-  firstLoad: boolean;
-  
-  /**
-   * 禁用的插件列表
-   */
-  disabledPlugins: string[];
-}
+import type { SubConfig } from './types';
 
 /**
  * 默认子配置

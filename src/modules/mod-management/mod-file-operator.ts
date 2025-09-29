@@ -63,12 +63,12 @@ export function calculateModSize(
   }
 ): Promise<Result<number, KernelError>> {
   return getModFileList(mod, fileSystem)
-    .then(result => {
+    .then(async result => {
       if (!result.success) {
         return {
           success: false,
           error: result.error
-        };
+        } as const;
       }
       
       const files = result.data;
@@ -78,11 +78,11 @@ export function calculateModSize(
           .catch(() => 0)
       );
       
-      return Promise.all(sizePromises)
-        .then(sizes => ({
-          success: true as const,
-          data: sizes.reduce((total, size) => total + size, 0)
-        }));
+      const sizes = await Promise.all(sizePromises);
+      return {
+        success: true as const,
+        data: sizes.reduce((total, size) => total + size, 0)
+      };
     })
     .catch(error => ({
       success: false,
@@ -91,7 +91,7 @@ export function calculateModSize(
         'MOD_SIZE_CALCULATION_ERROR',
         { modId: mod.id, location: mod.location, error: error instanceof Error ? error.message : String(error) }
       )
-    }));
+    })) as Promise<Result<number, KernelError>>;
 }
 
 /**
@@ -169,12 +169,12 @@ export function createModBackup(
 ): Promise<Result<string, KernelError>> {
   return fileSystem.createDirectory(backupPath, { recursive: true })
     .then(() => getModFileList(mod, fileSystem))
-    .then(result => {
+    .then(async result => {
       if (!result.success) {
         return {
           success: false,
           error: result.error
-        };
+        } as const;
       }
       
       const files = result.data;
@@ -184,11 +184,11 @@ export function createModBackup(
         return fileSystem.copyFile(file, targetPath);
       });
       
-      return Promise.all(copyPromises)
-        .then(() => ({
-          success: true as const,
-          data: backupPath
-        }));
+      await Promise.all(copyPromises);
+      return {
+        success: true as const,
+        data: backupPath
+      };
     })
     .catch(error => ({
       success: false,
@@ -197,7 +197,7 @@ export function createModBackup(
         'MOD_BACKUP_ERROR',
         { modId: mod.id, location: mod.location, backupPath, error: error instanceof Error ? error.message : String(error) }
       )
-    }));
+    })) as Promise<Result<string, KernelError>>;
 }
 
 /**
@@ -216,7 +216,7 @@ export function applyMod(
 ): Promise<Result<ModOperationResult, KernelError>> {
   return fileSystem.createDirectory(targetDir, { recursive: true })
     .then(() => getModFileList(mod, fileSystem))
-    .then(result => {
+    .then(async result => {
       if (!result.success) {
         return {
           success: false,
@@ -225,7 +225,7 @@ export function applyMod(
             'MOD_APPLY_ERROR',
             { modId: mod.id, location: mod.location, error: result.error.message }
           )
-        };
+        } as const;
       }
       
       const files = result.data;
@@ -243,15 +243,15 @@ export function applyMod(
           });
       });
       
-      return Promise.all(symlinkPromises)
-        .then(() => ({
-          success: true as const,
-          data: {
-            success: true,
-            message: `Mod applied successfully: ${mod.name}`,
-            modId: mod.id
-          }
-        }));
+      await Promise.all(symlinkPromises);
+      return {
+        success: true as const,
+        data: {
+          success: true,
+          message: `Mod applied successfully: ${mod.name}`,
+          modId: mod.id
+        }
+      };
     })
     .catch(error => ({
       success: false,
@@ -260,7 +260,7 @@ export function applyMod(
         'MOD_APPLY_ERROR',
         { modId: mod.id, location: mod.location, targetDir, error: error instanceof Error ? error.message : String(error) }
       )
-    }));
+    })) as Promise<Result<ModOperationResult, KernelError>>;
 }
 
 /**
@@ -276,7 +276,7 @@ export function removeMod(
   }
 ): Promise<Result<ModOperationResult, KernelError>> {
   return getModFileList(mod, fileSystem)
-    .then(result => {
+    .then(async result => {
       if (!result.success) {
         return {
           success: false,
@@ -285,7 +285,7 @@ export function removeMod(
             'MOD_REMOVE_ERROR',
             { modId: mod.id, location: mod.location, error: result.error.message }
           )
-        };
+        } as const;
       }
       
       const files = result.data;
@@ -301,15 +301,15 @@ export function removeMod(
           });
       });
       
-      return Promise.all(deletePromises)
-        .then(() => ({
-          success: true as const,
-          data: {
-            success: true,
-            message: `Mod removed successfully: ${mod.name}`,
-            modId: mod.id
-          }
-        }));
+      await Promise.all(deletePromises);
+      return {
+        success: true as const,
+        data: {
+          success: true,
+          message: `Mod removed successfully: ${mod.name}`,
+          modId: mod.id
+        }
+      };
     })
     .catch(error => ({
       success: false,
@@ -318,7 +318,7 @@ export function removeMod(
         'MOD_REMOVE_ERROR',
         { modId: mod.id, location: mod.location, targetDir, error: error instanceof Error ? error.message : String(error) }
       )
-    }));
+    })) as Promise<Result<ModOperationResult, KernelError>>;
 }
 
 /**
@@ -333,12 +333,12 @@ export function isModApplied(
   }
 ): Promise<Result<boolean, KernelError>> {
   return getModFileList(mod, fileSystem)
-    .then(result => {
+    .then(async result => {
       if (!result.success) {
         return {
           success: false,
           error: result.error
-        };
+        } as const;
       }
       
       const files = result.data;
@@ -355,11 +355,11 @@ export function isModApplied(
         return fileSystem.exists(targetPath);
       });
       
-      return Promise.all(checkPromises)
-        .then(exists => ({
-          success: true as const,
-          data: exists.every(exists => exists)
-        }));
+      const exists = await Promise.all(checkPromises);
+      return {
+        success: true as const,
+        data: exists.every(exists => exists)
+      };
     })
     .catch(error => ({
       success: false,
@@ -368,5 +368,5 @@ export function isModApplied(
         'MOD_APPLIED_CHECK_ERROR',
         { modId: mod.id, location: mod.location, targetDir, error: error instanceof Error ? error.message : String(error) }
       )
-    }));
+    })) as Promise<Result<boolean, KernelError>>;
 }

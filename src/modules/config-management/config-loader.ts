@@ -11,7 +11,7 @@ import { dirname } from '@tauri-apps/api/path';
 /**
  * 配置加载选项
  */
-export interface ConfigLoadOptions {
+export interface ConfigLoaderOptions {
   /**
    * 是否创建默认配置
    */
@@ -58,7 +58,7 @@ export interface ConfigLoadResult {
 export async function loadConfigFromFile(
   fileSystem: TauriFileSystem,
   filePath: string,
-  options: ConfigLoadOptions = {}
+  options: ConfigLoaderOptions = {}
 ): Promise<Result<ConfigLoadResult, KernelError>> {
   try {
     const { createDefault = true, defaultConfig = {}, validator } = options;

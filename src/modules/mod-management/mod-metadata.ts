@@ -239,7 +239,7 @@ export function getModDisplayName(metadata: ModMetadata): string {
 /**
  * 检查 Mod 是否有预览图
  */
-export function hasModPreview(metadata: ModMetadata): boolean {
+export function hasModPreviewMetadata(metadata: ModMetadata): boolean {
   return !!(metadata.preview && metadata.preview.trim().length > 0);
 }
 

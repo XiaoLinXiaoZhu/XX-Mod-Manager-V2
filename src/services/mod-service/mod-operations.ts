@@ -58,6 +58,8 @@ export class ModOperations {
     } catch (error) {
       const result: ModOperationResult = {
         success: false,
+        message: error instanceof Error ? error.message : String(error),
+        modId: 'unknown',
         error: error instanceof Error ? error.message : String(error)
       };
 
@@ -79,6 +81,8 @@ export class ModOperations {
       if (!mod) {
         return {
           success: false,
+          message: `Mod not found: ${modId}`,
+          modId: modId,
           error: `Mod not found: ${modId}`
         };
       }
@@ -94,6 +98,8 @@ export class ModOperations {
         this.updateState({
           lastOperation: {
             success: false,
+            message: result.error.message,
+            modId: modId,
             error: result.error.message
           }
         });
@@ -101,11 +107,15 @@ export class ModOperations {
 
       return result.success ? result.data : {
         success: false,
+        message: result.error.message,
+        modId: modId,
         error: result.error.message
       };
     } catch (error) {
       const result: ModOperationResult = {
         success: false,
+        message: error instanceof Error ? error.message : String(error),
+        modId: modId,
         error: error instanceof Error ? error.message : String(error)
       };
 
@@ -127,6 +137,8 @@ export class ModOperations {
       if (!mod) {
         return {
           success: false,
+          message: `Mod not found: ${modId}`,
+          modId: modId,
           error: `Mod not found: ${modId}`
         };
       }
@@ -150,11 +162,15 @@ export class ModOperations {
         modId: mod.id
       } : {
         success: false,
+        message: result.error.message,
+        modId: modId,
         error: result.error.message
       };
     } catch (error) {
       const result: ModOperationResult = {
         success: false,
+        message: error instanceof Error ? error.message : String(error),
+        modId: modId,
         error: error instanceof Error ? error.message : String(error)
       };
 
@@ -176,6 +192,8 @@ export class ModOperations {
       if (!mod) {
         return {
           success: false,
+          message: `Mod not found: ${modId}`,
+          modId: modId,
           error: `Mod not found: ${modId}`
         };
       }
@@ -191,6 +209,8 @@ export class ModOperations {
         this.updateState({
           lastOperation: {
             success: false,
+            message: result.error.message,
+            modId: modId,
             error: result.error.message
           }
         });
@@ -198,11 +218,15 @@ export class ModOperations {
 
       return result.success ? result.data : {
         success: false,
+        message: result.error.message,
+        modId: modId,
         error: result.error.message
       };
     } catch (error) {
       const result: ModOperationResult = {
         success: false,
+        message: error instanceof Error ? error.message : String(error),
+        modId: modId,
         error: error instanceof Error ? error.message : String(error)
       };
 
@@ -224,6 +248,8 @@ export class ModOperations {
       if (!mod) {
         return {
           success: false,
+          message: `Mod not found: ${modId}`,
+          modId: modId,
           error: `Mod not found: ${modId}`
         };
       }
@@ -239,6 +265,8 @@ export class ModOperations {
         this.updateState({
           lastOperation: {
             success: false,
+            message: result.error.message,
+            modId: modId,
             error: result.error.message
           }
         });
@@ -246,11 +274,15 @@ export class ModOperations {
 
       return result.success ? result.data : {
         success: false,
+        message: result.error.message,
+        modId: modId,
         error: result.error.message
       };
     } catch (error) {
       const result: ModOperationResult = {
         success: false,
+        message: error instanceof Error ? error.message : String(error),
+        modId: modId,
         error: error instanceof Error ? error.message : String(error)
       };
 
@@ -272,6 +304,8 @@ export class ModOperations {
       if (!mod) {
         return {
           success: false,
+          message: `Mod not found: ${modId}`,
+          modId: modId,
           error: `Mod not found: ${modId}`
         };
       }
@@ -284,6 +318,8 @@ export class ModOperations {
     } catch (error) {
       const result: ModOperationResult = {
         success: false,
+        message: error instanceof Error ? error.message : String(error),
+        modId: modId,
         error: error instanceof Error ? error.message : String(error)
       };
 

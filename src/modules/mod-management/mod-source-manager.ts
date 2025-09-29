@@ -190,7 +190,9 @@ export function updateSourceFolderInfo(
     ...updatedFolders[folderIndex],
     ...updates,
     path: updates.path ?? updatedFolders[folderIndex]!.path,
-    name: updates.name ?? updatedFolders[folderIndex]!.name
+    name: updates.name ?? updatedFolders[folderIndex]!.name,
+    isValid: updates.isValid ?? updatedFolders[folderIndex]!.isValid,
+    modCount: updates.modCount ?? updatedFolders[folderIndex]!.modCount
   };
 
   return {
