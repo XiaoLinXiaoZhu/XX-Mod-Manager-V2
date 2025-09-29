@@ -8,7 +8,7 @@ export interface ModMetadata {
   readonly id: string;
   readonly name: string;
   readonly location: string;
-  readonly url?: string;
+  readonly url: string;
   readonly addDate: string;
   readonly jsonVersion: number;
   readonly category?: string;

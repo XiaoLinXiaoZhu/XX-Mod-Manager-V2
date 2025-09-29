@@ -4,6 +4,8 @@
  * 组装各个功能模块
  */
 
+import { invoke } from '@tauri-apps/api/core';
+import { KernelError } from '@/kernels/types';
 import type { 
   ExtendedFileSystem, 
   FileInfo, 
@@ -168,9 +170,28 @@ export class TauriFileSystem implements ExtendedFileSystem {
 
   // 文件信息操作
   async getFileInfo(path: string): Promise<FileInfo> {
-    // 这个功能需要特殊处理，暂时保留在原文件中
-    // TODO: 移动到专门的模块中
-    throw new Error('getFileInfo not implemented in new structure');
+    try {
+      const stat = await invoke<{ 
+        is_dir: boolean; 
+        size: number; 
+        modified_at: number 
+      }>('get_file_info', { path });
+      
+      return {
+        path,
+        name: path.split('/').pop() || path.split('\\').pop() || '',
+        size: stat.size,
+        isDirectory: stat.is_dir,
+        isFile: !stat.is_dir,
+        lastModified: new Date(stat.modified_at)
+      };
+    } catch (error) {
+      throw new KernelError(
+        `Failed to get file info: ${path}`,
+        'FILE_INFO_ERROR',
+        { path, error: error instanceof Error ? error.message : String(error) }
+      );
+    }
   }
 
   // 文件监听

@@ -10,7 +10,8 @@ export * from './types';
 export * from './config-manager';
 
 // 创建默认配置服务实例
-import { createConfigService, DEFAULT_CONFIG_SERVICE_OPTIONS } from './config-manager';
+import { createConfigService } from './config-manager';
+import { DEFAULT_CONFIG_SERVICE_OPTIONS } from './types';
 
 /**
  * 默认配置服务实例

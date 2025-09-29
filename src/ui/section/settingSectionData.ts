@@ -80,7 +80,9 @@ const getSettingSectionData = () => {
       }
       
       // 更新配置
-      configService.updateLocalConfig({ language: value as I18nLocale });
+      if (localConfig) {
+        configService.setLocalConfig({ ...localConfig, language: value as I18nLocale });
+      }
       return value;
     }
   };
@@ -114,7 +116,9 @@ const getSettingSectionData = () => {
     onChange: (value: any) => {
       console.log('theme changed:', value);
       setTheme(value as Theme);
-      configService.updateLocalConfig({ theme: value as Theme });
+      if (localConfig) {
+        configService.setLocalConfig({ ...localConfig, theme: value as Theme });
+      }
       return value;
     }
   };
@@ -132,7 +136,9 @@ const getSettingSectionData = () => {
     },
     onChange: (value: string[]) => {
       console.log('mod source folders changed:', value);
-      configService.updateLocalConfig({ modSourceFolders: value });
+      if (localConfig) {
+        configService.setLocalConfig({ ...localConfig, modSourceFolders: value });
+      }
       return value;
     }
   };
@@ -150,7 +156,9 @@ const getSettingSectionData = () => {
     },
     onChange: (value: any) => {
       console.log('mod target folder changed:', value);
-      configService.updateLocalConfig({ modTargetFolder: value as string });
+      if (localConfig) {
+        configService.setLocalConfig({ ...localConfig, modTargetFolder: value as string });
+      }
       return value;
     }
   };
@@ -158,7 +166,7 @@ const getSettingSectionData = () => {
   //-------------------- 保持 Mod 名称作为文件夹名 ------------------//
   let keepModNameAsModFolderNameData: SettingBarData = {
     name: 'keepModNameAsModFolderName',
-    dataRef: ref(localConfig.keepModNameAsModFolderName),
+    dataRef: ref(localConfig.ifKeepModNameAsModFolderName),
     type: 'switch',
     displayName: 'Keep Mod Name as Folder Name',
     description: 'Use mod name as folder name when installing',
@@ -168,7 +176,9 @@ const getSettingSectionData = () => {
     },
     onChange: (value: any) => {
       console.log('keep mod name as folder name changed:', value);
-      configService.updateLocalConfig({ keepModNameAsModFolderName: value as boolean });
+      if (localConfig) {
+        configService.setLocalConfig({ ...localConfig, ifKeepModNameAsModFolderName: value as boolean });
+      }
       return value;
     }
   };
@@ -176,7 +186,7 @@ const getSettingSectionData = () => {
   //-------------------- 传统应用模式 ------------------//
   let traditionalApplyData: SettingBarData = {
     name: 'traditionalApply',
-    dataRef: ref(localConfig.traditionalApply),
+    dataRef: ref(localConfig.ifUseTraditionalApply),
     type: 'switch',
     displayName: 'Traditional Apply Mode',
     description: 'Use traditional file copying instead of symlinks',
@@ -186,7 +196,9 @@ const getSettingSectionData = () => {
     },
     onChange: (value: any) => {
       console.log('traditional apply changed:', value);
-      configService.updateLocalConfig({ traditionalApply: value as boolean });
+      if (localConfig) {
+        configService.setLocalConfig({ ...localConfig, ifUseTraditionalApply: value as boolean });
+      }
       return value;
     }
   };
@@ -204,7 +216,9 @@ const getSettingSectionData = () => {
     },
     onChange: (value: any) => {
       console.log('repository ID changed:', value);
-      configService.updateLocalConfig({ repositoryId: value as string });
+      if (localConfig) {
+        configService.setLocalConfig({ ...localConfig, repositoryId: value as string });
+      }
       return value;
     }
   };
@@ -224,7 +238,8 @@ const getSettingSectionData = () => {
       console.log('refresh clicked');
       try {
         const webview = getCurrentWebview();
-        await webview.reload();
+        // 重新加载页面
+        window.location.reload();
       } catch (error) {
         console.error('Failed to refresh:', error);
       }

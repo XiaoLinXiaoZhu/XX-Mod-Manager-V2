@@ -147,8 +147,7 @@ export class PluginService implements IPluginService {
           // 更新插件状态
           this.updatePluginStatus(pluginId, {
             status: PluginStatus.ENABLED,
-            loadTime: result.data.loadTime,
-            error: undefined
+            loadTime: result.data.loadTime
           });
 
           this.updateState({
@@ -229,9 +228,7 @@ export class PluginService implements IPluginService {
         // 更新插件状态
         this.updatePluginStatus(pluginId, {
           status: PluginStatus.UNLOADED,
-          enabled: false,
-          loadTime: undefined,
-          error: undefined
+          enabled: false
         });
 
         this.updateState({

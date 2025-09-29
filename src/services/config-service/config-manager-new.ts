@@ -260,6 +260,30 @@ export class ConfigService {
   }
 
   /**
+   * 设置全局配置
+   */
+  setGlobalConfig(config: GlobalConfig): void {
+    this.state.globalConfig = { ...config };
+    this.state.lastUpdated = new Date().toISOString();
+    this.eventEmitter.emit(ConfigServiceEventType.CONFIG_CHANGED, {
+      type: 'global',
+      config: this.state.globalConfig
+    });
+  }
+
+  /**
+   * 设置本地配置
+   */
+  setLocalConfig(config: LocalConfig): void {
+    this.state.localConfig = { ...config };
+    this.state.lastUpdated = new Date().toISOString();
+    this.eventEmitter.emit(ConfigServiceEventType.CONFIG_CHANGED, {
+      type: 'local',
+      config: this.state.localConfig
+    });
+  }
+
+  /**
    * 获取当前状态
    */
   getState(): ConfigServiceState {
@@ -272,6 +296,11 @@ export class ConfigService {
   getStatistics(): ConfigStatistics {
     return {
       totalConfigs: 3, // global, local, repository
+      globalConfigs: 1,
+      localConfigs: this.state.localConfig ? 1 : 0,
+      repositoryConfigs: this.state.currentRepository ? 1 : 0,
+      lastLoadTime: this.state.lastUpdated,
+      lastSaveTime: this.state.lastUpdated,
       errorCount: this.errorCount,
       changeHistoryLength: this.configSaver.getChangeHistory().length
     };

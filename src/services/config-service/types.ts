@@ -39,6 +39,9 @@ export interface GlobalConfig {
   disabledPlugins: string[];
   lastUsedGameRepo: string;
   checkUpdatesOnStart: boolean;
+  version: string;
+  debug: boolean;
+  autoUpdate: boolean;
 }
 
 // 本地配置
@@ -53,6 +56,7 @@ export interface LocalConfig {
   ifKeepModNameAsModFolderName: boolean;
   firstLoad: boolean;
   disabledPlugins: string[];
+  repositoryId: string;
 }
 
 // 仓库配置
@@ -81,6 +85,14 @@ export interface ConfigServiceOptions {
   maxBackups: number;
 }
 
+// 默认配置服务选项
+export const DEFAULT_CONFIG_SERVICE_OPTIONS: ConfigServiceOptions = {
+  autoSave: true,
+  validateOnLoad: true,
+  backupOnChange: true,
+  maxBackups: 5
+};
+
 // 配置加载选项
 export interface ConfigLoadOptions {
   validate?: boolean;
@@ -107,11 +119,11 @@ export interface ConfigValidationResult {
 export interface ConfigChangeEvent {
   type: ConfigType;
   key: string;
-  oldValue: ConfigValue;
-  newValue: ConfigValue;
   value: ConfigValue;
   timestamp: string;
   source?: string;
+  oldValue: ConfigValue;
+  newValue: ConfigValue;
 }
 
 // 配置服务事件类型
@@ -156,7 +168,10 @@ export const DEFAULT_GLOBAL_CONFIG: GlobalConfig = {
   firstLoad: true,
   disabledPlugins: [],
   lastUsedGameRepo: '',
-  checkUpdatesOnStart: true
+  checkUpdatesOnStart: true,
+  version: '1.0.0',
+  debug: false,
+  autoUpdate: true
 };
 
 export const DEFAULT_LOCAL_CONFIG: LocalConfig = {
@@ -169,12 +184,6 @@ export const DEFAULT_LOCAL_CONFIG: LocalConfig = {
   ifUseTraditionalApply: false,
   ifKeepModNameAsModFolderName: false,
   firstLoad: true,
-  disabledPlugins: []
-};
-
-export const DEFAULT_CONFIG_SERVICE_OPTIONS: ConfigServiceOptions = {
-  autoSave: true,
-  validateOnLoad: true,
-  backupOnChange: true,
-  maxBackups: 5
+  disabledPlugins: [],
+  repositoryId: ''
 };

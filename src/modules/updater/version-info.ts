@@ -16,8 +16,8 @@ interface VersionParts {
   major: number;
   minor: number;
   patch: number;
-  prerelease?: string;
-  build?: string;
+  prerelease: string;
+  build: string;
 }
 
 /**
@@ -52,11 +52,11 @@ export function parseVersion(version: string): Result<VersionParts, KernelError>
   return {
     success: true,
     data: {
-      major: parseInt(major, 10),
-      minor: parseInt(minor, 10),
-      patch: parseInt(patch, 10),
-      prerelease: prerelease || undefined,
-      build: build || undefined
+      major: parseInt(major!, 10),
+      minor: parseInt(minor!, 10),
+      patch: parseInt(patch!, 10),
+      prerelease: prerelease || '',
+      build: build || ''
     }
   };
 }

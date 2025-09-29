@@ -142,3 +142,32 @@ export interface PluginEnvironmentConfig {
   enableEvents?: boolean;
   enableLogging?: boolean;
 }
+
+/**
+ * 业务插件管理器接口
+ */
+export interface BusinessPluginManager {
+  loadPlugin(pluginId: string): Promise<boolean>;
+  unloadPlugin(pluginId: string): Promise<boolean>;
+  getPluginStatus(pluginId: string): PluginStatus;
+  getAllPlugins(): PluginInfo[];
+}
+
+/**
+ * 插件作用域上下文
+ */
+export interface PluginScopeContext {
+  pluginId: string;
+  scope: BusinessPluginScope;
+  permissions: string[];
+  environment: Record<string, unknown>;
+}
+
+/**
+ * 业务插件作用域
+ */
+export enum BusinessPluginScope {
+  GLOBAL = 'global',
+  LOCAL = 'local',
+  ALL = 'all'
+}

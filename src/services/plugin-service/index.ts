@@ -10,5 +10,6 @@ export * from './types';
 export * from './plugin-service';
 
 // 创建默认实例
-import { createPluginService, DEFAULT_PLUGIN_SERVICE_OPTIONS } from './plugin-service';
+import { createPluginService } from './plugin-service';
+import { DEFAULT_PLUGIN_SERVICE_OPTIONS } from './types';
 export const defaultPluginService = createPluginService(DEFAULT_PLUGIN_SERVICE_OPTIONS);

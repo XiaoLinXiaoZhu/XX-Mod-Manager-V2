@@ -191,7 +191,9 @@ export class ConfigSaver {
       key,
       value,
       timestamp: new Date().toISOString(),
-      source: options.source || 'user'
+      source: options.source || 'user',
+      oldValue: value, // 这里应该从实际状态获取旧值
+      newValue: value
     };
 
     this.changeHistory.push(change);

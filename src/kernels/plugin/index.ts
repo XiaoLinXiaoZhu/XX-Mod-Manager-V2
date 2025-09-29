@@ -16,6 +16,9 @@ export {
   checkPluginCompatibility
 } from './plugin-loader';
 
+// 插件加载器类
+export { PluginLoader } from './plugin-loader-class';
+
 // 导出结果类型
 export type { 
   PluginLoadResult,

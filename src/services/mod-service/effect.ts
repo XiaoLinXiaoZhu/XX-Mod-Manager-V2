@@ -90,7 +90,7 @@ export async function applyModEffect(
 ): Promise<Result<ModOperationResult, KernelError>> {
   try {
     // 检查是否已应用
-    const isAppliedResult = await isModApplied(modMetadata, config.modTargetFolder, fileSystem);
+    const isAppliedResult = await isModApplied(mod, config.modTargetFolder, fileSystem);
     if (isAppliedResult.success && isAppliedResult.data) {
       return {
         success: true,
@@ -106,17 +106,17 @@ export async function applyModEffect(
     if (options.backup) {
       const backupDir = await fileSystem.getConfigDir();
       const backupPath = `${backupDir}/mod_backups/${mod.id}`;
-      await createModBackup(modMetadata, backupPath, fileSystem);
+      await createModBackup(mod, backupPath, fileSystem);
     }
 
     // 应用 Mod
     const applyOptions: ModApplyOptions = {
       backup: false, // 已经在上面处理了
-      force: options.force,
-      dryRun: options.dryRun
+      force: options.force || false,
+      dryRun: options.dryRun || false
     };
 
-    const result = await applyMod(modMetadata, config.modTargetFolder, applyOptions, fileSystem);
+    const result = await applyMod(mod, config.modTargetFolder, applyOptions, fileSystem);
     
     if (result.success) {
       // 发射事件
@@ -150,7 +150,7 @@ export async function removeModEffect(
   eventSystem: EventEmitter
 ): Promise<Result<ModOperationResult, KernelError>> {
   try {
-    const result = await removeMod(modMetadata, config.modTargetFolder, fileSystem);
+    const result = await removeMod(mod, config.modTargetFolder, fileSystem);
     
     if (result.success) {
       // 发射事件
@@ -224,7 +224,12 @@ export function searchModsEffect(
       searchQuery: options.query || undefined
     };
 
-    let filteredMods = filterMods(mods, filters);
+    let filteredMods = filterMods(mods, {
+      status: filters.status || undefined,
+      category: filters.category || undefined,
+      tags: filters.tags || undefined,
+      searchQuery: filters.searchQuery || undefined
+    });
     
     // 排序
     filteredMods = sortMods(filteredMods, 'name', 'asc');
@@ -316,7 +321,7 @@ export async function refreshModEffect(
       validateMetadata: true,
       checkConflicts: false,
       loadPreview: true
-    }, eventSystem);
+    });
 
     if (!loadResult.success) {
       return {
@@ -365,7 +370,7 @@ export async function applyModBySymlinkEffect(
   options: ModApplyOptions = {}
 ): Promise<Result<ModOperationResult, KernelError>> {
   try {
-    const result = await applyModBySymlink(mod, targetDir, fileSystem, options);
+    const result = await applyMod(mod, targetDir, { ...options, useSymlink: true }, fileSystem);
     
     if (result.success) {
       return {
@@ -405,7 +410,7 @@ export async function applyModTraditionallyEffect(
   options: ModApplyOptions = {}
 ): Promise<Result<ModOperationResult, KernelError>> {
   try {
-    const result = await applyModTraditionally(mod, targetDir, fileSystem, options);
+    const result = await applyMod(mod, targetDir, { ...options, useSymlink: false }, fileSystem);
     
     if (result.success) {
       return {
@@ -446,7 +451,22 @@ export async function applyModsBatchEffect(
   options: ModApplyOptions = {}
 ): Promise<Result<ModOperationResult[], KernelError>> {
   try {
-    const result = await applyModsBatch(mods, targetDir, fileSystem, useSymlink, options);
+    const results: ModOperationResult[] = [];
+    for (const mod of mods) {
+      const result = await applyMod(mod, targetDir, { ...options, useSymlink }, fileSystem);
+      if (result.success) {
+        results.push(result.data);
+      }
+    }
+    
+    const result = {
+      success: true,
+      data: {
+        success: true,
+        message: `Applied ${results.length} mods successfully`,
+        modId: mods.map(m => m.id).join(',')
+      } as ModOperationResult
+    };
     
     if (result.success) {
       return {

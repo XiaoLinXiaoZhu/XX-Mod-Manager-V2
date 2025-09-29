@@ -3,7 +3,7 @@
  * 提供 Mod 预览图相关的纯函数
  */
 
-import { ModMetadata } from './types';
+import type { ModMetadata } from './types';
 import type { Result } from '@/kernels/types';
 import { KernelError } from '@/kernels/types';
 

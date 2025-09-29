@@ -15,12 +15,13 @@ export interface Repository {
   createdAt: string;
   updatedAt: string;
   lastUsed?: string;
+  settings?: Record<string, unknown>;
 }
 
 // 仓库配置
 export interface RepositoryConfig {
   name: string;
-  description?: string;
+  description: string;
   modSourceFolders: string[];
   modTargetFolder: string;
   settings?: Record<string, unknown>;
@@ -50,7 +51,7 @@ export interface RepositoryOperationResult {
   success: boolean;
   message?: string;
   error?: string;
-  repository?: Repository;
+  repository: Repository;
 }
 
 // 仓库列表结果
@@ -74,8 +75,13 @@ export interface RepositoryStatistics {
   activeRepositories: number;
   totalMods: number;
   averageModsPerRepository: number;
-  mostUsedRepository?: string;
+  mostUsedRepository: string;
   lastActivity: string;
+  globalConfigs: number;
+  localConfigs: number;
+  repositoryConfigs: number;
+  lastLoadTime: string;
+  lastSaveTime: string;
 }
 
 // 仓库搜索选项

@@ -3,11 +3,10 @@
  * 负责仓库的创建、更新、删除等基本操作
  */
 
-import { Repository } from './types';
-import type { RepositoryConfig, RepositoryCreateOptions, RepositoryUpdateOptions, RepositoryOperationResult } from './types';
+import type { Repository, RepositoryConfig, RepositoryCreateOptions, RepositoryUpdateOptions, RepositoryOperationResult } from './types';
 import type { Result } from '@/kernels/types';
 import { KernelError } from '@/kernels/types';
-import type { validateRepositoryConfig } from './repository-validator';
+import { validateRepositoryConfig } from './repository-validator';
 
 /**
  * 创建仓库
@@ -18,7 +17,7 @@ export function createRepository(
 ): Result<Repository, KernelError> {
   const config: RepositoryConfig = {
     name: options.name,
-    description: options.description,
+    description: options.description || '',
     modSourceFolders: options.modSourceFolders || [],
     modTargetFolder: options.modTargetFolder || '',
     settings: options.settings || {}

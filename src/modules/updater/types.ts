@@ -19,7 +19,7 @@ export interface UpdateInfo {
   currentVersion: string;
   latestVersion: string;
   hasUpdate: boolean;
-  updateInfo?: VersionInfo;
+  updateInfo: VersionInfo;
   downloadProgress?: number;
   installProgress?: number;
 }
@@ -96,7 +96,7 @@ export interface UpdateStatistics {
 export interface UpdateError {
   code: string;
   message: string;
-  details?: Record<string, unknown>;
+  details: Record<string, unknown>;
   timestamp: string;
 }
 

@@ -69,7 +69,7 @@ const getSettingSectionData = () => {
       }
       
       // 更新配置
-      configService.updateGlobalConfig({ language: value as I18nLocale });
+      configService.setGlobalConfig({ ...globalConfig, language: value as I18nLocale });
       return value;
     }
   };
@@ -103,7 +103,7 @@ const getSettingSectionData = () => {
     onChange: (value: any) => {
       console.log('theme changed:', value);
       setTheme(value as Theme);
-      configService.updateGlobalConfig({ theme: value as Theme });
+      configService.setGlobalConfig({ ...globalConfig, theme: value as Theme });
       return value;
     }
   };
@@ -121,7 +121,7 @@ const getSettingSectionData = () => {
     },
     onChange: (value: any) => {
       console.log('debug mode changed:', value);
-      configService.updateGlobalConfig({ debug: value as boolean });
+      configService.setGlobalConfig({ ...globalConfig, debug: value as boolean });
       return value;
     }
   };
@@ -139,7 +139,7 @@ const getSettingSectionData = () => {
     },
     onChange: (value: any) => {
       console.log('auto update changed:', value);
-      configService.updateGlobalConfig({ autoUpdate: value as boolean });
+      configService.setGlobalConfig({ ...globalConfig, autoUpdate: value as boolean });
       return value;
     }
   };
@@ -157,7 +157,7 @@ const getSettingSectionData = () => {
     },
     onChange: (value: any) => {
       console.log('check updates on start changed:', value);
-      configService.updateGlobalConfig({ checkUpdatesOnStart: value as boolean });
+      configService.setGlobalConfig({ ...globalConfig, checkUpdatesOnStart: value as boolean });
       return value;
     }
   };

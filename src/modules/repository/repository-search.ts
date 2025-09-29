@@ -3,7 +3,7 @@
  * 负责仓库的搜索、过滤和统计功能
  */
 
-import { Repository, RepositoryStatistics } from './types';
+import type { Repository, RepositoryStatistics } from './types';
 import type { RepositorySearchOptions, RepositorySearchResult } from './types';
 
 /**
@@ -82,13 +82,13 @@ export function getRepositoryStatistics(repositories: Repository[]): RepositoryS
   // 找到最常用的仓库
   const mostUsedRepository = repositories
     .filter(repo => repo.lastUsed)
-    .sort((a, b) => new Date(b.lastUsed!).getTime() - new Date(a.lastUsed!).getTime())[0]?.name;
+    .sort((a, b) => new Date(b.lastUsed!).getTime() - new Date(a.lastUsed!).getTime())[0]?.name || '';
   
   // 找到最后活动时间
   const lastActivity = repositories
     .map(repo => [repo.createdAt, repo.updatedAt, repo.lastUsed].filter(Boolean))
     .flat()
-    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] || new Date().toISOString();
+    .sort((a, b) => new Date(b!).getTime() - new Date(a!).getTime())[0] || new Date().toISOString();
 
   return {
     totalRepositories,
@@ -96,6 +96,11 @@ export function getRepositoryStatistics(repositories: Repository[]): RepositoryS
     totalMods,
     averageModsPerRepository: Math.round(averageModsPerRepository * 100) / 100,
     mostUsedRepository,
-    lastActivity
+    lastActivity,
+    globalConfigs: 0,
+    localConfigs: 0,
+    repositoryConfigs: totalRepositories,
+    lastLoadTime: new Date().toISOString(),
+    lastSaveTime: new Date().toISOString()
   };
 }

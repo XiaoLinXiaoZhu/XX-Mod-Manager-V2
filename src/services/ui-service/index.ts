@@ -5,11 +5,11 @@
 
 import { ReactiveStore } from '@/kernels';
 
-import { createRouteConfig, validateRouteConfig, createInitialRouteState, updateRouteState } from '@/modules/router';
-import type { type RouteConfig, type RouteState } from '@/modules/router';
-import { clearAllNotifications, createSuccessNotification, createErrorNotification, createWarningNotification, createInfoNotification } from '@/modules/notification';
+import { createInitialRouteState, updateRouteState } from '@/modules/router';
+import type { RouteConfig, RouteState } from '@/modules/router';
+import { clearAllNotifications } from '@/modules/notification';
 import { createNotificationConfig, validateNotificationConfig, createInitialNotificationState, addNotificationToState, removeNotificationFromState, type NotificationType } from '@/modules/notification';
-import type { type NotificationConfig, type NotificationState } from '@/modules/notification';
+import type { NotificationConfig, NotificationState } from '@/modules/notification';
 import { UiServiceEvent } from './types';
 import type { UiServiceState, UiServiceConfig, UiServiceOptions, UiService as IUiService } from './types';
 import { DEFAULT_UI_SERVICE_CONFIG, DEFAULT_UI_SERVICE_OPTIONS } from './config';
@@ -225,7 +225,6 @@ export function createUiService(
 }
 
 // 创建默认实例
-import { EventEmitter } from '@/kernels';
 export const defaultUiService = new UiService(
   DEFAULT_UI_SERVICE_CONFIG,
   DEFAULT_UI_SERVICE_OPTIONS,

@@ -16,7 +16,6 @@ import { updateModStatusEffect } from './effect';
 import { DEFAULT_MOD_SERVICE_CONFIG, DEFAULT_MOD_SERVICE_OPTIONS } from './config';
 import { mergeModServiceConfig } from './config';
 
-import { TauriFileSystem, EventEmitter } from '@/kernels';
 import { ModOperations } from './mod-operations';
 import { ModSearch } from './mod-search';
 
@@ -292,6 +291,7 @@ export function createModService(
 
 // 创建默认实例
 import { TauriFileSystem, EventEmitter } from '@/kernels';
+
 export const defaultModService = new ModService(
   DEFAULT_MOD_SERVICE_CONFIG,
   DEFAULT_MOD_SERVICE_OPTIONS,

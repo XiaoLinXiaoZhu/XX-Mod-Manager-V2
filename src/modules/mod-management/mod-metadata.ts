@@ -3,8 +3,9 @@
  * 提供 Mod 元数据的创建、验证、转换等纯函数
  */
 
-import { ModMetadata } from './types';
-import type { ModConfig, ModInfo, ModStatus } from './types';
+import type { ModMetadata } from './types';
+import type { ModConfig, ModInfo } from './types';
+import { ModStatus } from './types';
 import type { Result } from '@/kernels/types';
 import { KernelError } from '@/kernels/types';
 
@@ -23,7 +24,7 @@ export function createModMetadata(
     id,
     name: overrides.name || extractModName(location),
     location,
-    url: overrides.url,
+    url: overrides.url || '',
     addDate: overrides.addDate || now,
     jsonVersion: overrides.jsonVersion || 1,
     category: overrides.category,
@@ -68,80 +69,80 @@ export function validateModMetadata(metadata: unknown): Result<ModMetadata, Kern
   }
 
   // 类型验证
-  if (typeof meta.id !== 'string' || meta.id.length === 0) {
+  if (typeof meta['id'] !== 'string' || meta['id'].length === 0) {
     return {
       success: false,
       error: new KernelError(
         'Invalid id: must be a non-empty string',
         'INVALID_ID',
-        { id: meta.id }
+        { id: meta['id'] }
       )
     };
   }
 
-  if (typeof meta.name !== 'string' || meta.name.length === 0) {
+  if (typeof meta['name'] !== 'string' || meta['name'].length === 0) {
     return {
       success: false,
       error: new KernelError(
         'Invalid name: must be a non-empty string',
         'INVALID_NAME',
-        { name: meta.name }
+        { name: meta['name'] }
       )
     };
   }
 
-  if (typeof meta.location !== 'string' || meta.location.length === 0) {
+  if (typeof meta['location'] !== 'string' || meta['location'].length === 0) {
     return {
       success: false,
       error: new KernelError(
         'Invalid location: must be a non-empty string',
         'INVALID_LOCATION',
-        { location: meta.location }
+        { location: meta['location'] }
       )
     };
   }
 
-  if (typeof meta.jsonVersion !== 'number' || meta.jsonVersion < 1) {
+  if (typeof meta['jsonVersion'] !== 'number' || meta['jsonVersion'] < 1) {
     return {
       success: false,
       error: new KernelError(
         'Invalid jsonVersion: must be a number >= 1',
         'INVALID_JSON_VERSION',
-        { jsonVersion: meta.jsonVersion }
+        { jsonVersion: meta['jsonVersion'] }
       )
     };
   }
 
   // 可选字段验证
-  if (meta.url && typeof meta.url !== 'string') {
+  if (meta['url'] && typeof meta['url'] !== 'string') {
     return {
       success: false,
       error: new KernelError(
         'Invalid url: must be a string',
         'INVALID_URL',
-        { url: meta.url }
+        { url: meta['url'] }
       )
     };
   }
 
-  if (meta.tags && !Array.isArray(meta.tags)) {
+  if (meta['tags'] && !Array.isArray(meta['tags'])) {
     return {
       success: false,
       error: new KernelError(
         'Invalid tags: must be an array',
         'INVALID_TAGS',
-        { tags: meta.tags }
+        { tags: meta['tags'] }
       )
     };
   }
 
-  if (meta.hotkeys && !Array.isArray(meta.hotkeys)) {
+  if (meta['hotkeys'] && !Array.isArray(meta['hotkeys'])) {
     return {
       success: false,
       error: new KernelError(
         'Invalid hotkeys: must be an array',
         'INVALID_HOTKEYS',
-        { hotkeys: meta.hotkeys }
+        { hotkeys: meta['hotkeys'] }
       )
     };
   }
