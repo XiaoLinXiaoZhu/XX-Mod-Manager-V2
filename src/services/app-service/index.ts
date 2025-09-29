@@ -219,6 +219,9 @@ export function createAppService(config: AppConfig = DEFAULT_APP_CONFIG): AppSer
   return new AppService(config);
 }
 
+// 创建默认实例
+export const defaultAppService = new AppService();
+
 // 导出类型
 export * from './types';
 export * from './config';

@@ -224,6 +224,14 @@ export function createUiService(
   return new UiService(config, options, eventSystem);
 }
 
+// 创建默认实例
+import { EventEmitter } from '@/kernels';
+export const defaultUiService = new UiService(
+  DEFAULT_UI_SERVICE_CONFIG,
+  DEFAULT_UI_SERVICE_OPTIONS,
+  new EventEmitter()
+);
+
 // 导出类型和配置
 export * from './types';
 export * from './config';

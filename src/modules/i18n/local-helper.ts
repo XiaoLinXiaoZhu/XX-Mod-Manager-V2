@@ -3,9 +3,10 @@
  * 提供国际化相关的纯函数
  */
 
-import { LanguageCode, LocalizationKey, LocalizationValue, LocalizationData, LanguagePack, LocalizationStatistics } from './types';
+import type { LanguageCode, LocalizationKey, LocalizationValue, LocalizationData, LanguagePack, LocalizationStatistics } from './types';
 import type { LocalizationOptions, LocalizationResult, LanguageDetectionResult, LocalizationError } from './types';
-import type { Result, KernelError } from '@/kernels/types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 
 // 默认语言
 const DEFAULT_LANGUAGE: LanguageCode = 'zh-CN';

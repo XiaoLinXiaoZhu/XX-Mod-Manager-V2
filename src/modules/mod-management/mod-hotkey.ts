@@ -4,7 +4,8 @@
  */
 
 import { ModMetadata } from './types';
-import type { Result, KernelError } from '@/kernels/types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 
 // 热键接口
 export interface ModHotkey {

@@ -3,7 +3,8 @@
  * 提供 Mod 源文件夹的增删改查等纯函数
  */
 
-import type { Result, KernelError } from '@/kernels/types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 import type { ExtendedFileSystem } from '@/kernels/file-system';
 
 // 源文件夹信息

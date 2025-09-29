@@ -3,9 +3,10 @@
  * 提供 Mod 应用、移除、状态检查等纯函数
  */
 
-import { ModMetadata } from './types';
+import type { ModMetadata } from './types';
 import type { ModOperationResult, ModApplyOptions, ModStatus } from './types';
-import type { Result, KernelError } from '@/kernels/types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 import type { ExtendedFileSystem } from '@/kernels/file-system';
 
 // Mod 应用状态
@@ -33,12 +34,17 @@ export function checkModAppliedStatus(
 ): ModApplyStatus {
   const isApplied = appliedMods.some(appliedMod => appliedMod.id === mod.id);
   
-  return {
+  const result: ModApplyStatus = {
     isApplied,
     appliedFiles: [], // 这里应该从文件系统获取实际文件列表
-    conflicts: [], // 这里应该检查文件冲突
-    lastApplied: isApplied ? new Date().toISOString() : undefined
+    conflicts: [] // 这里应该检查文件冲突
   };
+  
+  if (isApplied) {
+    result.lastApplied = new Date().toISOString();
+  }
+  
+  return result;
 }
 
 /**

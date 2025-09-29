@@ -4,7 +4,8 @@
  */
 
 import type { NotificationConfig, NotificationState, NotificationType } from './types';
-import type { Result, KernelError } from '@/kernels/types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 
 /**
  * 创建通知配置

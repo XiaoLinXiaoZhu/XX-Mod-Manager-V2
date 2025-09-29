@@ -1,151 +1,109 @@
-// 这是 Tauri 应用的入口文件
-// 这里会初始化 Vue 应用，设置路由和国际化等
-import 'sober';
-import { GlobalConfig, useGlobalConfig } from '@/compat/legacy-bridge';
-import { SubConfig } from '@/compat/legacy-bridge';
+/**
+ * Tauri 应用入口文件
+ * 使用新架构的服务和模块
+ */
 
+import 'sober';
+import { createApp } from 'vue';
+import { createRouter, createWebHistory } from 'vue-router';
+
+// 导入新架构的服务
+import { defaultAppService } from '@/services/app-service';
+import { defaultConfigService } from '@/services/config-service';
+import { defaultModService } from '@/services/mod-service';
+import { defaultPluginService } from '@/services/plugin-service';
+import { defaultUiService } from '@/services/ui-service';
+
+// 导入工具函数
 import { getArgv, type Argv } from '@/kernels/utils';
 import * as path from '@tauri-apps/api/path';
 import { listen } from '@tauri-apps/api/event';
-import { $t_snack } from './shared/composables/use-snack';
 
+// 导入组件
+import App from './App.vue';
+import { createRouteConfig } from '@/modules/router';
 
-//-===============================
-//-🔧 添加事件钩子
-//-===============================
-import { EventSystem, EventType } from './compat/legacy-bridge';
-
-//- 禁用 tab 切换焦点
+// 禁用 tab 切换焦点
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-        e.preventDefault();
-    }
-});
-
-//- 禁用右键菜单
-document.addEventListener('contextmenu', (e) => {
+  if (e.key === 'Tab') {
     e.preventDefault();
+  }
 });
 
-//- 禁用 webview 默认拖拽
-window.addEventListener('dragover', (e) => {
-    e.preventDefault(); // 阻止默认行为，防止 Webview 打开文件
-}, false);
+// 初始化应用
+async function initializeApp() {
+  try {
+    // 初始化服务（这些服务不需要显式初始化）
+    // await defaultAppService.initialize();
+    // await defaultConfigService.initialize();
+    // await defaultModService.initialize();
+    // await defaultPluginService.initialize();
+    // await defaultUiService.initialize();
 
-window.addEventListener('drop', (e) => {
-    e.preventDefault(); // 同样阻止默认行为
-    // 可选：你可以在这里触发你自己的 drop 处理逻辑
-    if (e.dataTransfer && e.dataTransfer.files.length > 0) {
-        console.log('用户拖入了文件:', [...e.dataTransfer.files]);
-        // 这里可以调用你自己的文件处理函数
-    }
-}, false);
+    // 获取命令行参数
+    const argv: Argv = await getArgv();
+    console.log('Application arguments:', argv);
 
+    // 创建路由配置
+    const routeConfig = createRouteConfig();
+    const router = createRouter({
+      history: createWebHistory(),
+      routes: routeConfig
+    });
 
-//--------- wakeUp 事件监听器 ---------
-//-初次打开时展示教程页面
-EventSystem.on(EventType.wakeUp, () => {
-    //debug
-    console.log('wakeUp event triggered');
-});
-EventSystem.on(EventType.wakeUp, async () => {
-    $t_snack("message.hello", "success");
-});
+    // 创建 Vue 应用
+    const app = createApp(App);
+    
+    // 注册服务到全局属性
+    (app.config.globalProperties as any)['$appService'] = defaultAppService;
+    (app.config.globalProperties as any)['$configService'] = defaultConfigService;
+    (app.config.globalProperties as any)['$modService'] = defaultModService;
+    (app.config.globalProperties as any)['$pluginService'] = defaultPluginService;
+    (app.config.globalProperties as any)['$uiService'] = defaultUiService;
 
+    // 使用路由
+    app.use(router);
 
-listen('wake-up', (event) => {
-    // debug
-    console.log('wakeUp event received', event);
-    EventSystem.trigger(EventType.wakeUp);
-});
+    // 挂载应用
+    app.mount('#app');
 
-//-===============================
-//-🔢 argv 解析,加载全局配置
-//-===============================
-const argv: Argv = await getArgv();
-console.log('XXMM Start With Argv:', argv);
+    // 设置事件监听器
+    setupEventListeners();
 
-if (argv.custom_config_folder) {
-    // 全局配置从这里加载
-    await GlobalConfig.loadFrom(await path.resolve(".\\"));
-} else {
-    // 全局配置从默认路径加载
-    await GlobalConfig.loadDefaultConfig();
+    console.log('Application initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize application:', error);
+  }
 }
 
-//-===============================
-//-🔰 vue 和 router 挂载
-//-===============================
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './modules/router';
-import { i18nInstance } from './compat/legacy-bridge';
+// 设置事件监听器
+function setupEventListeners() {
+  // 监听 Tauri 事件
+  listen('tauri://update-available', (event) => {
+    console.log('Update available:', event.payload);
+  });
 
-const vueApp = createApp(App);
+  listen('tauri://update-download-progress', (event) => {
+    console.log('Update download progress:', event.payload);
+  });
 
-vueApp.use(router);
-vueApp.use(i18nInstance);
+  listen('tauri://update-downloaded', (event) => {
+    console.log('Update downloaded:', event.payload);
+  });
 
-vueApp.mount('#app');
+  // 监听应用事件
+  defaultAppService.on('app:ready', () => {
+    console.log('Application is ready');
+  });
 
-//-===============================
-//-🧐 响应Argv参数
-//-===============================
-import { repos, getRepos } from './modules/repository';
-// 如果有 repo 参数，则设置为当前仓库
-await getRepos(); // 确保仓库列表已加载
-if (argv.repo) {
-    if (repos && repos.value.length > 0) {
-        // 找到名称对应的仓库
-        const repo = repos.value.find(r => r.name === argv.repo);
-        if (repo) {
-            const lastUsedGameRepo = GlobalConfig.lastUsedGameRepo;
-            lastUsedGameRepo.value = repo.configLocation;
+  defaultModService.on('mod:loaded', (data: any) => {
+    console.log('Mod loaded:', data);
+  });
 
-            // 加载仓库配置
-            SubConfig.loadFrom(repo.configLocation).then(() => {
-                // 跳转到 modList 页面
-                router.push({ name: 'modList' });
-            }).catch((err) => {
-                console.error('加载仓库配置失败:', err);
-                $t_snack('message.loadRepoConfigFailed', 'error');
-            });
-        } else {
-            console.warn('未找到指定的仓库:', argv.repo);
-        }
-    }
+  defaultConfigService.on('config:changed', (data: any) => {
+    console.log('Config changed:', data);
+  });
 }
 
-//- 初始化完成，各个模块可以开始工作了
-EventSystem.on(EventType.initDone, () => {
-    console.log('XXMM 初始化完成');
-});
-EventSystem.trigger(EventType.initDone);
-
-//- updatecheck
-import { checkForUpdates } from './modules/updater';
-const ifCheckUpdatesOnStart = GlobalConfig.checkUpdatesOnStart;
-EventSystem.on(EventType.wakeUp, async () => {
-// debug
-console.log('MainPage: 监听到唤醒事件，检查更新');
-if (ifCheckUpdatesOnStart.value) {
-    checkForUpdates();
-}
-});
-
-//-================================
-//-🧩 插件加载
-//-================================
-// import IPluginLoader from './core/plugin/PluginLoader';
-// await IPluginLoader.Init().then(() => {
-//     console.log('插件加载完成');
-// }).catch((err) => {
-//     console.error('插件加载失败', err);
-// });
-
-//-================================
-//-🪟 主窗口准备就绪
-//-================================
-import { invoke } from '@tauri-apps/api/core';
-
-invoke('main_window_ready');
+// 启动应用
+initializeApp();

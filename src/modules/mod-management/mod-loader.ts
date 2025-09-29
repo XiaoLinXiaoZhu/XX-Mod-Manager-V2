@@ -5,7 +5,8 @@
 
 import { ModMetadata, ModConflict } from './types';
 import type { ModInfo, ModStatus, ModLoadOptions, ModOperationResult } from './types';
-import type { Result, KernelError } from '@/kernels/types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 import { createModMetadata, validateModMetadata } from './mod-metadata';
 import type { metadataToModInfo } from './mod-metadata';
 

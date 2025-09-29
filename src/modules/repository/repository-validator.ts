@@ -3,9 +3,10 @@
  * 负责仓库配置和数据的验证
  */
 
-import { Repository } from './types';
+import type { Repository } from './types';
 import type { RepositoryConfig, RepositoryValidationResult } from './types';
-import type { Result, KernelError } from '@/kernels/types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 import { 
   validateNonEmptyString, 
   validateStringLength, 
@@ -13,7 +14,7 @@ import {
   validateStringArray 
 } from '@/kernels/validation';
 import { validateObject, validateRequiredField, validateOptionalField } from '@/kernels/validation';
-import { validateDateString, validateOptionalDateString, isValidDate } from '@/kernels/validation';
+import { isValidDate } from '@/kernels/validation';
 
 /**
  * 验证仓库名称
@@ -75,13 +76,13 @@ export function validateRepositoryConfig(config: unknown): Result<RepositoryConf
   }
 
   // 验证 Mod 源文件夹
-  const modSourceFoldersResult = validateStringArray(cfg.modSourceFolders, 'Mod source folders', 1);
+  const modSourceFoldersResult = validateStringArray(cfg['modSourceFolders'], 'Mod source folders', 1);
   if (!modSourceFoldersResult.success) {
     return modSourceFoldersResult;
   }
 
   // 验证 Mod 目标文件夹
-  const modTargetFolderResult = validateNonEmptyString(cfg.modTargetFolder, 'Mod target folder');
+  const modTargetFolderResult = validateNonEmptyString(cfg['modTargetFolder'], 'Mod target folder');
   if (!modTargetFolderResult.success) {
     return modTargetFolderResult;
   }

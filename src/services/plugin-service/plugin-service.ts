@@ -22,7 +22,8 @@ import {
   unloadPlugin, 
   loadPlugins 
 } from '@/kernels/plugin';
-import type { Result, KernelError } from '@/kernels/types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 import { EventEmitter } from '@/kernels/event-system';
 import { ReactiveStore } from '@/kernels/state-manager';
 

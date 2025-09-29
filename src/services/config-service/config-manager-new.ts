@@ -4,7 +4,8 @@
  */
 
 import { DEFAULT_GLOBAL_CONFIG, DEFAULT_LOCAL_CONFIG, DEFAULT_CONFIG_SERVICE_OPTIONS } from './types';
-import type { ConfigType, ConfigValue, GlobalConfig, LocalConfig, RepositoryConfig, ConfigServiceState, ConfigServiceOptions, ConfigLoadOptions, ConfigSaveOptions, ConfigValidationResult, ConfigServiceEventType, ConfigStatistics } from './types';
+import type { ConfigType, ConfigValue, GlobalConfig, LocalConfig, RepositoryConfig, ConfigServiceState, ConfigServiceOptions, ConfigLoadOptions, ConfigSaveOptions, ConfigValidationResult, ConfigStatistics } from './types';
+import { ConfigServiceEventType } from './types';
 import type { Result } from '@/kernels/types';
 import { KernelError } from '@/kernels/types';
 import { EventEmitter } from '@/kernels/event-system';

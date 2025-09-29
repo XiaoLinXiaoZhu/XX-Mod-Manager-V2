@@ -5,9 +5,10 @@
 
 import { UpdateStatus } from './types';
 import type { UpdateInfo, UpdateCheckOptions, UpdateCheckResult, UpdateConfig, VersionInfo } from './types';
-import type { Result, KernelError } from '@/kernels/types';
-import { compareVersions, isVersionNewer, isStableVersion, isPrereleaseVersion } from './version-info';
-import type { validateVersionInfo } from './version-info';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
+import { compareVersions, isStableVersion } from './version-info';
+import { validateVersionInfo } from './version-info';
 
 // 默认更新检查选项
 const DEFAULT_CHECK_OPTIONS: Required<UpdateCheckOptions> = {
@@ -108,79 +109,79 @@ export function validateUpdateConfig(config: unknown): Result<UpdateConfig, Kern
   }
 
   // 验证字段类型
-  if (typeof cfg.checkOnStartup !== 'boolean') {
+  if (typeof cfg['checkOnStartup'] !== 'boolean') {
     return {
       success: false,
       error: new KernelError(
         'checkOnStartup must be a boolean',
         'INVALID_CHECK_ON_STARTUP',
-        { checkOnStartup: cfg.checkOnStartup }
+        { checkOnStartup: cfg['checkOnStartup'] }
       )
     };
   }
 
-  if (typeof cfg.checkInterval !== 'number' || cfg.checkInterval < 0) {
+  if (typeof cfg['checkInterval'] !== 'number' || cfg['checkInterval'] < 0) {
     return {
       success: false,
       error: new KernelError(
         'checkInterval must be a non-negative number',
         'INVALID_CHECK_INTERVAL',
-        { checkInterval: cfg.checkInterval }
+        { checkInterval: cfg['checkInterval'] }
       )
     };
   }
 
-  if (typeof cfg.autoDownload !== 'boolean') {
+  if (typeof cfg['autoDownload'] !== 'boolean') {
     return {
       success: false,
       error: new KernelError(
         'autoDownload must be a boolean',
         'INVALID_AUTO_DOWNLOAD',
-        { autoDownload: cfg.autoDownload }
+        { autoDownload: cfg['autoDownload'] }
       )
     };
   }
 
-  if (typeof cfg.autoInstall !== 'boolean') {
+  if (typeof cfg['autoInstall'] !== 'boolean') {
     return {
       success: false,
       error: new KernelError(
         'autoInstall must be a boolean',
         'INVALID_AUTO_INSTALL',
-        { autoInstall: cfg.autoInstall }
+        { autoInstall: cfg['autoInstall'] }
       )
     };
   }
 
-  if (typeof cfg.updateUrl !== 'string' || cfg.updateUrl.trim().length === 0) {
+  if (typeof cfg['updateUrl'] !== 'string' || cfg['updateUrl'].trim().length === 0) {
     return {
       success: false,
       error: new KernelError(
         'updateUrl must be a non-empty string',
         'INVALID_UPDATE_URL',
-        { updateUrl: cfg.updateUrl }
+        { updateUrl: cfg['updateUrl'] }
       )
     };
   }
 
-  if (cfg.fallbackUrls && !Array.isArray(cfg.fallbackUrls)) {
+  if (cfg['fallbackUrls'] && !Array.isArray(cfg['fallbackUrls'])) {
     return {
       success: false,
       error: new KernelError(
         'fallbackUrls must be an array',
         'INVALID_FALLBACK_URLS',
-        { fallbackUrls: cfg.fallbackUrls }
+        { fallbackUrls: cfg['fallbackUrls'] }
       )
     };
   }
 
-  if (typeof cfg.betaChannel !== 'boolean') {
+  if (typeof cfg['betaChannel'] !== 'boolean') {
     return {
       success: false,
       error: new KernelError(
         'betaChannel must be a boolean',
         'INVALID_BETA_CHANNEL',
-        { betaChannel: cfg.betaChannel }
+        { betaChannel: cfg['betaChannel'] }
       )
     };
   }
@@ -188,13 +189,13 @@ export function validateUpdateConfig(config: unknown): Result<UpdateConfig, Kern
   return {
     success: true,
     data: {
-      checkOnStartup: cfg.checkOnStartup as boolean,
-      checkInterval: cfg.checkInterval as number,
-      autoDownload: cfg.autoDownload as boolean,
-      autoInstall: cfg.autoInstall as boolean,
-      betaChannel: (cfg.betaChannel as boolean) || false,
-      updateUrl: cfg.updateUrl as string,
-      fallbackUrls: (cfg.fallbackUrls as string[]) || []
+      checkOnStartup: cfg['checkOnStartup'] as boolean,
+      checkInterval: cfg['checkInterval'] as number,
+      autoDownload: cfg['autoDownload'] as boolean,
+      autoInstall: cfg['autoInstall'] as boolean,
+      betaChannel: (cfg['betaChannel'] as boolean) || false,
+      updateUrl: cfg['updateUrl'] as string,
+      fallbackUrls: (cfg['fallbackUrls'] as string[]) || []
     }
   };
 }

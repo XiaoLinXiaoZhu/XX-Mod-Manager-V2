@@ -36,19 +36,19 @@ export function validateModServiceConfig(config: unknown): config is ModServiceC
   const configObj = config as Record<string, unknown>;
 
   // 检查必需字段
-  if (!Array.isArray(configObj.modSourceFolders)) {
+  if (!Array.isArray(configObj['modSourceFolders'])) {
     return false;
   }
 
-  if (typeof configObj.modTargetFolder !== 'string') {
+  if (typeof configObj['modTargetFolder'] !== 'string') {
     return false;
   }
 
-  if (typeof configObj.keepModNameAsModFolderName !== 'boolean') {
+  if (typeof configObj['keepModNameAsModFolderName'] !== 'boolean') {
     return false;
   }
 
-  if (typeof configObj.traditionalApply !== 'boolean') {
+  if (typeof configObj['traditionalApply'] !== 'boolean') {
     return false;
   }
 

@@ -5,7 +5,8 @@
 
 import { Repository } from './types';
 import type { RepositoryConfig, RepositoryCreateOptions, RepositoryUpdateOptions, RepositoryOperationResult } from './types';
-import type { Result, KernelError } from '@/kernels/types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 import type { validateRepositoryConfig } from './repository-validator';
 
 /**

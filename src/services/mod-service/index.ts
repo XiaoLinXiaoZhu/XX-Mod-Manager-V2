@@ -290,6 +290,15 @@ export function createModService(
   return new ModService(config, options, fileSystem, eventSystem);
 }
 
+// 创建默认实例
+import { TauriFileSystem, EventEmitter } from '@/kernels';
+export const defaultModService = new ModService(
+  DEFAULT_MOD_SERVICE_CONFIG,
+  DEFAULT_MOD_SERVICE_OPTIONS,
+  new TauriFileSystem(),
+  new EventEmitter()
+);
+
 // 导出类型
 export * from './types';
 export * from './config';

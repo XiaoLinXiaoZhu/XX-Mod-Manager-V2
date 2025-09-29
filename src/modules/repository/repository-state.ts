@@ -3,10 +3,11 @@
  * 负责仓库的激活、停用等状态操作
  */
 
-import { 
+import type { 
   Repository
 } from './types';
-import type { Result, KernelError } from '@/kernels/types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 
 /**
  * 激活仓库

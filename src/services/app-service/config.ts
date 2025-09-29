@@ -27,23 +27,23 @@ export function validateAppConfig(config: unknown): config is AppConfig {
   const configObj = config as Record<string, unknown>;
 
   // 检查必需字段
-  if (typeof configObj.version !== 'string') {
+  if (typeof configObj['version'] !== 'string') {
     return false;
   }
 
-  if (!['development', 'production', 'test'].includes(configObj.environment as string)) {
+  if (!['development', 'production', 'test'].includes(configObj['environment'] as string)) {
     return false;
   }
 
-  if (typeof configObj.debug !== 'boolean') {
+  if (typeof configObj['debug'] !== 'boolean') {
     return false;
   }
 
-  if (typeof configObj.autoUpdate !== 'boolean') {
+  if (typeof configObj['autoUpdate'] !== 'boolean') {
     return false;
   }
 
-  if (typeof configObj.checkUpdatesOnStart !== 'boolean') {
+  if (typeof configObj['checkUpdatesOnStart'] !== 'boolean') {
     return false;
   }
 

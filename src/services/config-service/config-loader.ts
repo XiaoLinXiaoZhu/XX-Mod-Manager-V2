@@ -4,8 +4,9 @@
  */
 
 import { DEFAULT_GLOBAL_CONFIG, DEFAULT_LOCAL_CONFIG } from './types';
-import type { ConfigType, ConfigValue, GlobalConfig, LocalConfig, RepositoryConfig, ConfigServiceState, ConfigLoadOptions, ConfigValidationResult } from './types';
-import type { Result, KernelError } from '@/kernels/types';
+import type { GlobalConfig, LocalConfig, RepositoryConfig, ConfigServiceState, ConfigLoadOptions, ConfigValidationResult } from './types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 import { EventEmitter } from '@/kernels/event-system';
 
 /**
@@ -162,7 +163,7 @@ export class ConfigLoader {
     const warnings: string[] = [];
 
     // 验证必需字段
-    if (!config.version || typeof config.version !== 'string') {
+    if (!config['version'] || typeof config['version'] !== 'string') {
       errors.push('Version is required and must be a string');
     }
 
@@ -189,7 +190,7 @@ export class ConfigLoader {
     const warnings: string[] = [];
 
     // 验证必需字段
-    if (!config.repositoryId || typeof config.repositoryId !== 'string') {
+    if (!config['repositoryId'] || typeof config['repositoryId'] !== 'string') {
       errors.push('Repository ID is required and must be a string');
     }
 

@@ -3,9 +3,10 @@
  * 提供版本相关的纯函数
  */
 
-import { VersionComparison } from './types';
-import type { VersionInfo, UpdateConfig } from './types';
-import type { Result, KernelError } from '@/kernels/types';
+import type { VersionComparison } from './types';
+import type { VersionInfo } from './types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 
 // 版本号正则表达式
 const VERSION_REGEX = /^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9.-]+))?(?:\+([a-zA-Z0-9.-]+))?$/;
@@ -259,77 +260,77 @@ export function validateVersionInfo(info: unknown): Result<VersionInfo, KernelEr
   }
 
   // 验证版本号格式
-  const versionValidation = parseVersion(vi.version as string);
+  const versionValidation = parseVersion(vi['version'] as string);
   if (!versionValidation.success) {
     return versionValidation;
   }
 
   // 验证构建号
-  if (typeof vi.buildNumber !== 'number' || vi.buildNumber < 0) {
+  if (typeof vi['buildNumber'] !== 'number' || vi['buildNumber'] < 0) {
     return {
       success: false,
       error: new KernelError(
         'Build number must be a non-negative number',
         'INVALID_BUILD_NUMBER',
-        { buildNumber: vi.buildNumber }
+        { buildNumber: vi['buildNumber'] }
       )
     };
   }
 
   // 验证发布日期
-  if (typeof vi.releaseDate !== 'string' || !isValidDate(vi.releaseDate)) {
+  if (typeof vi['releaseDate'] !== 'string' || !isValidDate(vi['releaseDate'])) {
     return {
       success: false,
       error: new KernelError(
         'Release date must be a valid date string',
         'INVALID_RELEASE_DATE',
-        { releaseDate: vi.releaseDate }
+        { releaseDate: vi['releaseDate'] }
       )
     };
   }
 
   // 验证下载URL
-  if (typeof vi.downloadUrl !== 'string' || !isValidUrl(vi.downloadUrl)) {
+  if (typeof vi['downloadUrl'] !== 'string' || !isValidUrl(vi['downloadUrl'])) {
     return {
       success: false,
       error: new KernelError(
         'Download URL must be a valid URL',
         'INVALID_DOWNLOAD_URL',
-        { downloadUrl: vi.downloadUrl }
+        { downloadUrl: vi['downloadUrl'] }
       )
     };
   }
 
   // 验证可选字段
-  if (vi.notes && typeof vi.notes !== 'string') {
+  if (vi['notes'] && typeof vi['notes'] !== 'string') {
     return {
       success: false,
       error: new KernelError(
         'Notes must be a string',
         'INVALID_NOTES',
-        { notes: vi.notes }
+        { notes: vi['notes'] }
       )
     };
   }
 
-  if (vi.checksum && typeof vi.checksum !== 'string') {
+  if (vi['checksum'] && typeof vi['checksum'] !== 'string') {
     return {
       success: false,
       error: new KernelError(
         'Checksum must be a string',
         'INVALID_CHECKSUM',
-        { checksum: vi.checksum }
+        { checksum: vi['checksum'] }
       )
     };
   }
 
-  if (vi.size && (typeof vi.size !== 'number' || vi.size < 0)) {
+  if (vi['size'] && (typeof vi['size'] !== 'number' || vi['size'] < 0)) {
     return {
       success: false,
       error: new KernelError(
         'Size must be a non-negative number',
         'INVALID_SIZE',
-        { size: vi.size }
+        { size: vi['size'] }
       )
     };
   }
@@ -337,13 +338,13 @@ export function validateVersionInfo(info: unknown): Result<VersionInfo, KernelEr
   return {
     success: true,
     data: {
-      version: vi.version as string,
-      buildNumber: vi.buildNumber as number,
-      releaseDate: vi.releaseDate as string,
-      notes: (vi.notes as string) || '',
-      downloadUrl: vi.downloadUrl as string,
-      checksum: (vi.checksum as string) || '',
-      size: (vi.size as number) || 0
+      version: vi['version'] as string,
+      buildNumber: vi['buildNumber'] as number,
+      releaseDate: vi['releaseDate'] as string,
+      notes: (vi['notes'] as string) || '',
+      downloadUrl: vi['downloadUrl'] as string,
+      checksum: (vi['checksum'] as string) || '',
+      size: (vi['size'] as number) || 0
     }
   };
 }

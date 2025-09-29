@@ -5,7 +5,8 @@
 
 import { ModMetadata } from './types';
 import type { ModOperationResult, ModApplyOptions } from './types';
-import type { Result, KernelError } from '@/kernels/types';
+import type { Result } from '@/kernels/types';
+import { KernelError } from '@/kernels/types';
 
 /**
  * 检查 Mod 文件是否存在
