@@ -3,7 +3,7 @@
  * 提供 Mod 热键相关的纯函数
  */
 
-import { ModMetadata } from './types';
+import type { ModMetadata } from './types';
 import type { Result } from '@/kernels/types';
 import { KernelError } from '@/kernels/types';
 
@@ -140,7 +140,7 @@ export function validateHotkey(
 
   const hk = hotkey as Record<string, unknown>;
 
-  if (typeof hk.key !== 'string') {
+  if (typeof hk['key'] !== 'string') {
     return {
       success: false,
       error: new KernelError(
@@ -151,7 +151,7 @@ export function validateHotkey(
     };
   }
 
-  if (typeof hk.description !== 'string') {
+  if (typeof hk['description'] !== 'string') {
     return {
       success: false,
       error: new KernelError(
@@ -162,12 +162,12 @@ export function validateHotkey(
     };
   }
 
-  const keyValidation = validateHotkeyKey(hk.key, options);
+  const keyValidation = validateHotkeyKey(hk['key'], options);
   if (!keyValidation.success) {
     return keyValidation;
   }
 
-  const descriptionValidation = validateHotkeyDescription(hk.description, options);
+  const descriptionValidation = validateHotkeyDescription(hk['description'], options);
   if (!descriptionValidation.success) {
     return descriptionValidation;
   }

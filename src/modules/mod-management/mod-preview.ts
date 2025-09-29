@@ -184,7 +184,7 @@ export function validateBase64Image(base64: string): Result<string, KernelError>
     };
   }
 
-  const extension = mimeMatch[1].toLowerCase();
+  const extension = mimeMatch[1]!.toLowerCase();
   if (!SUPPORTED_IMAGE_EXTENSIONS.includes(extension)) {
     return {
       success: false,

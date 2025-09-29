@@ -43,9 +43,9 @@ export interface ModInfo extends ModMetadata {
 // Mod 操作结果
 export interface ModOperationResult {
   success: boolean;
-  message?: string;
+  message: string;
+  modId: string;
   error?: string;
-  modId?: string;
 }
 
 // Mod 加载选项

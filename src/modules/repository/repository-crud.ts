@@ -97,10 +97,10 @@ export function updateRepository(
   // 验证更新后的配置
   const updatedConfig: RepositoryConfig = {
     name: updates.name || repository.name,
-    description: updates.description !== undefined ? updates.description : repository.description,
+    description: updates.description ?? repository.description,
     modSourceFolders: updates.modSourceFolders || repository.modSourceFolders,
     modTargetFolder: updates.modTargetFolder || repository.modTargetFolder,
-    settings: updates.settings || repository.settings || {}
+    settings: updates.settings ?? repository.settings ?? {}
   };
 
   const configValidation = validateRepositoryConfig(updatedConfig);
@@ -117,7 +117,7 @@ export function updateRepository(
     description: validatedConfig.description,
     modSourceFolders: validatedConfig.modSourceFolders,
     modTargetFolder: validatedConfig.modTargetFolder,
-    settings: validatedConfig.settings,
+    settings: validatedConfig.settings || undefined,
     updatedAt: now
   };
 
@@ -148,6 +148,16 @@ export function deleteRepository(
   }
 
   const repository = repositories[repositoryIndex];
+  if (!repository) {
+    return {
+      success: false,
+      error: new KernelError(
+        `Repository not found: ${repositoryId}`,
+        'REPOSITORY_NOT_FOUND',
+        { repositoryId }
+      )
+    };
+  }
   
   return {
     success: true,

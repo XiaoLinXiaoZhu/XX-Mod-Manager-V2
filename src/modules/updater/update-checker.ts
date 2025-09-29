@@ -262,7 +262,7 @@ export function checkForUpdate(
       currentVersion,
       latestVersion: latestVersion.version,
       hasUpdate,
-      updateInfo: hasUpdate ? latestVersion : undefined
+      updateInfo: hasUpdate ? latestVersion : latestVersion
     }
   };
 }
@@ -322,7 +322,7 @@ export function generateUpdateCheckResult(
       error: {
         code: updateCheck.error.code,
         message: updateCheck.error.message,
-        details: updateCheck.error.details,
+        details: updateCheck.error.details || {},
         timestamp: now
       }
     };

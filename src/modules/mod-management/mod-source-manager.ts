@@ -35,7 +35,7 @@ const DEFAULT_SOURCE_FOLDER_OPTIONS: Required<SourceFolderOptions> = {
  */
 export function validateSourceFolderPath(
   path: string,
-  fileSystem: { exists: (path: string) => Promise<boolean>; checkDirectoryExists: (path: string) => Promise<boolean> }
+  fileSystem: { checkFileExists: (path: string) => Promise<boolean>; checkDirectoryExists: (path: string) => Promise<boolean> }
 ): Promise<Result<boolean, KernelError>> {
   return fileSystem.checkDirectoryExists(path)
     .then(exists => ({
@@ -188,7 +188,9 @@ export function updateSourceFolderInfo(
   const updatedFolders = [...existingFolders];
   updatedFolders[folderIndex] = {
     ...updatedFolders[folderIndex],
-    ...updates
+    ...updates,
+    path: updates.path ?? updatedFolders[folderIndex]!.path,
+    name: updates.name ?? updatedFolders[folderIndex]!.name
   };
 
   return {

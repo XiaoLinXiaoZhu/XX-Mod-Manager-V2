@@ -306,11 +306,11 @@ export function calculateIndexStatistics(
   const tags = Object.keys(tagIndex);
 
   const mostUsedCategory = categories.length > 0 
-    ? categories.reduce((a, b) => categoryIndex[a].count > categoryIndex[b].count ? a : b)
+    ? categories.reduce((a, b) => (categoryIndex[a]?.count || 0) > (categoryIndex[b]?.count || 0) ? a : b)
     : '';
 
   const mostUsedTag = tags.length > 0
-    ? tags.reduce((a, b) => tagIndex[a].count > tagIndex[b].count ? a : b)
+    ? tags.reduce((a, b) => (tagIndex[a]?.count || 0) > (tagIndex[b]?.count || 0) ? a : b)
     : '';
 
   const totalModsWithCategories = Object.values(categoryIndex).reduce((sum, data) => sum + data.count, 0);
@@ -349,10 +349,10 @@ export function updateIndex(
   for (const mod of removedMods) {
     // 从分类索引中移除
     if (mod.category && newCategoryIndex[mod.category]) {
-      newCategoryIndex[mod.category].count--;
-      newCategoryIndex[mod.category].mods = newCategoryIndex[mod.category].mods.filter(id => id !== mod.id);
+      newCategoryIndex[mod.category]!.count--;
+      newCategoryIndex[mod.category]!.mods = newCategoryIndex[mod.category]!.mods.filter(id => id !== mod.id);
       
-      if (newCategoryIndex[mod.category].count === 0) {
+      if (newCategoryIndex[mod.category]!.count === 0) {
         delete newCategoryIndex[mod.category];
       }
     }
@@ -379,8 +379,8 @@ export function updateIndex(
       if (!newCategoryIndex[mod.category]) {
         newCategoryIndex[mod.category] = { count: 0, mods: [] };
       }
-      newCategoryIndex[mod.category].count++;
-      newCategoryIndex[mod.category].mods.push(mod.id);
+      newCategoryIndex[mod.category]!.count++;
+      newCategoryIndex[mod.category]!.mods.push(mod.id);
     }
 
     // 添加到标签索引

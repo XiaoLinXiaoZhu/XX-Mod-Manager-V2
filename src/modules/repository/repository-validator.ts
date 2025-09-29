@@ -15,7 +15,7 @@ import {
   validateObject, 
   validateRequiredField, 
   validateOptionalField,
-  isValidDate
+  isValidDate as validateDate
 } from '@/kernels/validation';
 
 /**
@@ -99,7 +99,7 @@ export function validateRepositoryConfig(config: unknown): Result<RepositoryConf
     success: true,
     data: {
       name: nameValidation.data,
-      description: descriptionResult.data as string | undefined,
+      description: descriptionResult.data as string,
       modSourceFolders: modSourceFoldersResult.data,
       modTargetFolder: modTargetFolderResult.data,
       settings: (settingsResult.data as Record<string, unknown>) || {}
@@ -136,15 +136,15 @@ export function validateRepository(repository: Repository): RepositoryValidation
   }
 
   // 验证日期格式
-  if (!repository.createdAt || !isValidDate(repository.createdAt)) {
+  if (!repository.createdAt || !validateDate(repository.createdAt)) {
     errors.push('Invalid creation date');
   }
 
-  if (!repository.updatedAt || !isValidDate(repository.updatedAt)) {
+  if (!repository.updatedAt || !validateDate(repository.updatedAt)) {
     errors.push('Invalid update date');
   }
 
-  if (repository.lastUsed && !isValidDate(repository.lastUsed)) {
+  if (repository.lastUsed && !validateDate(repository.lastUsed)) {
     warnings.push('Invalid last used date');
   }
 

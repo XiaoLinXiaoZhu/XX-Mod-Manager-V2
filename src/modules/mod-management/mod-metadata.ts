@@ -14,7 +14,7 @@ import { KernelError } from '@/kernels/types';
  */
 export function createModMetadata(
   location: string,
-  config: ModConfig,
+  _config: ModConfig,
   overrides: Partial<ModMetadata> = {}
 ): ModMetadata {
   const now = new Date().toISOString();
@@ -27,10 +27,10 @@ export function createModMetadata(
     url: overrides.url || '',
     addDate: overrides.addDate || now,
     jsonVersion: overrides.jsonVersion || 1,
-    category: overrides.category,
+    category: overrides.category || 'uncategorized',
     tags: overrides.tags || [],
-    preview: overrides.preview,
-    description: overrides.description,
+    preview: overrides.preview || '',
+    description: overrides.description || '',
     hotkeys: overrides.hotkeys || [],
     ...overrides
   };

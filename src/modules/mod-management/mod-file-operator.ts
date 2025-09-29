@@ -3,7 +3,7 @@
  * 提供 Mod 文件操作的纯函数
  */
 
-import { ModMetadata } from './types';
+import type { ModMetadata } from './types';
 import type { ModOperationResult, ModApplyOptions } from './types';
 import type { Result } from '@/kernels/types';
 import { KernelError } from '@/kernels/types';
@@ -17,7 +17,7 @@ export function checkModFilesExist(
 ): Promise<Result<boolean, KernelError>> {
   return fileSystem.exists(mod.location)
     .then(exists => ({
-      success: true,
+      success: true as const,
       data: exists
     }))
     .catch(error => ({
@@ -39,7 +39,7 @@ export function getModFileList(
 ): Promise<Result<string[], KernelError>> {
   return fileSystem.listDirectory(mod.location)
     .then(files => ({
-      success: true,
+      success: true as const,
       data: files
     }))
     .catch(error => ({
@@ -65,7 +65,10 @@ export function calculateModSize(
   return getModFileList(mod, fileSystem)
     .then(result => {
       if (!result.success) {
-        return result;
+        return {
+          success: false,
+          error: result.error
+        };
       }
       
       const files = result.data;
@@ -77,7 +80,7 @@ export function calculateModSize(
       
       return Promise.all(sizePromises)
         .then(sizes => ({
-          success: true,
+          success: true as const,
           data: sizes.reduce((total, size) => total + size, 0)
         }));
     })
@@ -168,7 +171,10 @@ export function createModBackup(
     .then(() => getModFileList(mod, fileSystem))
     .then(result => {
       if (!result.success) {
-        return result;
+        return {
+          success: false,
+          error: result.error
+        };
       }
       
       const files = result.data;
@@ -180,7 +186,7 @@ export function createModBackup(
       
       return Promise.all(copyPromises)
         .then(() => ({
-          success: true,
+          success: true as const,
           data: backupPath
         }));
     })
@@ -239,7 +245,7 @@ export function applyMod(
       
       return Promise.all(symlinkPromises)
         .then(() => ({
-          success: true,
+          success: true as const,
           data: {
             success: true,
             message: `Mod applied successfully: ${mod.name}`,
@@ -297,7 +303,7 @@ export function removeMod(
       
       return Promise.all(deletePromises)
         .then(() => ({
-          success: true,
+          success: true as const,
           data: {
             success: true,
             message: `Mod removed successfully: ${mod.name}`,
@@ -329,13 +335,16 @@ export function isModApplied(
   return getModFileList(mod, fileSystem)
     .then(result => {
       if (!result.success) {
-        return result;
+        return {
+          success: false,
+          error: result.error
+        };
       }
       
       const files = result.data;
       if (files.length === 0) {
         return {
-          success: true,
+          success: true as const,
           data: false
         };
       }
@@ -348,7 +357,7 @@ export function isModApplied(
       
       return Promise.all(checkPromises)
         .then(exists => ({
-          success: true,
+          success: true as const,
           data: exists.every(exists => exists)
         }));
     })

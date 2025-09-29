@@ -3,20 +3,18 @@
  * 提供 Mod 加载、验证、冲突检测等纯函数
  */
 
-import { ModMetadata, ModConflict } from './types';
-import type { ModInfo, ModLoadOptions, ModOperationResult } from './types';
+import type { ModMetadata, ModConflict, ModInfo, ModLoadOptions, ModConfig } from './types';
 import { ModStatus } from './types';
 import type { Result } from '@/kernels/types';
 import { KernelError } from '@/kernels/types';
-import { createModMetadata, validateModMetadata } from './mod-metadata';
-import type { metadataToModInfo } from './mod-metadata';
+import { createModMetadata, validateModMetadata, metadataToModInfo } from './mod-metadata';
 
 /**
  * 加载 Mod 元数据
  */
 export function loadModMetadata(
   location: string,
-  config: { keepModNameAsModFolderName: boolean },
+  config: ModConfig,
   options: ModLoadOptions = {}
 ): Result<ModMetadata, KernelError> {
   try {
@@ -52,7 +50,7 @@ export function loadModMetadata(
  */
 export function loadMods(
   locations: string[],
-  config: { keepModNameAsModFolderName: boolean },
+  config: ModConfig,
   options: ModLoadOptions = {}
 ): Result<ModInfo[], KernelError> {
   const mods: ModInfo[] = [];
@@ -96,6 +94,8 @@ export function detectModConflicts(mods: ModInfo[]): ModConflict[] {
       const modA = mods[i];
       const modB = mods[j];
       
+      if (!modA || !modB) continue;
+      
       // 检查文件冲突
       const fileConflicts = detectFileConflicts(modA, modB);
       if (fileConflicts.length > 0) {
@@ -126,7 +126,7 @@ export function detectModConflicts(mods: ModInfo[]): ModConflict[] {
 /**
  * 检测文件冲突
  */
-function detectFileConflicts(modA: ModInfo, modB: ModInfo): string[] {
+function detectFileConflicts(_modA: ModInfo, _modB: ModInfo): string[] {
   // 这里应该实现实际的文件冲突检测逻辑
   // 目前返回空数组作为占位符
   return [];
@@ -135,7 +135,7 @@ function detectFileConflicts(modA: ModInfo, modB: ModInfo): string[] {
 /**
  * 检测依赖冲突
  */
-function detectDependencyConflicts(modA: ModInfo, modB: ModInfo): string[] {
+function detectDependencyConflicts(_modA: ModInfo, _modB: ModInfo): string[] {
   // 这里应该实现实际的依赖冲突检测逻辑
   // 目前返回空数组作为占位符
   return [];
