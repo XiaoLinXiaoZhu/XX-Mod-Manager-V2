@@ -6,6 +6,7 @@
 
 import { Command } from 'commander';
 import { conflictCommand } from './commands/conflict';
+import { parseCommand } from './commands/parse';
 
 const program = new Command();
 
@@ -16,5 +17,6 @@ program
 
 // 注册子命令
 program.addCommand(conflictCommand);
+program.addCommand(parseCommand);
 
 program.parse();
