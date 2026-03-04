@@ -1,6 +1,55 @@
 /**
  * DDS 文件解析器
- * 支持 DXT1/DXT5/BC7 等格式
+ * 
+ * ## DDS 文件格式
+ * 
+ * DDS (DirectDraw Surface) 是 DirectX 纹理格式，结构如下：
+ * 
+ * ```
+ * [Magic: 4B "DDS "]
+ * [Header: 124B]
+ *   - size: 4B (固定 124)
+ *   - flags: 4B
+ *   - height: 4B
+ *   - width: 4B
+ *   - pitchOrLinearSize: 4B
+ *   - depth: 4B
+ *   - mipmapCount: 4B
+ *   - reserved: 44B
+ *   - pixelFormat: 32B
+ *     - fourCC: 4B (如 "DX10", "DXT1", "DXT5")
+ *   - caps: 16B
+ *   - reserved2: 4B
+ * [DX10 Header: 20B] (仅当 fourCC == "DX10")
+ *   - dxgiFormat: 4B (如 98 = BC7_UNORM)
+ *   - resourceDimension: 4B
+ *   - miscFlag: 4B
+ *   - arraySize: 4B
+ *   - miscFlags2: 4B
+ * [Pixel Data]
+ *   - Mipmap 0 (最大)
+ *   - Mipmap 1 (1/2 大小)
+ *   - ...
+ * ```
+ * 
+ * ## BC7 压缩格式
+ * 
+ * 3DMigoto mod 主要使用 BC7 压缩（DXGI_FORMAT_BC7_UNORM = 98）：
+ * - 每 4x4 像素块压缩为 16 字节
+ * - 压缩比约 4:1（相比 RGBA8）
+ * - 质量高，适合复杂纹理
+ * 
+ * ## 为什么不按 BC 块（16B）去重？
+ * 
+ * 最初尝试按 16B BC 块去重，发现：
+ * - 索引开销（hash + metadata）远超数据本身
+ * - 一个 4096x4096 纹理有 100 万个块
+ * - 实际是负收益！
+ * 
+ * 改用 4KB 块（256 个 BC 块）后：
+ * - 索引开销合理
+ * - 去重率仍有 69%
+ * - IO 开销可接受
  */
 
 import type { DdsMetadata } from './types';
