@@ -3,7 +3,7 @@
  */
 
 import { Command } from 'commander';
-import { parseModIni } from '@xxmm/core';
+import { parseIni } from '@xxmm/ini-parser';
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -16,12 +16,7 @@ export const parseCommand = new Command('parse')
   .option('-v, --variables', '只显示变量定义')
   .action(async (modPath: string, options) => {
     try {
-      // 查找所有 ini 文件
-      const entries = await readdir(modPath, { withFileTypes: true });
-      const iniFiles = entries
-        .filter((e) => e.isFile() && e.name.toLowerCase().endsWith('.ini'))
-        .filter((e) => !e.name.includes('DISABLED_BACKUP'))
-        .map((e) => join(modPath, e.name));
+      const iniFiles = await findIniFiles(modPath);
 
       if (iniFiles.length === 0) {
         console.error('❌ 未找到 INI 文件');
@@ -33,10 +28,9 @@ export const parseCommand = new Command('parse')
 
       for (const iniFile of iniFiles) {
         const content = await Bun.file(iniFile).text();
-        const parsed = parseModIni(content, iniFile);
+        const parsed = parseIni(content, iniFile);
 
         if (options.json) {
-          // JSON 输出时需要转换 Set 为数组
           const jsonOutput = {
             ...parsed,
             hashes: Array.from(parsed.hashes),
@@ -50,7 +44,12 @@ export const parseCommand = new Command('parse')
         console.log(`📄 ${fileName}`);
         console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
 
-        // 头部注释（作者信息）
+        // 命名空间
+        if (parsed.namespace) {
+          console.log(`\n🏷️  命名空间: ${parsed.namespace}`);
+        }
+
+        // 头部注释
         if (parsed.headerComments.length > 0 && !options.keys && !options.resources && !options.variables) {
           console.log(`\n💬 注释:`);
           for (const comment of parsed.headerComments.slice(0, 5)) {
@@ -98,6 +97,22 @@ export const parseCommand = new Command('parse')
           }
         }
 
+        // 着色器覆盖
+        if (parsed.shaderOverrides.length > 0 && !options.keys && !options.resources && !options.variables) {
+          console.log(`\n🔮 着色器覆盖 (${parsed.shaderOverrides.length}):`);
+          for (const so of parsed.shaderOverrides) {
+            console.log(`   ${so.sectionName} → ${so.hash}`);
+          }
+        }
+
+        // 着色器正则
+        if (parsed.shaderRegexes.length > 0 && !options.keys && !options.resources && !options.variables) {
+          console.log(`\n⚡ 着色器正则 (${parsed.shaderRegexes.length}):`);
+          for (const sr of parsed.shaderRegexes) {
+            console.log(`   ${sr.sectionName} ${sr.shaderModel ? `(${sr.shaderModel})` : ''}`);
+          }
+        }
+
         // 资源文件
         if (parsed.resources.length > 0 && (!options.keys && !options.variables || options.resources)) {
           const filesResources = parsed.resources.filter((r) => r.filename);
@@ -113,19 +128,14 @@ export const parseCommand = new Command('parse')
           }
         }
 
-        // 自定义着色器
-        if (parsed.customShaders.length > 0 && !options.keys && !options.resources && !options.variables) {
-          console.log(`\n✨ 自定义着色器 (${parsed.customShaders.length}):`);
-          for (const cs of parsed.customShaders) {
-            console.log(`   ${cs.sectionName}`);
+        // 未知 section
+        if (parsed.unknownSections.length > 0 && !options.keys && !options.resources && !options.variables) {
+          console.log(`\n❓ 未识别 section (${parsed.unknownSections.length}):`);
+          for (const s of parsed.unknownSections.slice(0, 5)) {
+            console.log(`   ${s.name}`);
           }
-        }
-
-        // 命令列表
-        if (parsed.commandLists.length > 0 && !options.keys && !options.resources && !options.variables) {
-          console.log(`\n📜 命令列表 (${parsed.commandLists.length}):`);
-          for (const cl of parsed.commandLists) {
-            console.log(`   ${cl.sectionName}`);
+          if (parsed.unknownSections.length > 5) {
+            console.log(`   ... 还有 ${parsed.unknownSections.length - 5} 个`);
           }
         }
 
@@ -137,3 +147,18 @@ export const parseCommand = new Command('parse')
       process.exit(1);
     }
   });
+
+async function findIniFiles(dir: string): Promise<string[]> {
+  const results: string[] = [];
+  const entries = await readdir(dir, { withFileTypes: true });
+  
+  for (const entry of entries) {
+    if (entry.isFile() && entry.name.toLowerCase().endsWith('.ini')) {
+      if (!entry.name.includes('DISABLED_BACKUP')) {
+        results.push(join(dir, entry.name));
+      }
+    }
+  }
+  
+  return results;
+}

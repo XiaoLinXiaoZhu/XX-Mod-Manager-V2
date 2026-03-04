@@ -1,46 +1,55 @@
 /**
  * 3DMigoto INI 文件解析器
- * 完整解析 mod 的 ini 配置文件
+ * 完整支持所有 section 类型
  */
 
 import type {
-  ParsedModIni,
+  ParsedIni,
   RawSection,
   VariableDefinition,
   KeyBinding,
   TextureOverride,
+  ShaderOverride,
+  ShaderRegex,
   ResourceDefinition,
   CommandList,
   CustomShader,
   PresentDefinition,
   DrawCall,
   ConditionalBlock,
-  SectionOperation,
   KeyType,
 } from './types';
 
 // ============================================================================
-// 基础 INI 解析
+// 原始 INI 解析
 // ============================================================================
 
-interface ParsedRawIni {
+interface RawIniResult {
+  namespace?: string;
   headerComments: string[];
   sections: RawSection[];
 }
 
-/**
- * 第一阶段：解析原始 INI 结构
- */
-function parseRawIni(content: string): ParsedRawIni {
+function parseRawIni(content: string): RawIniResult {
   const headerComments: string[] = [];
   const sections: RawSection[] = [];
   let currentSection: RawSection | null = null;
   let inHeader = true;
+  let namespace: string | undefined;
 
   const lines = content.split(/\r?\n/);
 
   for (const line of lines) {
     const trimmed = line.trim();
+
+    // 检测 namespace（文件级别）
+    if (trimmed.toLowerCase().startsWith('namespace')) {
+      const match = trimmed.match(/^namespace\s*=\s*(.+)$/i);
+      if (match) {
+        namespace = match[1].trim();
+        continue;
+      }
+    }
 
     // 收集文件头注释
     if (inHeader && (trimmed.startsWith(';') || trimmed === '')) {
@@ -63,9 +72,10 @@ function parseRawIni(content: string): ParsedRawIni {
       continue;
     }
 
-    // 跳过空行和注释（section 内）
-    if (!trimmed || trimmed.startsWith(';')) {
-      if (currentSection && trimmed.startsWith(';')) {
+    // 跳过空行，保留注释
+    if (!trimmed) continue;
+    if (trimmed.startsWith(';')) {
+      if (currentSection) {
         currentSection.lines.push(trimmed);
       }
       continue;
@@ -78,25 +88,23 @@ function parseRawIni(content: string): ParsedRawIni {
       if (kvMatch) {
         const key = kvMatch[1].trim();
         const value = kvMatch[2].trim();
-        // 保留原始大小写的 key，但也存一份小写版本用于查找
         currentSection.properties[key] = value;
         currentSection.properties[key.toLowerCase()] = value;
       }
     }
   }
 
-  return { headerComments, sections };
+  return { namespace, headerComments, sections };
 }
 
 // ============================================================================
-// Constants 解析
+// Section 解析器
 // ============================================================================
 
 function parseConstants(section: RawSection): VariableDefinition[] {
   const variables: VariableDefinition[] = [];
 
   for (const line of section.lines) {
-    // 匹配: global $var = value 或 global persist $var = value
     const match = line.match(
       /^(global\s+)?(persist\s+)?(global\s+)?\$(\w+)\s*=\s*(.+)$/i
     );
@@ -105,14 +113,11 @@ function parseConstants(section: RawSection): VariableDefinition[] {
       const isPersist = !!match[2];
       const name = match[4];
       const rawValue = match[5].trim();
-
-      // 解析值
       let defaultValue: string | number = rawValue;
       const numValue = parseFloat(rawValue);
       if (!isNaN(numValue)) {
         defaultValue = numValue;
       }
-
       variables.push({
         name,
         scope: isGlobal ? 'global' : 'local',
@@ -124,10 +129,6 @@ function parseConstants(section: RawSection): VariableDefinition[] {
 
   return variables;
 }
-
-// ============================================================================
-// KeyBinding 解析
-// ============================================================================
 
 function parseKeyBinding(section: RawSection): KeyBinding | null {
   const props = section.properties;
@@ -143,9 +144,7 @@ function parseKeyBinding(section: RawSection): KeyBinding | null {
     commands: [],
   };
 
-  // 解析变量修改
   for (const line of section.lines) {
-    // 匹配: $var = value1, value2, ...
     const varMatch = line.match(/^\$(\w+)\s*=\s*(.+)$/);
     if (varMatch) {
       const variable = varMatch[1];
@@ -158,20 +157,14 @@ function parseKeyBinding(section: RawSection): KeyBinding | null {
       binding.variableChanges.push({ variable, values });
     }
 
-    // 匹配: run = CommandList
     const runMatch = line.match(/^run\s*=\s*(.+)$/i);
     if (runMatch) {
-      binding.commands = binding.commands || [];
-      binding.commands.push(runMatch[1].trim());
+      binding.commands!.push(runMatch[1].trim());
     }
   }
 
   return binding;
 }
-
-// ============================================================================
-// TextureOverride 解析
-// ============================================================================
 
 function parseTextureOverride(section: RawSection): TextureOverride | null {
   const props = section.properties;
@@ -194,43 +187,33 @@ function parseTextureOverride(section: RawSection): TextureOverride | null {
     checkTextureOverrides: [],
   };
 
-  // 解析 vertex buffer 绑定 (vb0, vb1, vb2, ...)
   for (const [key, value] of Object.entries(props)) {
     if (/^vb\d+$/i.test(key)) {
       override.vertexBuffers[key.toLowerCase()] = value;
     }
-    // 解析纹理槽位 (ps-t0, ps-t1, ...)
     if (/^ps-t\d+$/i.test(key)) {
       override.textureSlots[key.toLowerCase()] = value;
     }
-    // checktextureoverride
     if (key.toLowerCase() === 'checktextureoverride') {
       override.checkTextureOverrides.push(value);
     }
   }
 
-  // 解析 draw 调用和条件块
   let currentCondition: ConditionalBlock | null = null;
 
   for (const line of section.lines) {
-    // 条件开始
     const ifMatch = line.match(/^(if|elif)\s+(.+)$/i);
     if (ifMatch) {
-      currentCondition = {
-        condition: ifMatch[2],
-        operations: [],
-      };
+      currentCondition = { condition: ifMatch[2], operations: [] };
       override.conditionalBlocks.push(currentCondition);
       continue;
     }
 
-    // 条件结束
     if (/^endif$/i.test(line)) {
       currentCondition = null;
       continue;
     }
 
-    // draw 调用
     const drawMatch = line.match(/^(draw|drawindexed)\s*=\s*(.+)$/i);
     if (drawMatch) {
       const drawCall = parseDrawCall(drawMatch[1], drawMatch[2]);
@@ -255,7 +238,6 @@ function parseDrawCall(type: string, value: string): DrawCall | null {
   if (value.toLowerCase() === 'auto') {
     return { type: type.toLowerCase() as 'draw' | 'drawindexed', count: -1, offset: 0 };
   }
-
   const parts = value.split(',').map((p) => parseInt(p.trim(), 10));
   if (parts.length >= 2) {
     return {
@@ -268,13 +250,73 @@ function parseDrawCall(type: string, value: string): DrawCall | null {
   return null;
 }
 
-// ============================================================================
-// Resource 解析
-// ============================================================================
+function parseShaderOverride(section: RawSection): ShaderOverride | null {
+  const props = section.properties;
+  const hash = props['hash'];
+  if (!hash) return null;
+
+  const override: ShaderOverride = {
+    sectionName: section.name,
+    hash: hash.toLowerCase(),
+    allowDuplicateHash: props['allow_duplicate_hash'],
+    filterIndex: props['filter_index'] ? parseFloat(props['filter_index']) : undefined,
+    handling: props['handling'],
+    assignments: {},
+    run: props['run'],
+  };
+
+  // 收集变量赋值
+  for (const line of section.lines) {
+    const assignMatch = line.match(/^\$(\w+)\s*=\s*(.+)$/);
+    if (assignMatch) {
+      override.assignments[`$${assignMatch[1]}`] = assignMatch[2].trim();
+    }
+  }
+
+  return override;
+}
+
+function parseShaderRegex(
+  section: RawSection,
+  allSections: RawSection[]
+): ShaderRegex {
+  const props = section.properties;
+  const baseName = section.name;
+
+  const regex: ShaderRegex = {
+    sectionName: baseName,
+    shaderModel: props['shader_model'],
+    temps: props['temps'],
+    filterIndex: props['filter_index'] ? parseFloat(props['filter_index']) : undefined,
+    preCommands: [],
+    postCommands: [],
+  };
+
+  // 解析 pre/post 命令
+  for (const line of section.lines) {
+    if (line.toLowerCase().startsWith('pre ')) {
+      regex.preCommands.push(line.slice(4).trim());
+    } else if (line.toLowerCase().startsWith('post ')) {
+      regex.postCommands.push(line.slice(5).trim());
+    }
+  }
+
+  // 查找子段
+  for (const s of allSections) {
+    if (s.name === `${baseName}.Pattern`) {
+      regex.pattern = s.lines.join('\n');
+    } else if (s.name === `${baseName}.InsertDeclarations`) {
+      regex.insertDeclarations = s.lines.join('\n');
+    } else if (s.name === `${baseName}.Pattern.Replace`) {
+      regex.patternReplace = s.lines.join('\n');
+    }
+  }
+
+  return regex;
+}
 
 function parseResource(section: RawSection): ResourceDefinition {
   const props = section.properties;
-
   return {
     sectionName: section.name,
     type: props['type'],
@@ -285,10 +327,6 @@ function parseResource(section: RawSection): ResourceDefinition {
     array: props['array'] ? parseInt(props['array'], 10) : undefined,
   };
 }
-
-// ============================================================================
-// CommandList 解析
-// ============================================================================
 
 function parseCommandList(section: RawSection): CommandList {
   const commandList: CommandList = {
@@ -302,18 +340,15 @@ function parseCommandList(section: RawSection): CommandList {
   let currentCondition: ConditionalBlock | null = null;
 
   for (const line of section.lines) {
-    // pre 命令
     if (line.toLowerCase().startsWith('pre ')) {
       commandList.preCommands.push(line.slice(4).trim());
       continue;
     }
-    // post 命令
     if (line.toLowerCase().startsWith('post ')) {
       commandList.postCommands.push(line.slice(5).trim());
       continue;
     }
 
-    // 条件块
     const ifMatch = line.match(/^(if|elif)\s+(.+)$/i);
     if (ifMatch) {
       currentCondition = { condition: ifMatch[2], operations: [] };
@@ -325,7 +360,6 @@ function parseCommandList(section: RawSection): CommandList {
       continue;
     }
 
-    // 普通命令
     if (!line.startsWith(';')) {
       if (currentCondition) {
         const kvMatch = line.match(/^([^=]+?)\s*=\s*(.*)$/);
@@ -345,10 +379,6 @@ function parseCommandList(section: RawSection): CommandList {
   return commandList;
 }
 
-// ============================================================================
-// CustomShader 解析
-// ============================================================================
-
 function parseCustomShader(section: RawSection): CustomShader {
   const props = section.properties;
   const shader: CustomShader = {
@@ -358,60 +388,64 @@ function parseCustomShader(section: RawSection): CustomShader {
     drawCalls: [],
   };
 
-  // 解析 blend_factor
   const blendFactors: number[] = [];
   for (let i = 0; i < 4; i++) {
     const factor = props[`blend_factor[${i}]`];
-    if (factor) {
-      blendFactors.push(parseFloat(factor));
-    }
+    if (factor) blendFactors.push(parseFloat(factor));
   }
-  if (blendFactors.length > 0) {
-    shader.blendFactor = blendFactors;
-  }
+  if (blendFactors.length > 0) shader.blendFactor = blendFactors;
 
-  // 解析纹理槽位
   for (const [key, value] of Object.entries(props)) {
     if (/^ps-t\d+$/i.test(key)) {
       shader.textureSlots[key.toLowerCase()] = value;
     }
   }
 
-  // 解析 draw 调用
   for (const line of section.lines) {
     const drawMatch = line.match(/^(draw|drawindexed)\s*=\s*(.+)$/i);
     if (drawMatch) {
       const drawCall = parseDrawCall(drawMatch[1], drawMatch[2]);
-      if (drawCall) {
-        shader.drawCalls.push(drawCall);
-      }
+      if (drawCall) shader.drawCalls.push(drawCall);
     }
   }
 
   return shader;
 }
 
-// ============================================================================
-// Present 解析
-// ============================================================================
-
 function parsePresent(section: RawSection): PresentDefinition {
   const present: PresentDefinition = {
     preCommands: [],
     postCommands: [],
     run: [],
+    conditionalBlocks: [],
   };
+
+  let currentCondition: ConditionalBlock | null = null;
 
   for (const line of section.lines) {
     if (line.toLowerCase().startsWith('pre ')) {
       present.preCommands.push(line.slice(4).trim());
-    } else if (line.toLowerCase().startsWith('post ')) {
+      continue;
+    }
+    if (line.toLowerCase().startsWith('post ')) {
       present.postCommands.push(line.slice(5).trim());
-    } else {
-      const runMatch = line.match(/^run\s*=\s*(.+)$/i);
-      if (runMatch) {
-        present.run!.push(runMatch[1].trim());
-      }
+      continue;
+    }
+
+    const ifMatch = line.match(/^(if|elif)\s+(.+)$/i);
+    if (ifMatch) {
+      currentCondition = { condition: ifMatch[2], operations: [] };
+      present.conditionalBlocks.push(currentCondition);
+      continue;
+    }
+    if (/^endif$/i.test(line)) {
+      currentCondition = null;
+      continue;
+    }
+
+    const runMatch = line.match(/^run\s*=\s*(.+)$/i);
+    if (runMatch) {
+      present.run!.push(runMatch[1].trim());
     }
   }
 
@@ -423,24 +457,30 @@ function parsePresent(section: RawSection): PresentDefinition {
 // ============================================================================
 
 /**
- * 完整解析 3DMigoto INI 文件
+ * 解析 3DMigoto INI 文件
  */
-export function parseModIni(content: string, filePath: string = ''): ParsedModIni {
+export function parseIni(content: string, filePath: string = ''): ParsedIni {
   const raw = parseRawIni(content);
 
-  const result: ParsedModIni = {
+  const result: ParsedIni = {
     filePath,
+    namespace: raw.namespace,
     headerComments: raw.headerComments,
     constants: [],
     keyBindings: [],
     present: undefined,
     textureOverrides: [],
+    shaderOverrides: [],
+    shaderRegexes: [],
     resources: [],
     commandLists: [],
     customShaders: [],
     hashes: new Set(),
-    rawSections: [],
+    unknownSections: [],
   };
+
+  // 记录已处理的 ShaderRegex 子段
+  const processedSubSections = new Set<string>();
 
   for (const section of raw.sections) {
     const nameLower = section.name.toLowerCase();
@@ -457,7 +497,7 @@ export function parseModIni(content: string, filePath: string = ''): ParsedModIn
       continue;
     }
 
-    // KeySwap / Key*
+    // Key*
     if (nameLower.startsWith('key')) {
       const binding = parseKeyBinding(section);
       if (binding) {
@@ -474,6 +514,28 @@ export function parseModIni(content: string, filePath: string = ''): ParsedModIn
         result.hashes.add(override.hash);
         continue;
       }
+    }
+
+    // ShaderOverride*
+    if (nameLower.startsWith('shaderoverride')) {
+      const override = parseShaderOverride(section);
+      if (override) {
+        result.shaderOverrides.push(override);
+        result.hashes.add(override.hash);
+        continue;
+      }
+    }
+
+    // ShaderRegex* (跳过子段)
+    if (nameLower.startsWith('shaderregex')) {
+      // 检查是否是子段
+      if (section.name.includes('.')) {
+        processedSubSections.add(section.name);
+        continue;
+      }
+      const regex = parseShaderRegex(section, raw.sections);
+      result.shaderRegexes.push(regex);
+      continue;
     }
 
     // Resource*
@@ -494,79 +556,37 @@ export function parseModIni(content: string, filePath: string = ''): ParsedModIn
       continue;
     }
 
-    // 未识别的 section 保留原始数据
-    result.rawSections.push(section);
+    // 未识别的 section
+    result.unknownSections.push(section);
   }
 
   return result;
 }
 
 // ============================================================================
-// 辅助函数（保持向后兼容）
+// 便捷函数
 // ============================================================================
 
-export interface IniSection {
-  name: string;
-  properties: Record<string, string>;
-}
-
-export interface ParsedIni {
-  sections: IniSection[];
+/**
+ * 从 INI 中提取所有 hash 值
+ */
+export function extractHashes(content: string): Set<string> {
+  const parsed = parseIni(content);
+  return parsed.hashes;
 }
 
 /**
- * 简单解析 INI 文件（向后兼容）
+ * 从 INI 中提取按键绑定
  */
-export function parseIni(content: string): ParsedIni {
-  const raw = parseRawIni(content);
-  return {
-    sections: raw.sections.map((s) => ({
-      name: s.name,
-      properties: s.properties,
-    })),
-  };
+export function extractKeyBindings(content: string): KeyBinding[] {
+  const parsed = parseIni(content);
+  return parsed.keyBindings;
 }
 
 /**
- * 从解析后的 INI 中提取所有 hash 值
+ * 从 INI 中提取变量定义
  */
-export function extractHashes(ini: ParsedIni): Set<string> {
-  const hashes = new Set<string>();
-  for (const section of ini.sections) {
-    const hash = section.properties['hash'];
-    if (hash) {
-      hashes.add(hash.toLowerCase());
-    }
-  }
-  return hashes;
-}
-
-/**
- * 从 INI 中提取 TextureOverride 段的详细信息
- */
-export interface TextureOverrideInfo {
-  sectionName: string;
-  hash: string;
-  matchFirstIndex?: number;
-  handling?: string;
-}
-
-export function extractTextureOverrides(ini: ParsedIni): TextureOverrideInfo[] {
-  const overrides: TextureOverrideInfo[] = [];
-  for (const section of ini.sections) {
-    if (!section.name.toLowerCase().startsWith('textureoverride')) {
-      continue;
-    }
-    const hash = section.properties['hash'];
-    if (!hash) continue;
-    overrides.push({
-      sectionName: section.name,
-      hash: hash.toLowerCase(),
-      matchFirstIndex: section.properties['match_first_index']
-        ? parseInt(section.properties['match_first_index'], 10)
-        : undefined,
-      handling: section.properties['handling'],
-    });
-  }
-  return overrides;
+export function extractVariables(content: string): VariableDefinition[] {
+  const parsed = parseIni(content);
+  return parsed.constants;
 }

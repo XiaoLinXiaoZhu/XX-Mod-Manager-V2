@@ -1,15 +1,13 @@
 {
   "name": "@xxmm/core",
   "version": "0.1.0",
-  "description": "XX Mod Manager 核心库",
+  "description": "XX Mod Manager 核心功能",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
-  "scripts": {
-    "test": "bun test",
-    "typecheck": "tsc --noEmit"
+  "dependencies": {
+    "@xxmm/ini-parser": "workspace:*"
   },
-  "dependencies": {},
   "devDependencies": {
     "typescript": "^5.0.0",
     "@types/bun": "latest"

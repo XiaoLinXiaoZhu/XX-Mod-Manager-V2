@@ -1,0 +1,17 @@
+{
+  "name": "@xxmm/ini-parser",
+  "version": "0.1.0",
+  "description": "3DMigoto INI 文件完整解析器",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["3dmigoto", "ini", "parser", "mod"],
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/bun": "latest"
+  }
+}

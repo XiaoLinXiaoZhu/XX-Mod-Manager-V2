@@ -13,10 +13,11 @@
       "name": "@xxmm/cli",
       "version": "0.1.0",
       "bin": {
-        "xxmm": "src/index.ts",
+        "xxmm": "./src/index.ts",
       },
       "dependencies": {
         "@xxmm/core": "workspace:*",
+        "@xxmm/ini-parser": "workspace:*",
         "commander": "^12.0.0",
       },
       "devDependencies": {
@@ -26,6 +27,17 @@
     },
     "packages/core": {
       "name": "@xxmm/core",
+      "version": "0.1.0",
+      "dependencies": {
+        "@xxmm/ini-parser": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+        "typescript": "^5.0.0",
+      },
+    },
+    "packages/ini-parser": {
+      "name": "@xxmm/ini-parser",
       "version": "0.1.0",
       "devDependencies": {
         "@types/bun": "latest",
@@ -41,6 +53,8 @@
     "@xxmm/cli": ["@xxmm/cli@workspace:packages/cli"],
 
     "@xxmm/core": ["@xxmm/core@workspace:packages/core"],
+
+    "@xxmm/ini-parser": ["@xxmm/ini-parser@workspace:packages/ini-parser"],
 
     "bun-types": ["bun-types@1.3.10", "", { "dependencies": { "@types/node": "*" } }, "sha512-tcpfCCl6XWo6nCVnpcVrxQ+9AYN1iqMIzgrSKYMB/fjLtV2eyAVEg7AxQJuCq/26R6HpKWykQXuSOq/21RYcbg=="],
 

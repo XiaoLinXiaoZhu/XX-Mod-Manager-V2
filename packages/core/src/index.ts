@@ -1,12 +1,9 @@
 /**
- * @xxmm/core - XX Mod Manager 核心库
+ * @xxmm/core - XX Mod Manager 核心功能
  */
 
-// 类型导出
-export * from './types';
-
-// INI 解析
-export * from './ini-parser';
+// 重新导出 ini-parser 的类型和函数
+export * from '@xxmm/ini-parser';
 
 // 冲突检测
 export * from './conflict-detector';
