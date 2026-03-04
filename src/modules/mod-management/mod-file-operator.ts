@@ -298,6 +298,7 @@ export function removeMod(
             if (exists) {
               return fileSystem.deleteFile(targetPath);
             }
+            return Promise.resolve();
           });
       });
       

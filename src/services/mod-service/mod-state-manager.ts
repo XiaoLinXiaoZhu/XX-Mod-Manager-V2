@@ -137,7 +137,11 @@ export class ModStateManager {
     if (modIndex === -1) return;
 
     const updatedMods = [...currentState.mods];
-    updatedMods[modIndex] = { ...updatedMods[modIndex], status: status as any };
+    updatedMods[modIndex] = { 
+      ...updatedMods[modIndex], 
+      status: status as any,
+      conflicts: updatedMods[modIndex].conflicts || []
+    };
 
     this.stateStore.updateState((currentState) => ({
         ...currentState,
@@ -261,12 +265,42 @@ export class ModStateManager {
 
     // 按分类过滤
     if (state.filterCategory) {
-      filteredMods = getModsByCategory(state.filterCategory, state.categoryIndex, filteredMods);
+      const modMetadata = filteredMods.map(mod => ({
+        id: mod.id,
+        name: mod.name,
+        location: mod.location,
+        url: mod.url,
+        addDate: mod.addDate,
+        jsonVersion: mod.jsonVersion,
+        category: mod.category,
+        tags: mod.tags,
+        preview: mod.preview,
+        description: mod.description,
+        hotkeys: mod.hotkeys
+      }));
+      const filteredMetadata = getModsByCategory(state.filterCategory, state.categoryIndex, modMetadata);
+      const filteredIds = new Set(filteredMetadata.map(mod => mod.id));
+      filteredMods = filteredMods.filter(mod => filteredIds.has(mod.id));
     }
 
     // 按标签过滤
     if (state.filterTags.length > 0) {
-      filteredMods = getModsByTagsIntersection(state.filterTags, state.tagIndex, filteredMods);
+      const modMetadata = filteredMods.map(mod => ({
+        id: mod.id,
+        name: mod.name,
+        location: mod.location,
+        url: mod.url,
+        addDate: mod.addDate,
+        jsonVersion: mod.jsonVersion,
+        category: mod.category,
+        tags: mod.tags,
+        preview: mod.preview,
+        description: mod.description,
+        hotkeys: mod.hotkeys
+      }));
+      const filteredMetadata = getModsByTagsIntersection(state.filterTags, state.tagIndex, modMetadata);
+      const filteredIds = new Set(filteredMetadata.map(mod => mod.id));
+      filteredMods = filteredMods.filter(mod => filteredIds.has(mod.id));
     }
 
     return filteredMods;

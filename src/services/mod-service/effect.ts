@@ -313,11 +313,13 @@ export function removeModFromListEffect(
  */
 export async function refreshModEffect(
   mod: ModInfo,
-  config: ModServiceConfig
+  config: ModServiceConfig,
+  fileSystem: TauriFileSystem,
+  eventSystem: EventEmitter
 ): Promise<Result<ModInfo, KernelError>> {
   try {
     // 重新加载 Mod 元数据
-    const loadResult = await loadModsEffect(config, {
+    const loadResult = await loadModsEffect(config, fileSystem, eventSystem, {
       validateMetadata: true,
       checkConflicts: false,
       loadPreview: true
@@ -459,26 +461,10 @@ export async function applyModsBatchEffect(
       }
     }
     
-    const result = {
+    return {
       success: true,
-      data: {
-        success: true,
-        message: `Applied ${results.length} mods successfully`,
-        modId: mods.map(m => m.id).join(',')
-      } as ModOperationResult
+      data: results
     };
-    
-    if (result.success) {
-      return {
-        success: true,
-        data: result.data
-      };
-    } else {
-      return {
-        success: false,
-        error: result.error
-      };
-    }
   } catch (error) {
     return {
       success: false,

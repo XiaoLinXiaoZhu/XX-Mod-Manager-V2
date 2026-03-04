@@ -97,10 +97,10 @@ export function updateRepository(
   // 验证更新后的配置
   const updatedConfig: RepositoryConfig = {
     name: updates.name || repository.name,
-    description: updates.description ?? repository.description,
+    description: updates.description ?? repository.description ?? '',
     modSourceFolders: updates.modSourceFolders || repository.modSourceFolders,
     modTargetFolder: updates.modTargetFolder || repository.modTargetFolder,
-    settings: updates.settings ?? repository.settings
+    settings: updates.settings ?? repository.settings ?? {}
   };
 
   const configValidation = validateRepositoryConfig(updatedConfig);

@@ -60,6 +60,7 @@ export interface ModApplyOptions {
   backup?: boolean;
   force?: boolean;
   dryRun?: boolean;
+  useSymlink?: boolean;
 }
 
 // Mod 搜索选项
