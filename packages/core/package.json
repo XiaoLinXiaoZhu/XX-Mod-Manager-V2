@@ -1,0 +1,17 @@
+{
+  "name": "@xxmm/core",
+  "version": "0.1.0",
+  "description": "XX Mod Manager 核心库",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/bun": "latest"
+  }
+}
