@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "caches": [
+    {
+      "id": "1",
+      "query": "packages/core 的 package.json 配置和导出结构是怎样的？",
+      "tags": [
+        "packages",
+        "core",
+        "package",
+        "json",
+        "配置和导出结构是怎样的"
+      ],
+      "scope": {
+        "directories": "e:/1myProgramFile/electron Files/XX-Mod-Manager-Tauri/packages/core",
+        "file_patterns": "*.json,*.ts",
+        "excludes": "node_modules,dist"
+      },
+      "createdAt": "2026-03-04T18:52:44.374Z",
+      "gitCommit": "96eba01d9a9b6f7b18aad2298a782482fba9555a",
+      "ttlHours": 168,
+      "schema": "{\"type\":\"object\",\"properties\":{\"packageJson\":{\"type\":\"string\"},\"exports\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}"
+    }
+  ]
+}

@@ -9,6 +9,7 @@
   "dependencies": {
     "@xxmm/core": "workspace:*",
     "@xxmm/ini-parser": "workspace:*",
+    "@xxmm/chunk-store": "workspace:*",
     "commander": "^12.0.0"
   },
   "devDependencies": {

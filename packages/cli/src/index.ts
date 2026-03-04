@@ -8,6 +8,7 @@ import { Command } from 'commander';
 import { conflictCommand } from './commands/conflict';
 import { parseCommand } from './commands/parse';
 import { recognizeCommand } from './commands/recognize';
+import { archiveCommand } from './commands/archive';
 
 const program = new Command();
 
@@ -20,5 +21,6 @@ program
 program.addCommand(conflictCommand);
 program.addCommand(parseCommand);
 program.addCommand(recognizeCommand);
+program.addCommand(archiveCommand);
 
 program.parse();

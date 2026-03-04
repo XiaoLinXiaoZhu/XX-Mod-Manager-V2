@@ -150,3 +150,14 @@ export async function saveGameConfig(
 ): Promise<void> {
   await Bun.write(configPath, JSON.stringify(config, null, 2));
 }
+
+/**
+ * 创建默认的 ZZZ 配置（空配置，需要从文件加载）
+ */
+export function createDefaultZZZConfig(): GameConfig {
+  return {
+    id: 'zzz',
+    name: 'Zenless Zone Zero',
+    characters: [],
+  };
+}

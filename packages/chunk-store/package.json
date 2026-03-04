@@ -1,0 +1,17 @@
+{
+  "name": "@xxmm/chunk-store",
+  "version": "0.1.0",
+  "description": "基于内容寻址的 chunk 去重存储",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/bun": "latest"
+  }
+}

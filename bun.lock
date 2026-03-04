@@ -9,6 +9,14 @@
         "typescript": "^5.0.0",
       },
     },
+    "packages/chunk-store": {
+      "name": "@xxmm/chunk-store",
+      "version": "0.1.0",
+      "devDependencies": {
+        "@types/bun": "latest",
+        "typescript": "^5.0.0",
+      },
+    },
     "packages/cli": {
       "name": "@xxmm/cli",
       "version": "0.1.0",
@@ -16,6 +24,7 @@
         "xxmm": "./src/index.ts",
       },
       "dependencies": {
+        "@xxmm/chunk-store": "workspace:*",
         "@xxmm/core": "workspace:*",
         "@xxmm/ini-parser": "workspace:*",
         "commander": "^12.0.0",
@@ -49,6 +58,8 @@
     "@types/bun": ["@types/bun@1.3.10", "", { "dependencies": { "bun-types": "1.3.10" } }, "sha512-0+rlrUrOrTSskibryHbvQkDOWRJwJZqZlxrUs1u4oOoTln8+WIXBPmAuCF35SWB2z4Zl3E84Nl/D0P7803nigQ=="],
 
     "@types/node": ["@types/node@25.3.3", "", { "dependencies": { "undici-types": "~7.18.0" } }, "sha512-DpzbrH7wIcBaJibpKo9nnSQL0MTRdnWttGyE5haGwK86xgMOkFLp7vEyfQPGLOJh5wNYiJ3V9PmUMDhV9u8kkQ=="],
+
+    "@xxmm/chunk-store": ["@xxmm/chunk-store@workspace:packages/chunk-store"],
 
     "@xxmm/cli": ["@xxmm/cli@workspace:packages/cli"],
 

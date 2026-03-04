@@ -1,3 +1,5 @@
+# Auto-generated from .gitignore — adjust as needed.
+# This controls which files the AI cannot access.
 # Logs
 logs
 *.log
@@ -26,7 +28,3 @@ dist-ssr
 
 # data
 data/
-test-archive/*
-test-archive2/*
-test-new/
-test-v3/
