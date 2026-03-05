@@ -48,40 +48,64 @@ bun run scripts/extract-character-hashes.ts
 
 ### 4. Chunk 去重存储 (`@xxmm/chunk-store`) ✅ NEW
 
-基于内容寻址的混合压缩策略，大幅节省存储空间：
+基于内容寻址的混合压缩策略，**Rust 后端**实现高性能去重存储：
 
-| 文件类型 | 压缩策略 | 原理 |
-|----------|----------|------|
-| DDS 纹理 | 4KB chunk 去重 | 相同数据块只存一份 |
-| buf/ib | gzip 压缩 | 二进制数据压缩 |
-| ini/图片 | 原样保留 | 配置和预览文件 |
+#### 技术栈
 
-**测试结果（60 个 mod）：**
-- 原始大小：2036 MB
-- 存储大小：1151 MB
-- **节省空间：885 MB (43.5%)**
+| 组件 | 选择 | 原因 |
+|------|------|------|
+| 并行 | rayon | 零开销抽象，自动负载均衡 |
+| 压缩 | zstd | 比 gzip 快 3-5x，压缩率相当 |
+| Hash | xxh3 | 比 md5 快 10x，128位输出 |
+| 存储 | rusqlite | WAL 模式，批量写入优化 |
+
+#### 性能对比
+
+| 指标 | TypeScript | Rust | 提升 |
+|------|------------|------|------|
+| **批量归档 (177 mod, 30GB)** | 757s | **359s** | **2.1x** |
+| **单个存入 (52MB)** | 1832ms | **310ms** | **5.9x** |
+| **单个提取 (52MB)** | 675ms | **330ms** | **2x** |
+| **存储大小** | 4571 MB | **3820 MB** | **16% 更小** |
+| **去重率** | 85.1% | **86.8%** | +1.7% |
+
+#### 使用方法
+
+**Rust CLI (推荐):**
 
 ```bash
-# 归档单个 mod
-bun run packages/cli/src/index.ts archive add <mod路径> -a <归档目录>
+# 编译
+cd crates/chunk-store-cli && cargo build --release
 
-# 批量归档
-bun run packages/cli/src/index.ts archive batch <mod目录> -a <归档目录>
+# 批量归档 (85 MB/s)
+./target/release/chunk-store-cli batch <mods_dir> -a <archive>
 
-# 解压 mod
-bun run packages/cli/src/index.ts archive extract <modId> <输出目录> -a <归档目录>
+# 单个归档 (310ms)
+./target/release/chunk-store-cli add <mod_path> -a <archive>
 
-# 查看统计
-bun run packages/cli/src/index.ts archive stats -a <归档目录>
+# 解压 (330ms)
+./target/release/chunk-store-cli extract <mod_id> <output> -a <archive>
 
-# 列出所有 mod
-bun run packages/cli/src/index.ts archive list -a <归档目录>
+# 统计
+./target/release/chunk-store-cli stats -a <archive>
+```
 
-# 删除 mod
-bun run packages/cli/src/index.ts archive remove <modId> -a <归档目录>
+**TypeScript API (通过 Rust wrapper):**
 
-# 垃圾回收
-bun run packages/cli/src/index.ts archive gc -a <归档目录>
+```typescript
+import { ModArchive } from '@xxmm/chunk-store';
+
+const archive = new ModArchive('./mod-archive');
+
+// 归档
+await archive.archiveMod('path/to/mod', 'mod-id', 'Mod Name');
+
+// 解压
+await archive.extractMod('mod-id', './output');
+
+// 统计
+const stats = await archive.getStats();
+console.log(`去重率: ${stats.deduplicationRatio * 100}%`);
 ```
 
 ## 项目结构
@@ -90,17 +114,16 @@ bun run packages/cli/src/index.ts archive gc -a <归档目录>
 packages/
 ├── ini-parser/     # INI 解析器
 ├── core/           # 核心功能（冲突检测、角色识别）
-├── chunk-store/    # Chunk 去重存储
+├── chunk-store/    # Chunk 去重存储 (Rust wrapper)
 └── cli/            # 命令行工具
+
+crates/
+├── chunk-store/        # Rust 核心库
+└── chunk-store-cli/    # Rust CLI
 
 data/
 └── game-configs/
     └── zzz.json    # ZZZ 角色 hash 配置
-
-scripts/
-├── extract-character-hashes.ts  # 从 mod 提取角色配置
-├── verify-recognition.ts        # 验证识别准确性
-└── analyze-*.ts                 # 压缩策略分析脚本
 ```
 
 ## 待开发功能
