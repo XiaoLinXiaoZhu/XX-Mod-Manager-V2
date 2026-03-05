@@ -21,7 +21,7 @@ archiveCommand
     
     try {
       console.log(`正在归档: ${modPath}`);
-      const manifest = await archive.archiveMod(
+      const manifest = await archive.archiveModAsync(
         resolve(modPath),
         options.id,
         options.name
@@ -174,7 +174,7 @@ archiveCommand
         const modPath = join(resolve(modsDir), dir.name);
         try {
           process.stdout.write(`归档: ${dir.name}... `);
-          await archive.archiveMod(modPath, dir.name, dir.name);
+          await archive.archiveModAsync(modPath, dir.name, dir.name);
           console.log('✅');
           success++;
         } catch (e) {
