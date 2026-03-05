@@ -225,6 +225,47 @@ export class ChunkStore {
   }
   
   /**
+   * 批量存储预处理的块（已计算 hash 和压缩）
+   * 用于优化：先并行压缩，再批量写入
+   */
+  storeChunksBatch(preparedChunks: { hash: string; compressed: Buffer; originalSize: number }[]): { 
+    hashToIndex: Map<string, number>; 
+    storedSize: number 
+  } {
+    const hashToIndex = new Map<string, number>();
+    let storedSize = 0;
+    
+    const stmtGet = this.db.query<{ ref_count: number }, [string]>('SELECT ref_count FROM chunks WHERE hash = ?');
+    const stmtInsert = this.db.query('INSERT INTO chunks (hash, data, original_size, ref_count) VALUES (?, ?, ?, 1)');
+    const stmtUpdate = this.db.query('UPDATE chunks SET ref_count = ref_count + 1 WHERE hash = ?');
+    
+    this.db.run('BEGIN TRANSACTION');
+    
+    try {
+      for (let i = 0; i < preparedChunks.length; i++) {
+        const { hash, compressed, originalSize } = preparedChunks[i];
+        hashToIndex.set(hash, i);
+        
+        const existing = stmtGet.get(hash);
+        
+        if (existing) {
+          stmtUpdate.run(hash);
+        } else {
+          stmtInsert.run(hash, compressed, originalSize);
+          storedSize += compressed.length;
+        }
+      }
+      
+      this.db.run('COMMIT');
+    } catch (e) {
+      this.db.run('ROLLBACK');
+      throw e;
+    }
+    
+    return { hashToIndex, storedSize };
+  }
+  
+  /**
    * 减少块引用计数
    */
   decrementChunkRefs(hashes: string[]) {
