@@ -118,9 +118,9 @@ archiveCommand
     
     try {
       console.log('正在执行垃圾回收...');
-      const { deletedCount, freedSize } = await archive.gc();
+      const { deletedChunks, freedSize } = await archive.gc();
       console.log(`✅ 完成`);
-      console.log(`   删除块数: ${deletedCount}`);
+      console.log(`   删除块数: ${deletedChunks}`);
       console.log(`   释放空间: ${(freedSize / 1024 / 1024).toFixed(2)} MB`);
     } finally {
       archive.close();

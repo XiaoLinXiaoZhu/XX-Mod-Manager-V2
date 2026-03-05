@@ -46,6 +46,18 @@
  * - ib 去重净收益 40%，也不如压缩
  * - buf/ib 只占总数据量的 6%，优化收益有限
  * 
+ * ### 并发限制
+ * 
+ * 当前实现不支持多进程并发写入同一个归档：
+ * - SQLite WAL 模式支持并发读，但写入仍需串行
+ * - 多进程同时写入会触发 SQLITE_BUSY_SNAPSHOT 错误
+ * - 单进程内的串行写入是安全的
+ * 
+ * 如需多进程并发，可考虑：
+ * - 使用文件锁协调写入
+ * - 使用消息队列串行化写入请求
+ * - 每个进程使用独立归档，最后合并
+ * 
  * ## 存储结构
  * 
  * ```
@@ -105,6 +117,7 @@ export class ChunkStore {
     this.db = new Database(join(basePath, 'store.db'));
     this.db.run('PRAGMA journal_mode = WAL');
     this.db.run('PRAGMA synchronous = NORMAL');
+    this.db.run('PRAGMA busy_timeout = 30000'); // 并发写入时等待最多 30 秒
     this.initSchema();
   }
   

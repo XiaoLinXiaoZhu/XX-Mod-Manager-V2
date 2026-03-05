@@ -26,7 +26,4 @@ dist-ssr
 
 # data
 data/
-test-archive/*
-test-archive2/*
-test-new/
-test-v3/
+temp/
