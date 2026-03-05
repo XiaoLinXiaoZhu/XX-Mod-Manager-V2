@@ -122,11 +122,12 @@ export class ChunkStore {
   }
   
   private initSchema() {
-    // DDS 块存储
+    // DDS 块存储（压缩后的数据）
     this.db.run(`
       CREATE TABLE IF NOT EXISTS chunks (
         hash TEXT PRIMARY KEY,
         data BLOB NOT NULL,
+        original_size INTEGER NOT NULL,
         ref_count INTEGER DEFAULT 1
       )
     `);
@@ -157,7 +158,13 @@ export class ChunkStore {
   // ========== DDS Chunk 操作 ==========
   
   /**
-   * 批量存储 DDS 块
+   * 批量存储 DDS 块（先压缩再存储）
+   * 
+   * 流程：
+   * 1. 计算原始数据的 hash（用于去重）
+   * 2. 检查是否已存在
+   * 3. 如果是新块，gzip 压缩后存储
+   * 4. 如果已存在，增加引用计数
    */
   storeChunks(chunks: Buffer[]): { hashes: string[]; newCount: number; existingCount: number; storedSize: number } {
     const hashes: string[] = [];
@@ -166,13 +173,14 @@ export class ChunkStore {
     let storedSize = 0;
     
     const stmtGet = this.db.query<{ ref_count: number }, [string]>('SELECT ref_count FROM chunks WHERE hash = ?');
-    const stmtInsert = this.db.query('INSERT INTO chunks (hash, data, ref_count) VALUES (?, ?, 1)');
+    const stmtInsert = this.db.query('INSERT INTO chunks (hash, data, original_size, ref_count) VALUES (?, ?, ?, 1)');
     const stmtUpdate = this.db.query('UPDATE chunks SET ref_count = ref_count + 1 WHERE hash = ?');
     
     this.db.run('BEGIN TRANSACTION');
     
     try {
       for (const chunk of chunks) {
+        // 用原始数据计算 hash（保证去重正确性）
         const hash = hashChunk(chunk);
         hashes.push(hash);
         
@@ -182,9 +190,11 @@ export class ChunkStore {
           stmtUpdate.run(hash);
           existingCount++;
         } else {
-          stmtInsert.run(hash, chunk);
+          // 压缩后存储
+          const compressed = compress(chunk);
+          stmtInsert.run(hash, compressed, chunk.length);
           newCount++;
-          storedSize += chunk.length;
+          storedSize += compressed.length;
         }
       }
       
@@ -198,7 +208,7 @@ export class ChunkStore {
   }
   
   /**
-   * 批量读取 DDS 块
+   * 批量读取 DDS 块（读取后解压）
    */
   readChunks(hashes: string[]): Buffer[] {
     const stmt = this.db.query<{ data: Buffer }, [string]>('SELECT data FROM chunks WHERE hash = ?');
@@ -207,7 +217,8 @@ export class ChunkStore {
     for (const hash of hashes) {
       const row = stmt.get(hash);
       if (!row) throw new Error(`Chunk not found: ${hash}`);
-      chunks.push(Buffer.from(row.data));
+      // 解压后返回
+      chunks.push(decompress(Buffer.from(row.data)));
     }
     
     return chunks;
@@ -327,12 +338,14 @@ export class ChunkStore {
   getStats(): StoreStats {
     const chunkStats = this.db.query<{ 
       count: number; 
-      total_size: number; 
+      total_stored: number;
+      total_original: number;
       total_refs: number;
     }, []>(`
       SELECT 
         COUNT(*) as count, 
-        COALESCE(SUM(LENGTH(data)), 0) as total_size,
+        COALESCE(SUM(LENGTH(data)), 0) as total_stored,
+        COALESCE(SUM(original_size), 0) as total_original,
         COALESCE(SUM(ref_count), 0) as total_refs
       FROM chunks
     `).get()!;
@@ -353,9 +366,10 @@ export class ChunkStore {
       'SELECT COUNT(*) as count FROM mods'
     ).get()!.count;
     
-    const avgChunkSize = chunkStats.count > 0 ? chunkStats.total_size / chunkStats.count : 4096;
-    const totalOriginal = chunkStats.total_refs * avgChunkSize + compressedStats.original_size;
-    const totalStored = chunkStats.total_size + compressedStats.compressed_size;
+    // 计算原始大小：每个唯一块的原始大小 * 引用次数
+    const avgOriginalSize = chunkStats.count > 0 ? chunkStats.total_original / chunkStats.count : 4096;
+    const totalOriginal = chunkStats.total_refs * avgOriginalSize + compressedStats.original_size;
+    const totalStored = chunkStats.total_stored + compressedStats.compressed_size;
     
     return {
       totalChunks: chunkStats.total_refs,
