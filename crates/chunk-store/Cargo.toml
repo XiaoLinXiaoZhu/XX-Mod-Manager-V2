@@ -1,0 +1,33 @@
+[package]
+name = "chunk-store"
+version = "0.1.0"
+edition = "2021"
+description = "High-performance chunk-based deduplication storage for mod files"
+
+[dependencies]
+# 并行处理
+rayon = "1.10"
+
+# 压缩 (zstd 比 gzip 快 3-5x)
+zstd = "0.13"
+
+# Hash (xxhash 比 md5 快 10x)
+xxhash-rust = { version = "0.8", features = ["xxh3"] }
+
+# SQLite
+rusqlite = { version = "0.31", features = ["bundled", "blob"] }
+
+# 错误处理
+thiserror = "1.0"
+anyhow = "1.0"
+
+# 文件遍历
+walkdir = "2.5"
+
+# 序列化
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+criterion = "0.5"
+tempfile = "3.10"

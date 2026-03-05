@@ -27,3 +27,4 @@ dist-ssr
 # data
 data/
 temp/
+crates/**/target/
