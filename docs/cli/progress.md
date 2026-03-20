@@ -2,7 +2,7 @@
 
 ## 已完成功能
 
-### 1. INI 解析器 (`@xxmm/ini-parser`)
+### 1. INI 解析器 (`@xxmm/ini-parser`) ✅
 
 完整的 3DMigoto INI 文件解析器，支持所有 section 类型：
 
@@ -22,7 +22,7 @@
 bun run packages/cli/src/index.ts parse <mod路径>
 ```
 
-### 2. 冲突检测 (`@xxmm/core`)
+### 2. 冲突检测 (`@xxmm/core`) ✅
 
 检测多个 mod 之间的 hash 冲突：
 
@@ -30,7 +30,7 @@ bun run packages/cli/src/index.ts parse <mod路径>
 bun run packages/cli/src/index.ts conflict -d <mod目录>
 ```
 
-### 3. 角色识别 (`@xxmm/core`)
+### 3. 角色识别 (`@xxmm/core`) ✅
 
 根据 hash 自动识别 mod 对应的角色：
 
@@ -46,7 +46,7 @@ bun run packages/cli/src/index.ts recognize -d <mod目录> -c data/game-configs/
 bun run scripts/extract-character-hashes.ts
 ```
 
-### 4. Chunk 去重存储 (`@xxmm/chunk-store`) ✅ NEW
+### 4. Chunk 去重存储 (`@xxmm/chunk-store`) ✅
 
 基于内容寻址的混合压缩策略，**Rust 后端**实现高性能去重存储：
 
@@ -108,7 +108,7 @@ const stats = await archive.getStats();
 console.log(`去重率: ${stats.deduplicationRatio * 100}%`);
 ```
 
-### 5. Mod 启用/禁用 (`@xxmm/core` - ModLinker) ✅ NEW
+### 5. Mod 启用/禁用 (`@xxmm/core` - ModLinker) ✅
 
 通过符号链接实现 mod 的启用和禁用，避免传统的文件移动方式：
 
@@ -134,7 +134,7 @@ bun run packages/cli/src/index.ts link status -m <mods目录> -s <存储目录>
 bun run packages/cli/src/index.ts link disable-all -m <mods目录> -s <存储目录>
 ```
 
-### 6. Preset/Pack/Mod 层级管理 (`@xxmm/core` - PresetManager) ✅ NEW
+### 6. Preset/Pack/Mod 层级管理 (`@xxmm/core` - PresetManager) ✅
 
 层级关系: preset >= pack > mod
 
@@ -161,7 +161,7 @@ bun run packages/cli/src/index.ts preset resolve <id>
 bun run packages/cli/src/index.ts preset list
 ```
 
-### 7. 快捷键识别与管理 (`@xxmm/core` - KeyManager) ✅ NEW
+### 7. 快捷键识别与管理 (`@xxmm/core` - KeyManager) ✅
 
 自动从 mod 的 INI 文件中识别快捷键绑定，支持冲突检测和用户覆写：
 
@@ -197,16 +197,20 @@ bun run packages/cli/src/index.ts keys remove-override <modName> <section>
 packages/
 ├── ini-parser/     # INI 解析器
 ├── core/           # 核心功能（冲突检测、角色识别、符号链接管理、层级管理、快捷键管理）
-├── chunk-store/    # Chunk 去重存储 (Rust wrapper)
+├── chunk-store/    # Chunk 去重存储 (TS API + Rust wrapper)
 └── cli/            # 命令行工具
 
 crates/
-├── chunk-store/        # Rust 核心库
+├── chunk-store/        # Rust 核心库（高性能去重压缩）
 └── chunk-store-cli/    # Rust CLI
+
+scripts/
+├── extract-character-hashes.ts  # 从 mod 中提取角色 hash 映射并写入配置
+└── verify-recognition.ts        # 验证角色识别准确性
 
 data/
 └── game-configs/
-    └── zzz.json    # ZZZ 角色 hash 配置
+    └── zzz.json    # ZZZ 角色 hash 配置（26 个角色）
 ```
 
 ## 待开发功能
