@@ -9,6 +9,9 @@ import { conflictCommand } from './commands/conflict';
 import { parseCommand } from './commands/parse';
 import { recognizeCommand } from './commands/recognize';
 import { archiveCommand } from './commands/archive';
+import { linkCommand } from './commands/link';
+import { presetCommand } from './commands/preset';
+import { keysCommand } from './commands/keys';
 
 const program = new Command();
 
@@ -22,5 +25,8 @@ program.addCommand(conflictCommand);
 program.addCommand(parseCommand);
 program.addCommand(recognizeCommand);
 program.addCommand(archiveCommand);
+program.addCommand(linkCommand);
+program.addCommand(presetCommand);
+program.addCommand(keysCommand);
 
 program.parse();
