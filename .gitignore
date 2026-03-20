@@ -28,3 +28,6 @@ dist-ssr
 data/
 temp/
 crates/**/target/
+
+# temp
+.temp/
