@@ -1,5 +1,7 @@
-# CLI 开发进度
-
+# CLI 开发进度
+
+> 完整的产品愿景、功能需求清单和技术决策请参考 [roadmap.md](./roadmap.md)。
+
 ## 已完成功能
 
 ### 1. INI 解析器 (`@xxmm/ini-parser`) ✅
